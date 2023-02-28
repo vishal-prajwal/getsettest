@@ -1,7 +1,13 @@
 package hyperverge
 
+import "bytes"
+
 type Hyperverge interface {
-	ReadDocument(documentType string, hypervergeRequest HypervergeRequest) (*HypervergeResponse, error)
+	readDocument(documentType string, hypervergeRequest HypervergeRequest) (*bytes.Buffer, error)
+	ReadPan(hypervergeRequest HypervergeRequest) (*PanResponse, error)
+	ReadAadhar(hypervergeRequest HypervergeRequest) (*AadharResponse, error)
+	ReadPassport(hypervergeRequest HypervergeRequest) (*PassportResponse, error)
+	ReadVotedID(hypervergeRequest HypervergeRequest) (*VoterIdResponse, error)
 }
 
 type HypervergeConfig interface {
