@@ -50,7 +50,8 @@ func (idfyImpl *IdfyImpl) extract(documentType string, idfyrequest IdfyRequest) 
 	return body, nil
 }
 
-func (idfyImpl *IdfyImpl) ExtractPan(documentType string, idfyrequest IdfyRequest) (*IdfyPanResponse, error) {
+func (idfyImpl *IdfyImpl) ExtractPan(idfyrequest IdfyRequest) (*IdfyPanResponse, error) {
+	documentType := PAN_DOC_TYPE
 	byteResp, err := idfyImpl.extract(documentType, idfyrequest)
 	if err != nil {
 		return nil, err
@@ -60,7 +61,8 @@ func (idfyImpl *IdfyImpl) ExtractPan(documentType string, idfyrequest IdfyReques
 	return &idfyPanResp, err
 }
 
-func (idfyImpl *IdfyImpl) ExtractAadhar(documentType string, idfyrequest IdfyRequest) (*IdfyAadharResponse, error) {
+func (idfyImpl *IdfyImpl) ExtractAadhar(idfyrequest IdfyRequest) (*IdfyAadharResponse, error) {
+	documentType := AADHAR_DOC_TYPE
 	byteResp, err := idfyImpl.extract(documentType, idfyrequest)
 	if err != nil {
 		return nil, err
@@ -70,7 +72,8 @@ func (idfyImpl *IdfyImpl) ExtractAadhar(documentType string, idfyrequest IdfyReq
 	return &idfyAadharResponse, err
 }
 
-func (idfyImpl *IdfyImpl) ExtractDl(documentType string, idfyrequest IdfyRequest) (*IdfyDlResponse, error) {
+func (idfyImpl *IdfyImpl) ExtractDl(idfyrequest IdfyRequest) (*IdfyDlResponse, error) {
+	documentType := DL_DOC_TYPE
 	byteResp, err := idfyImpl.extract(documentType, idfyrequest)
 	if err != nil {
 		return nil, err
@@ -80,7 +83,8 @@ func (idfyImpl *IdfyImpl) ExtractDl(documentType string, idfyrequest IdfyRequest
 	return &idfyDlResponse, err
 }
 
-func (idfyImpl *IdfyImpl) ExtractVoter(documentType string, idfyrequest IdfyRequest) (*IdfyVoterIdResponse, error) {
+func (idfyImpl *IdfyImpl) ExtractVoter(idfyrequest IdfyRequest) (*IdfyVoterIdResponse, error) {
+	documentType := VOTER_DOC_TYPE
 	byteResp, err := idfyImpl.extract(documentType, idfyrequest)
 	if err != nil {
 		return nil, err
@@ -90,7 +94,8 @@ func (idfyImpl *IdfyImpl) ExtractVoter(documentType string, idfyrequest IdfyRequ
 	return &idfyVoterIdResponse, err
 }
 
-func (idfyImpl *IdfyImpl) ExtractPassport(documentType string, idfyrequest IdfyRequest) (*IdfyPassportResponse, error) {
+func (idfyImpl *IdfyImpl) ExtractPassport(idfyrequest IdfyRequest) (*IdfyPassportResponse, error) {
+	documentType := PASSPORT_DOC_TYPE
 	byteResp, err := idfyImpl.extract(documentType, idfyrequest)
 	if err != nil {
 		return nil, err
