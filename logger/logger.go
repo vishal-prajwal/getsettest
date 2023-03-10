@@ -34,9 +34,8 @@ func (c Config) InitiateLogger() error {
 	zapConfig.DisableStacktrace = true
 
 	zapConfig.EncoderConfig = encoderConfig
-	zapLogger, err = zapConfig.Build(zap.AddStacktrace(zapcore.ErrorLevel))
-
 	appNameField.String = c.AppName
+	zapLogger, err = zapConfig.Build(zap.AddStacktrace(zapcore.ErrorLevel), zap.AddCallerSkip(1))
 	return err
 }
 

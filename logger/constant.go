@@ -4,6 +4,7 @@ const (
 	// key constants
 	timeKey      = "TimeStamp"
 	requestIDKey = "RequestID"
+	callerKey    = "caller"
 	appIDKey     = "AppId"
 	userIDKey    = "UserID"
 	uriKey       = "URI"
