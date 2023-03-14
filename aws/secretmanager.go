@@ -1,9 +1,11 @@
 package aws
 
 import (
+	"context"
 	"encoding/json"
 	"strings"
 
+	"bitbucket.org/junglee_games/getsetgo/logger"
 	"github.com/aws/aws-sdk-go/aws/awserr"
 	"github.com/aws/aws-sdk-go/service/secretsmanager"
 	"github.com/pkg/errors"
@@ -18,27 +20,28 @@ type Secrets struct {
 // TODO: return interface from here which has method with fetch with param key to make this generic :)
 func (a AWS) GetFromSM(key string) (Secrets, error) {
 	var secretsVals Secrets
+	var ctx context.Context = context.Background()
 	output, err := a.sm.GetSecretValue(&secretsmanager.GetSecretValueInput{
 		SecretId: &key,
 	})
 	if err != nil {
-		a.log.Println(err.Error())
+		logger.Error(ctx, err.Error())
 		if aerr, ok := err.(awserr.Error); ok {
 			switch aerr.Code() {
 			case secretsmanager.ErrCodeDecryptionFailure:
-				a.log.Println(aerr.Error())
-				a.log.Println("Secrets Manager could not decrypt the secret.")
+				logger.Error(ctx, aerr.Error())
+				logger.Error(ctx, "Secrets Manager could not decrypt the secret.")
 			case secretsmanager.ErrCodeInternalServiceError:
-				a.log.Println(aerr.Error())
-				a.log.Println("Server side error.")
+				logger.Error(ctx, aerr.Error())
+				logger.Error(ctx, "Server side error.")
 			case secretsmanager.ErrCodeInvalidParameterException:
-				a.log.Println(aerr.Error())
-				a.log.Println("Invalid parameter. Check inputs.")
+				logger.Error(ctx, aerr.Error())
+				logger.Error(ctx, "Invalid parameter. Check inputs.")
 			case secretsmanager.ErrCodeInvalidRequestException:
-				a.log.Println(aerr.Error())
+				logger.Error(ctx, aerr.Error())
 			case secretsmanager.ErrCodeResourceNotFoundException:
-				a.log.Println(aerr.Error())
-				a.log.Println("Is your secret name correct?")
+				logger.Error(ctx, aerr.Error())
+				logger.Error(ctx, "Is your secret name correct?")
 			}
 		}
 		return secretsVals, err
