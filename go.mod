@@ -6,6 +6,7 @@ require (
 	github.com/aws/aws-sdk-go v1.44.136
 	github.com/getsentry/sentry-go v0.15.0
 	github.com/go-playground/validator/v10 v10.11.1
+	github.com/go-redis/redis v6.15.9+incompatible
 	github.com/go-redis/redis/v8 v8.11.5
 	github.com/google/uuid v1.3.0
 	github.com/hashicorp/consul/api v1.15.3
@@ -13,23 +14,20 @@ require (
 	github.com/kataras/iris/v12 v12.2.0-beta5
 	github.com/newrelic/go-agent/v3 v3.20.2
 	github.com/newrelic/go-agent/v3/integrations/nrredis-v8 v1.0.0
-	github.com/newrelic/go-agent/v3/integrations/nrzap v1.0.1
 	github.com/pkg/errors v0.9.1
+	github.com/segmentio/kafka-go v0.4.25
 	github.com/stretchr/testify v1.8.1
 	go.uber.org/zap v1.17.0
 )
 
 require (
 	github.com/elastic/elastic-transport-go/v8 v8.0.0-20211216131617-bbee439d559c // indirect
-	github.com/go-redis/redis v6.15.9+incompatible // indirect
-	github.com/gorilla/websocket v1.5.0 // indirect
-	github.com/slack-go/slack v0.12.1 // indirect
+	github.com/pierrec/lz4 v2.6.0+incompatible // indirect
 	go.uber.org/atomic v1.7.0 // indirect
 	go.uber.org/multierr v1.6.0 // indirect
 )
 
 require (
-	bitbucket.org/junglee_games/japi-kafka-elasticsearch-integration v0.0.0-20221129072027-2eb2ef1c3662
 	github.com/BurntSushi/toml v1.2.0 // indirect
 	github.com/CloudyKit/fastprinter v0.0.0-20200109182630-33d98a066a53 // indirect
 	github.com/CloudyKit/jet/v6 v6.1.0 // indirect
@@ -94,7 +92,7 @@ require (
 	golang.org/x/text v0.4.0 // indirect
 	golang.org/x/time v0.0.0-20220922220347-f3bd1da661af // indirect
 	google.golang.org/genproto v0.0.0-20210602131652-f16073e35f0c // indirect
-	google.golang.org/grpc v1.49.0 // indirect
+	google.golang.org/grpc v1.49.0
 	google.golang.org/protobuf v1.28.1 // indirect
 	gopkg.in/ini.v1 v1.67.0 // indirect
 	gopkg.in/yaml.v3 v3.0.1 // indirect
