@@ -50,19 +50,24 @@ func LoadConfig(env, path string, config interface{}) error {
 	return nil
 }
 
+func getValue(a any) reflect.Value {
+	value := reflect.ValueOf(a)
+	if value.Kind() == reflect.Ptr {
+		value = value.Elem()
+	}
+	return value
+}
+
 //to load config from secret manager just implement above interface and attach it to configuration , LoadConfig will automatically determines that this needs to be loaded from secret manager
 func LoadFromSM(sm SM, config interface{}) error {
 	smStructType := reflect.TypeOf((*SMStruct)(nil)).Elem()
-	values := reflect.ValueOf(config)
-	if values.Kind() == reflect.Ptr {
-		values = values.Elem()
-	}
-	if values.Kind() != reflect.Struct {
+	value := getValue(config)
+	if value.Kind() != reflect.Struct {
 		return nil
 	}
-	noOfFields := values.NumField()
+	noOfFields := value.NumField()
 	for i := 0; i < noOfFields; i++ {
-		field := values.Field(i)
+		field := value.Field(i)
 		if field.Type().Implements(smStructType) {
 			if field.IsNil() {
 				logger.Warn(context.Background(), fmt.Sprintf("%s is not set in config ", field.String()))
@@ -71,7 +76,7 @@ func LoadFromSM(sm SM, config interface{}) error {
 			var s SMStruct = field.Interface().(SMStruct)
 			v, err := sm.GetFromSM(s.GetSecretKey())
 			if err != nil {
-				return err
+				return fmt.Errorf("%s => secrete manager error : %s", field.String(), err.Error())
 			}
 			s.SetSecret(v)
 		}
