@@ -20,6 +20,15 @@ type SMStruct interface {
 	SetSecret(aws.Secrets)
 }
 
+func load(sm SM, s SMStruct) error {
+	v, err := sm.GetFromSM(s.GetSecretKey())
+	if err != nil {
+		return fmt.Errorf(" secrete manager error : %s", err.Error())
+	}
+	s.SetSecret(v)
+	return nil
+}
+
 // more general load config function
 func LoadConfig(env, path string, config interface{}) error {
 	logger.Info(context.Background(), path)
@@ -74,15 +83,13 @@ func LoadFromSM(sm SM, config interface{}) error {
 				continue
 			}
 			var s SMStruct = field.Interface().(SMStruct)
-			v, err := sm.GetFromSM(s.GetSecretKey())
-			if err != nil {
-				return fmt.Errorf("%s => secrete manager error : %s", field.String(), err.Error())
+			if err := load(sm, s); err != nil {
+				return fmt.Errorf("%s => %s", field.String(), err.Error())
 			}
-			s.SetSecret(v)
 		}
 		err := LoadFromSM(sm, field.Interface())
 		if err != nil {
-			return fmt.Errorf("%s=>%s", field.String(), err.Error())
+			return fmt.Errorf("%s => %s", field.String(), err.Error())
 		}
 	}
 	return nil

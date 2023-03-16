@@ -11,7 +11,7 @@ import (
 	"github.com/segmentio/kafka-go"
 )
 
-type Key struct {
+type KafkaKey struct {
 	Domain    string `json:"domainName"`
 	DomainId  string `json:"domainId"`
 	EventType string `json:"eventType"`
@@ -20,29 +20,32 @@ type Key struct {
 	Seq       int    `json:"seqNumber"`
 }
 
-type EventPublisher struct {
-	writer *kafka.Writer
-	domain string
+func (s *KafkaKey) Bytes() []byte {
+	bytes, _ := json.Marshal(s)
+	return bytes
 }
 
-func CreatePublisher(brokers []string, domain, topic string) (EventPublisher, error) {
-	var evtPub EventPublisher
+type Publisher struct {
+	writer *kafka.Writer
+}
+
+func NewPublisher(config PublisherConfig) (*Publisher, error) {
+	var evtPub Publisher
 	writer := kafka.NewWriter(kafka.WriterConfig{
-		Brokers: brokers,
-		Topic:   topic,
+		Brokers: config.GetBrokers(),
+		Topic:   config.GetTopic(),
 	})
 	evtPub.writer = writer
-	evtPub.domain = domain
-	return evtPub, nil
+	return &evtPub, nil
 }
 
-func (evtPub EventPublisher) CreateKey(domainId, eventType string, ts time.Time, seq int) (Key, error) {
+func NewKey(domain, domainId, eventType string, ts time.Time, seq int) (*KafkaKey, error) {
 	id, err := uuid.NewRandom()
 	if err != nil {
-		return Key{}, fmt.Errorf("error creating event id: %w", err)
+		return nil, fmt.Errorf("error creating event id: %w", err)
 	}
-	return Key{
-		Domain:    evtPub.domain,
+	return &KafkaKey{
+		Domain:    domain,
 		DomainId:  domainId,
 		EventType: eventType,
 		EventId:   id.String(),
@@ -51,11 +54,12 @@ func (evtPub EventPublisher) CreateKey(domainId, eventType string, ts time.Time,
 	}, nil
 }
 
-func (evtPub EventPublisher) Publish(ctx context.Context, key Key, msg interface{}) error {
+func (evtPub *Publisher) Publish(ctx context.Context, key any, msg any) error {
 	keyVal, err := json.Marshal(key)
 	if err != nil {
 		return fmt.Errorf("error serializing key: %w", err)
 	}
+
 	message, err := json.Marshal(msg)
 	if err != nil {
 		return fmt.Errorf("error serializing message: %w", err)
@@ -63,6 +67,6 @@ func (evtPub EventPublisher) Publish(ctx context.Context, key Key, msg interface
 	return evtPub.writer.WriteMessages(ctx, kafka.Message{Key: keyVal, Value: message})
 }
 
-func (evtPub EventPublisher) Close() {
+func (evtPub *Publisher) Close() {
 	evtPub.writer.Close()
 }

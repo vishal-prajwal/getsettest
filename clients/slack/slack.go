@@ -9,25 +9,21 @@ import (
 )
 
 type SlackClient struct {
-	url     string
-	enabled bool
+	config Config
 }
 
-func NewSlackClient(url string, enabled bool) *SlackClient {
-	return &SlackClient{url, enabled}
+func NewSlackClient(c Config) *SlackClient {
+	return &SlackClient{config: c}
 }
 
 func (s *SlackClient) SendMessage(msg string) error {
-	if !s.enabled {
-		return nil
-	}
 
 	method := "POST"
 	nmsg := fmt.Sprintf(`{"text":"%s"}`, msg)
 	payload := strings.NewReader(nmsg)
 
 	client := &http.Client{}
-	req, err := http.NewRequest(method, s.url, payload)
+	req, err := http.NewRequest(method, s.config.GetURL(), payload)
 
 	if err != nil {
 		return errors.Wrap(err, "creating request")

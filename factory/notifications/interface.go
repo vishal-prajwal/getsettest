@@ -1,12 +1,13 @@
 package notifications
 
+import "bitbucket.org/junglee_games/getsetgo/clients/slack"
+
 type Notifier interface {
 	SendMessage(msg string) error
 }
 
 type Config interface {
-	IsSlackEnabled() bool
-	GetSlackURL() string
+	GetSlackConfig() slack.Config
 }
 
 type UnimplementedConfig struct {
