@@ -1,5 +1,7 @@
 package idfy
 
+import "time"
+
 type IdfyRequest struct {
 	TaskID  string `json:"task_id"`
 	GroupID string `json:"group_id"`
@@ -97,4 +99,24 @@ type IdfyPassportResponse struct {
 	Address         string `json:"address"`
 	Gender          string `json:"gender"`
 	File_number     string `json:"file_number"`
+}
+
+type IdfyResponse struct {
+	Action      string    `json:"action"`
+	CompletedAt time.Time `json:"completed_at"`
+	CreatedAt   time.Time `json:"created_at"`
+	GroupID     string    `json:"group_id"`
+	RequestID   string    `json:"request_id"`
+	Result      Result    `json:"result"`
+	Status      string    `json:"status"`
+	TaskID      string    `json:"task_id"`
+	Type        string    `json:"type"`
+}
+
+type Result struct {
+	IdfyAadharResponse
+	IdfyPanResponse
+	IdfyDlResponse
+	IdfyVoterIdResponse
+	IdfyPassportResponse
 }

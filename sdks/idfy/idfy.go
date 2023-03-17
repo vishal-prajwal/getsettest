@@ -26,7 +26,7 @@ func New(config IdfyConfig, nr newrelic.Agent, client httpclient.HTTPClient) *Id
 	return &idfy
 }
 
-func (idfyImpl *IdfyImpl) extract(documentType string, idfyrequest IdfyRequest) (*bytes.Buffer, error) {
+func (idfyImpl *IdfyImpl) extract(documentType string, idfyrequest IdfyRequest) (*IdfyResponse, error) {
 	url := idfyImpl.config.GetIdfyEndpoint() + documentType
 	reqObj, _ := json.Marshal(idfyrequest)
 	payload := strings.NewReader(string(reqObj))
@@ -47,7 +47,9 @@ func (idfyImpl *IdfyImpl) extract(documentType string, idfyrequest IdfyRequest) 
 		return nil, err
 	}
 	defer res.Body.Close()
-	return body, nil
+	var idfyResp IdfyResponse
+	err = json.Unmarshal(body.Bytes(), &idfyResp)
+	return &idfyResp, err
 }
 
 func (idfyImpl *IdfyImpl) ExtractPan(idfyrequest IdfyRequest) (*IdfyPanResponse, error) {
@@ -56,9 +58,7 @@ func (idfyImpl *IdfyImpl) ExtractPan(idfyrequest IdfyRequest) (*IdfyPanResponse,
 	if err != nil {
 		return nil, err
 	}
-	var idfyPanResp IdfyPanResponse
-	err = json.Unmarshal(byteResp.Bytes(), &idfyPanResp)
-	return &idfyPanResp, err
+	return &byteResp.Result.IdfyPanResponse, err
 }
 
 func (idfyImpl *IdfyImpl) ExtractAadhar(idfyrequest IdfyRequest) (*IdfyAadharResponse, error) {
@@ -67,9 +67,7 @@ func (idfyImpl *IdfyImpl) ExtractAadhar(idfyrequest IdfyRequest) (*IdfyAadharRes
 	if err != nil {
 		return nil, err
 	}
-	var idfyAadharResponse IdfyAadharResponse
-	err = json.Unmarshal(byteResp.Bytes(), &idfyAadharResponse)
-	return &idfyAadharResponse, err
+	return &byteResp.Result.IdfyAadharResponse, err
 }
 
 func (idfyImpl *IdfyImpl) ExtractDl(idfyrequest IdfyRequest) (*IdfyDlResponse, error) {
@@ -78,9 +76,7 @@ func (idfyImpl *IdfyImpl) ExtractDl(idfyrequest IdfyRequest) (*IdfyDlResponse, e
 	if err != nil {
 		return nil, err
 	}
-	var idfyDlResponse IdfyDlResponse
-	err = json.Unmarshal(byteResp.Bytes(), &idfyDlResponse)
-	return &idfyDlResponse, err
+	return &byteResp.Result.IdfyDlResponse, err
 }
 
 func (idfyImpl *IdfyImpl) ExtractVoter(idfyrequest IdfyRequest) (*IdfyVoterIdResponse, error) {
@@ -89,9 +85,7 @@ func (idfyImpl *IdfyImpl) ExtractVoter(idfyrequest IdfyRequest) (*IdfyVoterIdRes
 	if err != nil {
 		return nil, err
 	}
-	var idfyVoterIdResponse IdfyVoterIdResponse
-	err = json.Unmarshal(byteResp.Bytes(), &idfyVoterIdResponse)
-	return &idfyVoterIdResponse, err
+	return &byteResp.Result.IdfyVoterIdResponse, err
 }
 
 func (idfyImpl *IdfyImpl) ExtractPassport(idfyrequest IdfyRequest) (*IdfyPassportResponse, error) {
@@ -100,9 +94,7 @@ func (idfyImpl *IdfyImpl) ExtractPassport(idfyrequest IdfyRequest) (*IdfyPasspor
 	if err != nil {
 		return nil, err
 	}
-	var idfyPassportResponse IdfyPassportResponse
-	err = json.Unmarshal(byteResp.Bytes(), &idfyPassportResponse)
-	return &idfyPassportResponse, err
+	return &byteResp.Result.IdfyPassportResponse, err
 }
 
 func (idfyImpl *IdfyImpl) addHeaders(req *http.Request) {
