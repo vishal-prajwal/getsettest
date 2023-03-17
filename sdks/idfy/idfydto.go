@@ -26,7 +26,7 @@ type IdfyPanResponse struct {
 	Date_of_issue string `json:"date_of_issues"`
 	Age           int    `json:"age"`
 	Minor         int    `json:"minor"`
-	Is_scanned    int    `json:"is_scanned"`
+	Is_scanned    bool    `json:"is_scanned"`
 	Pan_type      int    `json:"pan_type"`
 }
 
@@ -43,7 +43,7 @@ type IdfyAadharResponse struct {
 	District       string `json:"district"`
 	Pincode        string `json:"pincode"`
 	State          string `json:"state"`
-	Is_scanned     int    `json:"is_scanned"`
+	Is_scanned     bool    `json:"is_scanned"`
 }
 
 type IdfyDlResponse struct {
