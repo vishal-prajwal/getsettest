@@ -101,22 +101,82 @@ type IdfyPassportResponse struct {
 	File_number     string `json:"file_number"`
 }
 
-type IdfyResponse struct {
+type PanResponse struct {
 	Action      string    `json:"action"`
 	CompletedAt time.Time `json:"completed_at"`
 	CreatedAt   time.Time `json:"created_at"`
 	GroupID     string    `json:"group_id"`
 	RequestID   string    `json:"request_id"`
-	Result      Result    `json:"result"`
+	Result      ResultPan `json:"result"`
 	Status      string    `json:"status"`
 	TaskID      string    `json:"task_id"`
 	Type        string    `json:"type"`
 }
 
-type Result struct {
-	IdfyAadharResponse
-	IdfyPanResponse
-	IdfyDlResponse
-	IdfyVoterIdResponse
-	IdfyPassportResponse
+type ResultPan struct {
+	ExtractionOutput IdfyPanResponse `json:"extraction_output"`
+}
+
+type AadharResponse struct {
+	Action      string       `json:"action"`
+	CompletedAt time.Time    `json:"completed_at"`
+	CreatedAt   time.Time    `json:"created_at"`
+	GroupID     string       `json:"group_id"`
+	RequestID   string       `json:"request_id"`
+	Result      ResultAadhar `json:"result"`
+	Status      string       `json:"status"`
+	TaskID      string       `json:"task_id"`
+	Type        string       `json:"type"`
+}
+
+type ResultAadhar struct {
+	ExtractionOutput IdfyAadharResponse `json:"extraction_output"`
+}
+
+type PassportResponse struct {
+	Action      string         `json:"action"`
+	CompletedAt time.Time      `json:"completed_at"`
+	CreatedAt   time.Time      `json:"created_at"`
+	GroupID     string         `json:"group_id"`
+	RequestID   string         `json:"request_id"`
+	Result      ResultPassport `json:"result"`
+	Status      string         `json:"status"`
+	TaskID      string         `json:"task_id"`
+	Type        string         `json:"type"`
+}
+
+type ResultPassport struct {
+	ExtractionOutput IdfyPassportResponse `json:"extraction_output"`
+}
+
+type VoterResponse struct {
+	Action      string      `json:"action"`
+	CompletedAt time.Time   `json:"completed_at"`
+	CreatedAt   time.Time   `json:"created_at"`
+	GroupID     string      `json:"group_id"`
+	RequestID   string      `json:"request_id"`
+	Result      ResultVoter `json:"result"`
+	Status      string      `json:"status"`
+	TaskID      string      `json:"task_id"`
+	Type        string      `json:"type"`
+}
+
+type ResultVoter struct {
+	ExtractionOutput IdfyVoterIdResponse `json:"extraction_output"`
+}
+
+type DlResponse struct {
+	Action      string    `json:"action"`
+	CompletedAt time.Time `json:"completed_at"`
+	CreatedAt   time.Time `json:"created_at"`
+	GroupID     string    `json:"group_id"`
+	RequestID   string    `json:"request_id"`
+	Result      ResultDl  `json:"result"`
+	Status      string    `json:"status"`
+	TaskID      string    `json:"task_id"`
+	Type        string    `json:"type"`
+}
+
+type ResultDl struct {
+	ExtractionOutput IdfyDlResponse `json:"extraction_output"`
 }
