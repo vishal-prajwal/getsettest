@@ -5,14 +5,14 @@ import (
 	"fmt"
 	"reflect"
 
-	"bitbucket.org/junglee_games/getsetgo/aws"
+	"bitbucket.org/junglee_games/getsetgo/clients/aws"
 	"bitbucket.org/junglee_games/getsetgo/logger"
 	"github.com/pkg/errors"
 	"github.com/spf13/viper"
 )
 
 type SM interface {
-	GetFromSM(key string) (aws.Secrets, error)
+	GetFromSM(ctx context.Context, key string) (aws.Secrets, error)
 }
 
 type SMStruct interface {
@@ -21,7 +21,7 @@ type SMStruct interface {
 }
 
 func load(sm SM, s SMStruct) error {
-	v, err := sm.GetFromSM(s.GetSecretKey())
+	v, err := sm.GetFromSM(context.Background(), s.GetSecretKey())
 	if err != nil {
 		return fmt.Errorf(" secrete manager error : %s", err.Error())
 	}
@@ -50,11 +50,11 @@ func LoadConfig(env, path string, config interface{}) error {
 	}
 
 	if env != "local" {
-		a, err := aws.New()
+		sm, err := aws.NewSecreteManager()
 		if err != nil {
 			return errors.Wrap(err, "while starting aws for sm")
 		}
-		return LoadFromSM(a, config)
+		return LoadFromSM(sm, config)
 	}
 	return nil
 }

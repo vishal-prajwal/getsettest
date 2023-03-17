@@ -4,7 +4,7 @@ import (
 	"context"
 	"encoding/json"
 
-	"bitbucket.org/junglee_games/getsetgo/aws"
+	"bitbucket.org/junglee_games/getsetgo/clients/aws"
 	"bitbucket.org/junglee_games/getsetgo/config"
 	"bitbucket.org/junglee_games/getsetgo/logger"
 )
@@ -31,7 +31,7 @@ func (c *CBConfig) SetSecret(s aws.Secrets) {
 type SM struct {
 }
 
-func (sm *SM) GetFromSM(key string) (aws.Secrets, error) {
+func (sm *SM) GetFromSM(ctx context.Context, key string) (aws.Secrets, error) {
 	return aws.Secrets{Username: "sm-username", Password: "sm-password", Token: "sm-token"}, nil
 }
 

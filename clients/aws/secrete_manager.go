@@ -32,6 +32,7 @@ func NewSecreteManager() (*SecreteManager, error) {
 type Secrets struct {
 	Username string `json:"username"`
 	Password string `json:"password"`
+	Token    string `json:"token"`
 }
 
 func (sm *SecreteManager) GetFromSM(ctx context.Context, key string) (Secrets, error) {
