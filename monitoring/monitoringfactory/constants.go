@@ -1,5 +1,6 @@
 package monitoringfactory
 
 const (
-	NEWRELIC = "NEWRELIC"
+	NEWRELIC  = "NEWRELIC"
+	NOMONITOR = "NOMONITOR"
 )
