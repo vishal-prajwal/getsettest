@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"sync"
 	"time"
 
 	"github.com/google/uuid"
@@ -25,9 +26,18 @@ func (s *KafkaKey) Bytes() []byte {
 	return bytes
 }
 
+type data struct {
+	ctx   context.Context
+	key   any
+	value any
+}
+
 type Publisher struct {
-	writer *kafka.Writer
-	config PublisherConfig
+	writer     *kafka.Writer
+	ch         chan data
+	responseCh chan error
+	wg         *sync.WaitGroup
+	config     PublisherConfig
 }
 
 func NewPublisher(config PublisherConfig) (*Publisher, error) {
@@ -38,6 +48,13 @@ func NewPublisher(config PublisherConfig) (*Publisher, error) {
 	})
 	evtPub.writer = writer
 	evtPub.config = config
+	evtPub.ch = make(chan data)
+	evtPub.responseCh = make(chan error)
+	evtPub.wg = &sync.WaitGroup{}
+	for i := 0; i < config.GetPublisherCount(); i++ {
+		evtPub.wg.Add(1)
+		go evtPub.startPublisher(evtPub.wg)
+	}
 	return &evtPub, nil
 }
 
@@ -69,6 +86,27 @@ func (evtPub *Publisher) Publish(ctx context.Context, key any, msg any) error {
 	return evtPub.writer.WriteMessages(ctx, kafka.Message{Key: keyVal, Value: message})
 }
 
+func (evtPub *Publisher) GetAsyncPublishResponseChan() chan error {
+	return evtPub.responseCh
+}
+
+func (evtPub *Publisher) PublishAsync(ctx context.Context, key any, msg any) {
+	evtPub.ch <- data{ctx, key, msg}
+}
+
 func (evtPub *Publisher) Close() {
+	close(evtPub.ch)
+	evtPub.wg.Wait()
+	close(evtPub.responseCh)
 	evtPub.writer.Close()
+}
+
+func (evtPub *Publisher) startPublisher(wg *sync.WaitGroup) {
+	for data := range evtPub.ch {
+		err := evtPub.Publish(data.ctx, data.key, data.value)
+		if err != nil {
+			evtPub.responseCh <- err
+		}
+	}
+	wg.Done()
 }
