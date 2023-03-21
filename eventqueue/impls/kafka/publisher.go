@@ -4,7 +4,6 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-	"log"
 	"sync"
 	"time"
 
@@ -104,9 +103,7 @@ func (evtPub *Publisher) Close() {
 
 func (evtPub *Publisher) startPublisher(wg *sync.WaitGroup) {
 	for data := range evtPub.ch {
-		log.Print("received")
 		evtPub.responseCh <- evtPub.Publish(data.ctx, data.key, data.value)
-
 	}
 	wg.Done()
 }
