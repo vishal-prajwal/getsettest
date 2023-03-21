@@ -7,6 +7,7 @@ type DefaultKafkaConfig struct {
 	Topic          string
 	GroupId        string
 	PublisherCount int
+	AsyncQueueSize int
 }
 
 func (c *DefaultKafkaConfig) GetBrokers() []string {
@@ -23,4 +24,8 @@ func (c *DefaultKafkaConfig) GetGroupId() string {
 
 func (c *DefaultKafkaConfig) GetPublisherCount() int {
 	return c.PublisherCount
+}
+
+func (c *DefaultKafkaConfig) GetAsyncQueueSize() int {
+	return c.AsyncQueueSize
 }
