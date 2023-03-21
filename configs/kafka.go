@@ -8,6 +8,8 @@ type DefaultKafkaConfig struct {
 	GroupId        string
 	PublisherCount int
 	AsyncQueueSize int
+	BatchSize      int
+	MaxWaitSeconds int
 }
 
 func (c *DefaultKafkaConfig) GetBrokers() []string {
@@ -28,4 +30,12 @@ func (c *DefaultKafkaConfig) GetPublisherCount() int {
 
 func (c *DefaultKafkaConfig) GetAsyncQueueSize() int {
 	return c.AsyncQueueSize
+}
+
+func (c *DefaultKafkaConfig) GetBatchSize() int {
+	return c.BatchSize
+}
+
+func (c *DefaultKafkaConfig) GetMaxWaitSeconds() int {
+	return c.MaxWaitSeconds
 }
