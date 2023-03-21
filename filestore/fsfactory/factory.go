@@ -7,6 +7,7 @@ import (
 )
 
 type Config interface {
+	GetName() string
 	GetAmazonS3Config() awss3.Config
 	GetLocalFileStoreConfig() localfilestore.Config
 }

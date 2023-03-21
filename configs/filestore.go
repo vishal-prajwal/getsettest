@@ -18,6 +18,7 @@ func (c *DefaultFilestoreConfig) GetName() string {
 func (c *DefaultFilestoreConfig) GetAmazonS3Config() awss3.Config {
 	return &c.AWSS3
 }
+
 func (c *DefaultFilestoreConfig) GetLocalFileStoreConfig() localfilestore.Config {
 	return &c.Local
 }
