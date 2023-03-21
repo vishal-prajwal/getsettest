@@ -4,6 +4,7 @@ type PublisherConfig interface {
 	GetBrokers() []string
 	GetTopic() string
 	GetPublisherCount() int
+	GetAsyncQueueSize() int
 }
 
 type ConsumerConfig interface {

@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"log"
 	"sync"
 	"time"
 
@@ -48,8 +49,8 @@ func NewPublisher(config PublisherConfig) (*Publisher, error) {
 	})
 	evtPub.writer = writer
 	evtPub.config = config
-	evtPub.ch = make(chan data)
-	evtPub.responseCh = make(chan error)
+	evtPub.ch = make(chan data, config.GetAsyncQueueSize())
+	evtPub.responseCh = make(chan error, config.GetAsyncQueueSize())
 	evtPub.wg = &sync.WaitGroup{}
 	for i := 0; i < config.GetPublisherCount(); i++ {
 		evtPub.wg.Add(1)
@@ -86,8 +87,8 @@ func (evtPub *Publisher) Publish(ctx context.Context, key any, msg any) error {
 	return evtPub.writer.WriteMessages(ctx, kafka.Message{Key: keyVal, Value: message})
 }
 
-func (evtPub *Publisher) GetAsyncPublishResponseChan() chan error {
-	return evtPub.responseCh
+func (evtPub *Publisher) GetAsyncPublishResponseChan() *chan error {
+	return &evtPub.responseCh
 }
 
 func (evtPub *Publisher) PublishAsync(ctx context.Context, key any, msg any) {
@@ -103,10 +104,9 @@ func (evtPub *Publisher) Close() {
 
 func (evtPub *Publisher) startPublisher(wg *sync.WaitGroup) {
 	for data := range evtPub.ch {
-		err := evtPub.Publish(data.ctx, data.key, data.value)
-		if err != nil {
-			evtPub.responseCh <- err
-		}
+		log.Print("received")
+		evtPub.responseCh <- evtPub.Publish(data.ctx, data.key, data.value)
+
 	}
 	wg.Done()
 }
