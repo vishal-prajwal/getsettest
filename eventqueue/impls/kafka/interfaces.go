@@ -11,4 +11,7 @@ type ConsumerConfig interface {
 	GetBrokers() []string
 	GetTopic() string
 	GetGroupId() string
+	GetAsyncQueueSize() int
+	GetBatchSize() int
+	GetMaxWaitSeconds() int
 }
