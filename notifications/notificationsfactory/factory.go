@@ -13,18 +13,11 @@ type Config interface {
 	GetName() string
 	GetSlackConfig() slack.Config
 }
-type Factory struct {
-	config Config
-}
 
-func NewNotifierFactory(config Config) *Factory {
-	return &Factory{config: config}
-}
-
-func (f *Factory) GetNotifier(name string) (notifications.Notifier, error) {
-	switch name {
+func GetNotifier(cfg Config) (notifications.Notifier, error) {
+	switch cfg.GetName() {
 	case SLACK:
-		return slack.NewSlackClient(f.config.GetSlackConfig()), nil
+		return slack.NewSlackClient(cfg.GetSlackConfig()), nil
 	case "":
 		logger.Warn(context.Background(), "notifier name is  not provided, notifications will not be sent")
 		return &nonotify.NoNotification{}, nil

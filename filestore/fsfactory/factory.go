@@ -12,20 +12,12 @@ type Config interface {
 	GetLocalFileStoreConfig() localfilestore.Config
 }
 
-type Factory struct {
-	config Config
-}
-
-func NewFileStoreFactory(config Config) *Factory {
-	return &Factory{config: config}
-}
-
-func (fsf *Factory) GetFileStore(name string) (filestore.FileStore, error) {
-	switch name {
+func GetFileStore(cfg Config) (filestore.FileStore, error) {
+	switch cfg.GetName() {
 	case AMAZON_S3:
-		return awss3.NewS3Store(fsf.config.GetAmazonS3Config())
+		return awss3.NewS3Store(cfg.GetAmazonS3Config())
 	case LOCAL_FILE_STORE:
-		return localfilestore.NewLocalFileStore(fsf.config.GetLocalFileStoreConfig()), nil
+		return localfilestore.NewLocalFileStore(cfg.GetLocalFileStoreConfig()), nil
 	}
 
 	return nil, ErrInvalidFileStoreName

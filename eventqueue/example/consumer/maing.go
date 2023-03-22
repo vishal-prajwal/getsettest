@@ -10,7 +10,7 @@ import (
 
 func main() {
 
-	factory := eventqueuefactory.NewEventConsumerFactory(&configs.DefaultConsumerConfig{
+	c, err := eventqueuefactory.GetConsumer(&configs.DefaultConsumerConfig{
 		Kafka: configs.DefaultKafkaConfig{
 			Brokers:        "localhost:29092;localhost:39092",
 			Topic:          "invoices_to_pdf",
@@ -20,7 +20,6 @@ func main() {
 			MaxWaitSeconds: 10,
 		},
 	})
-	c, err := factory.GetConsumer("KAFKA")
 	if err != nil {
 		log.Panic(err)
 	}

@@ -10,8 +10,7 @@ import (
 )
 
 func main() {
-	factory := eventqueuefactory.NewEventPublisherFactory(&configs.DefaultPublisherConfig{Name: "kafka", Kafka: configs.DefaultKafkaConfig{Brokers: "localhost:29092", Topic: "invoices_to_pdf", PublisherCount: 100, AsyncQueueSize: 1000}})
-	kafka, err := factory.GetPublisher("KAFKA")
+	kafka, err := eventqueuefactory.GetPublisher(&configs.DefaultPublisherConfig{Name: "kafka", Kafka: configs.DefaultKafkaConfig{Brokers: "localhost:29092", Topic: "invoices_to_pdf", PublisherCount: 100, AsyncQueueSize: 1000}})
 	if err != nil {
 		log.Panic(err)
 	}

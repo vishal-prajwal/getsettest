@@ -11,18 +11,11 @@ type ConsumerConfig interface {
 	GetName() string
 	GetKafkaConfig() kafka.ConsumerConfig
 }
-type ConsumerFactory struct {
-	config ConsumerConfig
-}
 
-func NewEventConsumerFactory(config ConsumerConfig) *ConsumerFactory {
-	return &ConsumerFactory{config: config}
-}
-
-func (ecf *ConsumerFactory) GetConsumer(name string) (eventqueue.Consumer, error) {
-	switch name {
+func GetConsumer(cfg ConsumerConfig) (eventqueue.Consumer, error) {
+	switch cfg.GetName() {
 	case KAFKA:
-		return kafka.NewConsumer(ecf.config.GetKafkaConfig())
+		return kafka.NewConsumer(cfg.GetKafkaConfig())
 	default:
 		return nil, ErrInvalidConsumerName
 	}
