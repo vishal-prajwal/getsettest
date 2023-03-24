@@ -38,6 +38,7 @@ type Publisher struct {
 	responseCh chan error
 	wg         *sync.WaitGroup
 	config     PublisherConfig
+	maxRetries int
 }
 
 func NewPublisher(config PublisherConfig) (*Publisher, error) {
@@ -47,7 +48,12 @@ func NewPublisher(config PublisherConfig) (*Publisher, error) {
 		Topic:   config.GetTopic(),
 	})
 	evtPub.writer = writer
+	evtPub.maxRetries = config.GetMaxRetries()
+	if evtPub.maxRetries == 0 {
+		evtPub.maxRetries = 1
+	}
 	evtPub.config = config
+
 	evtPub.ch = make(chan data, config.GetAsyncQueueSize())
 	evtPub.responseCh = make(chan error, config.GetAsyncQueueSize())
 	evtPub.wg = &sync.WaitGroup{}
@@ -83,7 +89,7 @@ func (evtPub *Publisher) Publish(ctx context.Context, key any, msg any) error {
 	if err != nil {
 		return fmt.Errorf("error serializing message: %w", err)
 	}
-	retries := evtPub.config.GetMaxRetries()
+	retries := evtPub.maxRetries
 	for retries > 0 {
 		err = evtPub.writer.WriteMessages(ctx, kafka.Message{Key: keyVal, Value: message})
 		if err != nil {
