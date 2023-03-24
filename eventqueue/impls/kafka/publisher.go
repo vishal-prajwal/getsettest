@@ -83,7 +83,17 @@ func (evtPub *Publisher) Publish(ctx context.Context, key any, msg any) error {
 	if err != nil {
 		return fmt.Errorf("error serializing message: %w", err)
 	}
-	return evtPub.writer.WriteMessages(ctx, kafka.Message{Key: keyVal, Value: message})
+	retries := evtPub.config.GetMaxRetries()
+	for retries > 0 {
+		err = evtPub.writer.WriteMessages(ctx, kafka.Message{Key: keyVal, Value: message})
+		if err != nil {
+			time.Sleep(time.Second)
+			continue
+		}
+		break
+	}
+	return err
+
 }
 
 func (evtPub *Publisher) GetAsyncPublishResponseChan() *chan error {

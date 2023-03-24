@@ -5,6 +5,7 @@ type PublisherConfig interface {
 	GetTopic() string
 	GetPublisherCount() int
 	GetAsyncQueueSize() int
+	GetMaxRetries() int
 }
 
 type ConsumerConfig interface {
