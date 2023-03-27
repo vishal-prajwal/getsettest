@@ -8,245 +8,273 @@ type HypervergeRequest struct {
 }
 
 type HypervergePanResponse struct {
-	Date struct {
-		Value string `json:"value"`
-		Conf  string `json:"conf"`
-	} `json:"date"`
-	Father struct {
-		Value string `json:"value"`
-		Conf  string `json:"conf"`
-	} `json:"father"`
-	Name struct {
-		Value string `json:"value"`
-		Conf  string `json:"conf"`
-	} `json:"name"`
-	PanNo struct {
-		Value string `json:"value"`
-		Conf  string `json:"conf"`
-	} `json:"pan_no"`
-	DateOfIssue struct {
-		Value string `json:"value"`
-		Conf  string `json:"conf"`
-	} `json:"date_of_issue"`
+	Status     string `json:"status"`
+	StatusCode string `json:"statusCode"`
+	Result     []struct {
+		Type    string `json:"type"`
+		Details struct {
+			Date struct {
+				Value string `json:"value"`
+				Conf  string `json:"conf"`
+			} `json:"date"`
+			Father struct {
+				Value string `json:"value"`
+				Conf  string `json:"conf"`
+			} `json:"father"`
+			Name struct {
+				Value string `json:"value"`
+				Conf  string `json:"conf"`
+			} `json:"name"`
+			PanNo struct {
+				Value string `json:"value"`
+				Conf  string `json:"conf"`
+			} `json:"pan_no"`
+			DateOfIssue struct {
+				Value string `json:"value"`
+				Conf  string `json:"conf"`
+			} `json:"date_of_issue"`
+		} `json:"details"`
+	} `json:"result"`
 }
 
 type HypervergeAadharResponse struct {
-	Aadhaar struct {
-		Value string `json:"value,omitempty"`
-		Conf  string `json:"conf,omitempty"`
-	} `json:"aadhaar,omitempty"`
-	Dob struct {
-		Value string `json:"value,omitempty"`
-		Conf  string `json:"conf,omitempty"`
-	} `json:"dob,omitempty"`
-	Father struct {
-		Value string `json:"value,omitempty"`
-		Conf  string `json:"conf,omitempty"`
-	} `json:"father,omitempty"`
-	Gender struct {
-		Value string `json:"value,omitempty"`
-		Conf  string `json:"conf,omitempty"`
-	} `json:"gender,omitempty"`
-	Mother struct {
-		Value string `json:"value,omitempty"`
-		Conf  string `json:"conf,omitempty"`
-	} `json:"mother,omitempty"`
-	Name struct {
-		Value string `json:"value,omitempty"`
-		Conf  string `json:"conf,omitempty"`
-	} `json:"name,omitempty"`
-	Yob struct {
-		Value string `json:"value,omitempty"`
-		Conf  string `json:"conf,omitempty"`
-	} `json:"yob,omitempty"`
-	Address struct {
-		CareOf      string `json:"care_of,omitempty"`
-		District    string `json:"district,omitempty"`
-		City        string `json:"city,omitempty"`
-		Locality    string `json:"locality,omitempty"`
-		Landmark    string `json:"landmark,omitempty"`
-		Street      string `json:"street,omitempty"`
-		Line1       string `json:"line1,omitempty"`
-		Line2       string `json:"line2,omitempty"`
-		HouseNumber string `json:"house_number,omitempty"`
-		Pin         string `json:"pin,omitempty"`
-		State       string `json:"state,omitempty"`
-		Value       string `json:"value,omitempty"`
-		Conf        string `json:"conf,omitempty"`
-	} `json:"address,omitempty"`
-	Husband struct {
-		Value string `json:"value,omitempty"`
-		Conf  string `json:"conf,omitempty"`
-	} `json:"husband,omitempty"`
-	Phone struct {
-		Value string `json:"value,omitempty"`
-		Conf  string `json:"conf,omitempty"`
-	} `json:"phone,omitempty"`
-	Pin struct {
-		Value string `json:"value,omitempty"`
-		Conf  string `json:"conf,omitempty"`
-	} `json:"pin,omitempty"`
+	Status     string `json:"status"`
+	StatusCode string `json:"statusCode"`
+	Result     []struct {
+		Type    string `json:"type"`
+		Details struct {
+			Aadhaar struct {
+				Value string `json:"value,omitempty"`
+				Conf  string `json:"conf,omitempty"`
+			} `json:"aadhaar,omitempty"`
+			Dob struct {
+				Value string `json:"value,omitempty"`
+				Conf  string `json:"conf,omitempty"`
+			} `json:"dob,omitempty"`
+			Father struct {
+				Value string `json:"value,omitempty"`
+				Conf  string `json:"conf,omitempty"`
+			} `json:"father,omitempty"`
+			Gender struct {
+				Value string `json:"value,omitempty"`
+				Conf  string `json:"conf,omitempty"`
+			} `json:"gender,omitempty"`
+			Mother struct {
+				Value string `json:"value,omitempty"`
+				Conf  string `json:"conf,omitempty"`
+			} `json:"mother,omitempty"`
+			Name struct {
+				Value string `json:"value,omitempty"`
+				Conf  string `json:"conf,omitempty"`
+			} `json:"name,omitempty"`
+			Yob struct {
+				Value string `json:"value,omitempty"`
+				Conf  string `json:"conf,omitempty"`
+			} `json:"yob,omitempty"`
+			Address struct {
+				CareOf      string `json:"care_of,omitempty"`
+				District    string `json:"district,omitempty"`
+				City        string `json:"city,omitempty"`
+				Locality    string `json:"locality,omitempty"`
+				Landmark    string `json:"landmark,omitempty"`
+				Street      string `json:"street,omitempty"`
+				Line1       string `json:"line1,omitempty"`
+				Line2       string `json:"line2,omitempty"`
+				HouseNumber string `json:"house_number,omitempty"`
+				Pin         string `json:"pin,omitempty"`
+				State       string `json:"state,omitempty"`
+				Value       string `json:"value,omitempty"`
+				Conf        string `json:"conf,omitempty"`
+			} `json:"address,omitempty"`
+			Husband struct {
+				Value string `json:"value,omitempty"`
+				Conf  string `json:"conf,omitempty"`
+			} `json:"husband,omitempty"`
+			Phone struct {
+				Value string `json:"value,omitempty"`
+				Conf  string `json:"conf,omitempty"`
+			} `json:"phone,omitempty"`
+			Pin struct {
+				Value string `json:"value,omitempty"`
+				Conf  string `json:"conf,omitempty"`
+			} `json:"pin,omitempty"`
+		} `json:"details"`
+	} `json:"result"`
 }
 
 type HypervergePassportResponse struct {
-	CountryCode struct {
-		Value string `json:"value,omitempty"`
-		Conf  string `json:"conf,omitempty"`
-	} `json:"country_code,omitempty"`
-	Dob struct {
-		Value string `json:"value,omitempty"`
-		Conf  string `json:"conf,omitempty"`
-	} `json:"dob,omitempty"`
-	Doe struct {
-		Value string `json:"value,omitempty"`
-		Conf  string `json:"conf,omitempty"`
-	} `json:"doe,omitempty"`
-	Doi struct {
-		Value string `json:"value,omitempty"`
-		Conf  string `json:"conf,omitempty"`
-	} `json:"doi,omitempty"`
-	Gender struct {
-		Value string `json:"value,omitempty"`
-		Conf  string `json:"conf,omitempty"`
-	} `json:"gender,omitempty"`
-	GivenName struct {
-		Value string `json:"value,omitempty"`
-		Conf  string `json:"conf,omitempty"`
-	} `json:"given_name,omitempty"`
-	Nationality struct {
-		Value string `json:"value,omitempty"`
-		Conf  string `json:"conf,omitempty"`
-	} `json:"nationality,omitempty"`
-	PassportNum struct {
-		Value string `json:"value,omitempty"`
-		Conf  string `json:"conf,omitempty"`
-	} `json:"passport_num,omitempty"`
-	PlaceOfBirth struct {
-		Value string `json:"value,omitempty"`
-		Conf  string `json:"conf,omitempty"`
-	} `json:"place_of_birth,omitempty"`
-	PlaceOfIssue struct {
-		Value string `json:"value,omitempty"`
-		Conf  string `json:"conf,omitempty"`
-	} `json:"place_of_issue,omitempty"`
-	Surname struct {
-		Value string `json:"value,omitempty"`
-		Conf  string `json:"conf,omitempty"`
-	} `json:"surname,omitempty"`
-	Mrz struct {
-		Line1 string `json:"line1,omitempty"`
-		Line2 string `json:"line2,omitempty"`
-		Conf  string `json:"conf,omitempty"`
-	} `json:"mrz,omitempty"`
-	Type struct {
-		Value string `json:"value,omitempty"`
-		Conf  string `json:"conf,omitempty"`
-	} `json:"type,omitempty"`
-	Address struct {
-		District    string `json:"district,omitempty"`
-		City        string `json:"city,omitempty"`
-		Locality    string `json:"locality,omitempty"`
-		Landmark    string `json:"landmark,omitempty"`
-		Street      string `json:"street,omitempty"`
-		Line1       string `json:"line1,omitempty"`
-		Line2       string `json:"line2,omitempty"`
-		HouseNumber string `json:"house_number,omitempty"`
-		Pin         string `json:"pin,omitempty"`
-		State       string `json:"state,omitempty"`
-		Value       string `json:"value,omitempty"`
-		Conf        string `json:"conf,omitempty"`
-	} `json:"address,omitempty"`
-	Father struct {
-		Value string `json:"value,omitempty"`
-		Conf  string `json:"conf,omitempty"`
-	} `json:"father,omitempty"`
-	Mother struct {
-		Value string `json:"value,omitempty"`
-		Conf  string `json:"conf,omitempty"`
-	} `json:"mother,omitempty"`
-	FileNum struct {
-		Value string `json:"value,omitempty"`
-		Conf  string `json:"conf,omitempty"`
-	} `json:"file_num,omitempty"`
-	OldDoi struct {
-		Value string `json:"value,omitempty"`
-		Conf  string `json:"conf,omitempty"`
-	} `json:"old_doi,omitempty"`
-	OldPassportNum struct {
-		Value string `json:"value,omitempty"`
-		Conf  string `json:"conf,omitempty"`
-	} `json:"old_passport_num,omitempty"`
-	OldPlaceOfIssue struct {
-		Value string `json:"value,omitempty"`
-		Conf  string `json:"conf,omitempty"`
-	} `json:"old_place_of_issue,omitempty"`
-	Pin struct {
-		Value string `json:"value,omitempty"`
-		Conf  string `json:"conf,omitempty"`
-	} `json:"pin,omitempty"`
-	Spouse struct {
-		Value string `json:"value,omitempty"`
-		Conf  string `json:"conf,omitempty"`
-	} `json:"spouse,omitempty"`
+	Status     string `json:"status"`
+	StatusCode string `json:"statusCode"`
+	Result     []struct {
+		Type    string `json:"type"`
+		Details struct {
+			CountryCode struct {
+				Value string `json:"value,omitempty"`
+				Conf  string `json:"conf,omitempty"`
+			} `json:"country_code,omitempty"`
+			Dob struct {
+				Value string `json:"value,omitempty"`
+				Conf  string `json:"conf,omitempty"`
+			} `json:"dob,omitempty"`
+			Doe struct {
+				Value string `json:"value,omitempty"`
+				Conf  string `json:"conf,omitempty"`
+			} `json:"doe,omitempty"`
+			Doi struct {
+				Value string `json:"value,omitempty"`
+				Conf  string `json:"conf,omitempty"`
+			} `json:"doi,omitempty"`
+			Gender struct {
+				Value string `json:"value,omitempty"`
+				Conf  string `json:"conf,omitempty"`
+			} `json:"gender,omitempty"`
+			GivenName struct {
+				Value string `json:"value,omitempty"`
+				Conf  string `json:"conf,omitempty"`
+			} `json:"given_name,omitempty"`
+			Nationality struct {
+				Value string `json:"value,omitempty"`
+				Conf  string `json:"conf,omitempty"`
+			} `json:"nationality,omitempty"`
+			PassportNum struct {
+				Value string `json:"value,omitempty"`
+				Conf  string `json:"conf,omitempty"`
+			} `json:"passport_num,omitempty"`
+			PlaceOfBirth struct {
+				Value string `json:"value,omitempty"`
+				Conf  string `json:"conf,omitempty"`
+			} `json:"place_of_birth,omitempty"`
+			PlaceOfIssue struct {
+				Value string `json:"value,omitempty"`
+				Conf  string `json:"conf,omitempty"`
+			} `json:"place_of_issue,omitempty"`
+			Surname struct {
+				Value string `json:"value,omitempty"`
+				Conf  string `json:"conf,omitempty"`
+			} `json:"surname,omitempty"`
+			Mrz struct {
+				Line1 string `json:"line1,omitempty"`
+				Line2 string `json:"line2,omitempty"`
+				Conf  string `json:"conf,omitempty"`
+			} `json:"mrz,omitempty"`
+			Type struct {
+				Value string `json:"value,omitempty"`
+				Conf  string `json:"conf,omitempty"`
+			} `json:"type,omitempty"`
+			Address struct {
+				District    string `json:"district,omitempty"`
+				City        string `json:"city,omitempty"`
+				Locality    string `json:"locality,omitempty"`
+				Landmark    string `json:"landmark,omitempty"`
+				Street      string `json:"street,omitempty"`
+				Line1       string `json:"line1,omitempty"`
+				Line2       string `json:"line2,omitempty"`
+				HouseNumber string `json:"house_number,omitempty"`
+				Pin         string `json:"pin,omitempty"`
+				State       string `json:"state,omitempty"`
+				Value       string `json:"value,omitempty"`
+				Conf        string `json:"conf,omitempty"`
+			} `json:"address,omitempty"`
+			Father struct {
+				Value string `json:"value,omitempty"`
+				Conf  string `json:"conf,omitempty"`
+			} `json:"father,omitempty"`
+			Mother struct {
+				Value string `json:"value,omitempty"`
+				Conf  string `json:"conf,omitempty"`
+			} `json:"mother,omitempty"`
+			FileNum struct {
+				Value string `json:"value,omitempty"`
+				Conf  string `json:"conf,omitempty"`
+			} `json:"file_num,omitempty"`
+			OldDoi struct {
+				Value string `json:"value,omitempty"`
+				Conf  string `json:"conf,omitempty"`
+			} `json:"old_doi,omitempty"`
+			OldPassportNum struct {
+				Value string `json:"value,omitempty"`
+				Conf  string `json:"conf,omitempty"`
+			} `json:"old_passport_num,omitempty"`
+			OldPlaceOfIssue struct {
+				Value string `json:"value,omitempty"`
+				Conf  string `json:"conf,omitempty"`
+			} `json:"old_place_of_issue,omitempty"`
+			Pin struct {
+				Value string `json:"value,omitempty"`
+				Conf  string `json:"conf,omitempty"`
+			} `json:"pin,omitempty"`
+			Spouse struct {
+				Value string `json:"value,omitempty"`
+				Conf  string `json:"conf,omitempty"`
+			} `json:"spouse,omitempty"`
+		} `json:"details"`
+	} `json:"result"`
 }
 
 type HypervergeVoterIdResponse struct {
-	Voterid struct {
-		Value string `json:"value,omitempty"`
-		Conf  string `json:"conf,omitempty"`
-	} `json:"voterid,omitempty"`
-	Name struct {
-		Value string `json:"value,omitempty"`
-		Conf  string `json:"conf,omitempty"`
-	} `json:"name,omitempty"`
-	Gender struct {
-		Value string `json:"value,omitempty"`
-		Conf  string `json:"conf,omitempty"`
-	} `json:"gender,omitempty"`
-	Relation struct {
-		Value string `json:"value,omitempty"`
-		Conf  string `json:"conf,omitempty"`
-	} `json:"relation,omitempty"`
-	Dob struct {
-		Value string `json:"value,omitempty"`
-		Conf  string `json:"conf,omitempty"`
-	} `json:"dob,omitempty"`
-	Doc struct {
-		Value string `json:"value,omitempty"`
-		Conf  string `json:"conf,omitempty"`
-	} `json:"doc,omitempty"`
-	Age struct {
-		Value string `json:"value,omitempty"`
-		Conf  string `json:"conf,omitempty"`
-	} `json:"age,omitempty"`
+	Status     string `json:"status"`
+	StatusCode string `json:"statusCode"`
+	Result     []struct {
+		Type    string `json:"type"`
+		Details struct {
+			Voterid struct {
+				Value string `json:"value,omitempty"`
+				Conf  string `json:"conf,omitempty"`
+			} `json:"voterid,omitempty"`
+			Name struct {
+				Value string `json:"value,omitempty"`
+				Conf  string `json:"conf,omitempty"`
+			} `json:"name,omitempty"`
+			Gender struct {
+				Value string `json:"value,omitempty"`
+				Conf  string `json:"conf,omitempty"`
+			} `json:"gender,omitempty"`
+			Relation struct {
+				Value string `json:"value,omitempty"`
+				Conf  string `json:"conf,omitempty"`
+			} `json:"relation,omitempty"`
+			Dob struct {
+				Value string `json:"value,omitempty"`
+				Conf  string `json:"conf,omitempty"`
+			} `json:"dob,omitempty"`
+			Doc struct {
+				Value string `json:"value,omitempty"`
+				Conf  string `json:"conf,omitempty"`
+			} `json:"doc,omitempty"`
+			Age struct {
+				Value string `json:"value,omitempty"`
+				Conf  string `json:"conf,omitempty"`
+			} `json:"age,omitempty"`
 
-	Pin struct {
-		Value string `json:"value,omitempty"`
-		Conf  string `json:"conf,omitempty"`
-	} `json:"pin,omitempty"`
+			Pin struct {
+				Value string `json:"value,omitempty"`
+				Conf  string `json:"conf,omitempty"`
+			} `json:"pin,omitempty"`
 
-	Date struct {
-		Value string `json:"value,omitempty"`
-		Conf  string `json:"conf,omitempty"`
-	} `json:"date,omitempty"`
-	Type struct {
-		Value string `json:"value,omitempty"`
-		Conf  string `json:"conf,omitempty"`
-	} `json:"type,omitempty"`
-	Address struct {
-		District    string `json:"district,omitempty"`
-		City        string `json:"city,omitempty"`
-		Locality    string `json:"locality,omitempty"`
-		Landmark    string `json:"landmark,omitempty"`
-		Street      string `json:"street,omitempty"`
-		Line1       string `json:"line1,omitempty"`
-		Line2       string `json:"line2,omitempty"`
-		HouseNumber string `json:"house_number,omitempty"`
-		Pin         string `json:"pin,omitempty"`
-		State       string `json:"state,omitempty"`
-		Value       string `json:"value,omitempty"`
-		Conf        string `json:"conf,omitempty"`
-	} `json:"address,omitempty"`
+			Date struct {
+				Value string `json:"value,omitempty"`
+				Conf  string `json:"conf,omitempty"`
+			} `json:"date,omitempty"`
+			Type struct {
+				Value string `json:"value,omitempty"`
+				Conf  string `json:"conf,omitempty"`
+			} `json:"type,omitempty"`
+			Address struct {
+				District    string `json:"district,omitempty"`
+				City        string `json:"city,omitempty"`
+				Locality    string `json:"locality,omitempty"`
+				Landmark    string `json:"landmark,omitempty"`
+				Street      string `json:"street,omitempty"`
+				Line1       string `json:"line1,omitempty"`
+				Line2       string `json:"line2,omitempty"`
+				HouseNumber string `json:"house_number,omitempty"`
+				Pin         string `json:"pin,omitempty"`
+				State       string `json:"state,omitempty"`
+				Value       string `json:"value,omitempty"`
+				Conf        string `json:"conf,omitempty"`
+			} `json:"address,omitempty"`
+		} `json:"details"`
+	} `json:"result"`
 }
 
 type PanResponse struct {

@@ -57,8 +57,12 @@ func (hypervergeImpl *HypervergeImpl) ReadPan(hypervergeRequest HypervergeReques
 	if err != nil {
 		return nil, err
 	}
-	var hypervergePanResponse HypervergePanResponse
-	err = json.Unmarshal(body.Bytes(), &hypervergePanResponse)
+	var hypervergePanResponseStruct HypervergePanResponse
+	err = json.Unmarshal(body.Bytes(), &hypervergePanResponseStruct)
+	if err != nil {
+		return nil, err
+	}
+	hypervergePanResponse := hypervergePanResponseStruct.Result[0].Details
 	panResponse := PanResponse{
 		Date:        hypervergePanResponse.Date.Value,
 		Father:      hypervergePanResponse.Father.Value,
@@ -76,8 +80,12 @@ func (hypervergeImpl *HypervergeImpl) ReadAadhar(hypervergeRequest HypervergeReq
 	if err != nil {
 		return nil, err
 	}
-	var hypervergeAadharResponse HypervergeAadharResponse
-	err = json.Unmarshal(body.Bytes(), &hypervergeAadharResponse)
+	var hypervergeAadharResponseStruct HypervergeAadharResponse
+	err = json.Unmarshal(body.Bytes(), &hypervergeAadharResponseStruct)
+	if err != nil {
+		return nil, err
+	}
+	hypervergeAadharResponse := hypervergeAadharResponseStruct.Result[0].Details
 	aadharResponse := AadharResponse{
 		Aadhaar:     hypervergeAadharResponse.Aadhaar.Value,
 		Dob:         hypervergeAadharResponse.Dob.Value,
@@ -111,8 +119,12 @@ func (hypervergeImpl *HypervergeImpl) ReadPassport(hypervergeRequest HypervergeR
 	if err != nil {
 		return nil, err
 	}
-	var hypervergePassportResponse HypervergePassportResponse
-	err = json.Unmarshal(body.Bytes(), &hypervergePassportResponse)
+	var hypervergePassportResponseStruct HypervergePassportResponse
+	err = json.Unmarshal(body.Bytes(), &hypervergePassportResponseStruct)
+	if err != nil {
+		return nil, err
+	}
+	hypervergePassportResponse := hypervergePassportResponseStruct.Result[0].Details
 	passportResponse := PassportResponse{
 		CountryCode:     hypervergePassportResponse.CountryCode.Value,
 		Dob:             hypervergePassportResponse.Dob.Value,
@@ -155,8 +167,12 @@ func (hypervergeImpl *HypervergeImpl) ReadVotedID(hypervergeRequest HypervergeRe
 	if err != nil {
 		return nil, err
 	}
-	var hypervergeVoterIdResponse HypervergeVoterIdResponse
-	err = json.Unmarshal(body.Bytes(), &hypervergeVoterIdResponse)
+	var hypervergeVoterIdResponseStruct HypervergeVoterIdResponse
+	err = json.Unmarshal(body.Bytes(), &hypervergeVoterIdResponseStruct)
+	if err != nil {
+		return nil, err
+	}
+	hypervergeVoterIdResponse := hypervergeVoterIdResponseStruct.Result[0].Details
 	voterIdResponse := VoterIdResponse{
 		Voterid:     hypervergeVoterIdResponse.Voterid.Value,
 		Name:        hypervergeVoterIdResponse.Name.Value,
@@ -216,15 +232,15 @@ func getURLFor(docType, baseURL string) string {
 	var path string
 	switch docType {
 	case "aadhar":
-		path = "/readAadhaar"
+		path = "readAadhaar"
 	case "passport":
-		path = "/readPassport"
+		path = "readPassport"
 	case "pan":
-		path = "/readPAN"
+		path = "readPAN"
 	case "voter":
-		path = "/readVoterID"
+		path = "readVoterID"
 	default:
-		path = "/readKYC"
+		path = "readKYC"
 	}
 	return baseURL + path
 }
