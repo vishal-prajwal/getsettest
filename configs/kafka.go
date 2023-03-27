@@ -10,6 +10,7 @@ type DefaultKafkaConfig struct {
 	AsyncQueueSize int
 	BatchSize      int
 	MaxWaitSeconds int
+	MaxRetries     int
 }
 
 func (c *DefaultKafkaConfig) GetBrokers() []string {
@@ -38,4 +39,8 @@ func (c *DefaultKafkaConfig) GetBatchSize() int {
 
 func (c *DefaultKafkaConfig) GetMaxWaitSeconds() int {
 	return c.MaxWaitSeconds
+}
+
+func (c *DefaultKafkaConfig) GetMaxRetries() int {
+	return c.MaxRetries
 }

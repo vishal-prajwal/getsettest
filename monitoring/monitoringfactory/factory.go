@@ -10,16 +10,20 @@ import (
 	"github.com/pkg/errors"
 )
 
+type NewRelicConfig interface {
+	GetKey() string
+	GetServiceName() string
+}
+
 type Config interface {
 	GetName() string
-	GetNewRelicKey() string
-	GetServiceName() string
+	GetNewRelicConfig() NewRelicConfig
 }
 
 var agents map[string]monitoring.Agent = make(map[string]monitoring.Agent)
 
-func setupNewRelic(name, key string) (monitoring.Agent, error) {
-	a, err := newrelic.New(name, key)
+func setupNewRelic(cfg NewRelicConfig) (monitoring.Agent, error) {
+	a, err := newrelic.New(cfg.GetServiceName(), cfg.GetKey())
 	if err != nil {
 		return nil, errors.Wrap(err, "main: while starting newrelic")
 	}
@@ -32,7 +36,7 @@ func GetMonitoringAgent(cfg Config) (monitoring.Agent, error) {
 		if agent, exists := agents[NEWRELIC]; exists {
 			return agent, nil
 		}
-		agent, err := setupNewRelic(cfg.GetServiceName(), cfg.GetNewRelicKey())
+		agent, err := setupNewRelic(cfg.GetNewRelicConfig())
 		if err != nil {
 			return nil, err
 		}
