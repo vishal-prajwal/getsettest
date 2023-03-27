@@ -15,23 +15,23 @@ type HypervergePanResponse struct {
 		Details struct {
 			Date struct {
 				Value string `json:"value"`
-				Conf  string `json:"conf"`
+				Conf  int    `json:"conf,omitempty"`
 			} `json:"date"`
 			Father struct {
 				Value string `json:"value"`
-				Conf  string `json:"conf"`
+				Conf  int    `json:"conf,omitempty"`
 			} `json:"father"`
 			Name struct {
 				Value string `json:"value"`
-				Conf  string `json:"conf"`
+				Conf  int    `json:"conf,omitempty"`
 			} `json:"name"`
 			PanNo struct {
 				Value string `json:"value"`
-				Conf  string `json:"conf"`
+				Conf  int    `json:"conf,omitempty"`
 			} `json:"pan_no"`
 			DateOfIssue struct {
 				Value string `json:"value"`
-				Conf  string `json:"conf"`
+				Conf  int    `json:"conf,omitempty"`
 			} `json:"date_of_issue"`
 		} `json:"details"`
 	} `json:"result"`
@@ -45,31 +45,31 @@ type HypervergeAadharResponse struct {
 		Details struct {
 			Aadhaar struct {
 				Value string `json:"value,omitempty"`
-				Conf  string `json:"conf,omitempty"`
+				Conf  int    `json:"conf,omitempty"`
 			} `json:"aadhaar,omitempty"`
 			Dob struct {
 				Value string `json:"value,omitempty"`
-				Conf  string `json:"conf,omitempty"`
+				Conf  int    `json:"conf,omitempty"`
 			} `json:"dob,omitempty"`
 			Father struct {
 				Value string `json:"value,omitempty"`
-				Conf  string `json:"conf,omitempty"`
+				Conf  int    `json:"conf,omitempty"`
 			} `json:"father,omitempty"`
 			Gender struct {
 				Value string `json:"value,omitempty"`
-				Conf  string `json:"conf,omitempty"`
+				Conf  int    `json:"conf,omitempty"`
 			} `json:"gender,omitempty"`
 			Mother struct {
 				Value string `json:"value,omitempty"`
-				Conf  string `json:"conf,omitempty"`
+				Conf  int    `json:"conf,omitempty"`
 			} `json:"mother,omitempty"`
 			Name struct {
 				Value string `json:"value,omitempty"`
-				Conf  string `json:"conf,omitempty"`
+				Conf  int    `json:"conf,omitempty"`
 			} `json:"name,omitempty"`
 			Yob struct {
 				Value string `json:"value,omitempty"`
-				Conf  string `json:"conf,omitempty"`
+				Conf  int    `json:"conf,omitempty"`
 			} `json:"yob,omitempty"`
 			Address struct {
 				CareOf      string `json:"care_of,omitempty"`
@@ -88,15 +88,15 @@ type HypervergeAadharResponse struct {
 			} `json:"address,omitempty"`
 			Husband struct {
 				Value string `json:"value,omitempty"`
-				Conf  string `json:"conf,omitempty"`
+				Conf  int    `json:"conf,omitempty"`
 			} `json:"husband,omitempty"`
 			Phone struct {
 				Value string `json:"value,omitempty"`
-				Conf  string `json:"conf,omitempty"`
+				Conf  int    `json:"conf,omitempty"`
 			} `json:"phone,omitempty"`
 			Pin struct {
 				Value string `json:"value,omitempty"`
-				Conf  string `json:"conf,omitempty"`
+				Conf  int    `json:"conf,omitempty"`
 			} `json:"pin,omitempty"`
 		} `json:"details"`
 	} `json:"result"`
@@ -110,56 +110,56 @@ type HypervergePassportResponse struct {
 		Details struct {
 			CountryCode struct {
 				Value string `json:"value,omitempty"`
-				Conf  string `json:"conf,omitempty"`
+				Conf  int    `json:"conf,omitempty"`
 			} `json:"country_code,omitempty"`
 			Dob struct {
 				Value string `json:"value,omitempty"`
-				Conf  string `json:"conf,omitempty"`
+				Conf  int    `json:"conf,omitempty"`
 			} `json:"dob,omitempty"`
 			Doe struct {
 				Value string `json:"value,omitempty"`
-				Conf  string `json:"conf,omitempty"`
+				Conf  int    `json:"conf,omitempty"`
 			} `json:"doe,omitempty"`
 			Doi struct {
 				Value string `json:"value,omitempty"`
-				Conf  string `json:"conf,omitempty"`
+				Conf  int    `json:"conf,omitempty"`
 			} `json:"doi,omitempty"`
 			Gender struct {
 				Value string `json:"value,omitempty"`
-				Conf  string `json:"conf,omitempty"`
+				Conf  int    `json:"conf,omitempty"`
 			} `json:"gender,omitempty"`
 			GivenName struct {
 				Value string `json:"value,omitempty"`
-				Conf  string `json:"conf,omitempty"`
+				Conf  int    `json:"conf,omitempty"`
 			} `json:"given_name,omitempty"`
 			Nationality struct {
 				Value string `json:"value,omitempty"`
-				Conf  string `json:"conf,omitempty"`
+				Conf  int    `json:"conf,omitempty"`
 			} `json:"nationality,omitempty"`
 			PassportNum struct {
 				Value string `json:"value,omitempty"`
-				Conf  string `json:"conf,omitempty"`
+				Conf  int    `json:"conf,omitempty"`
 			} `json:"passport_num,omitempty"`
 			PlaceOfBirth struct {
 				Value string `json:"value,omitempty"`
-				Conf  string `json:"conf,omitempty"`
+				Conf  int    `json:"conf,omitempty"`
 			} `json:"place_of_birth,omitempty"`
 			PlaceOfIssue struct {
 				Value string `json:"value,omitempty"`
-				Conf  string `json:"conf,omitempty"`
+				Conf  int    `json:"conf,omitempty"`
 			} `json:"place_of_issue,omitempty"`
 			Surname struct {
 				Value string `json:"value,omitempty"`
-				Conf  string `json:"conf,omitempty"`
+				Conf  int    `json:"conf,omitempty"`
 			} `json:"surname,omitempty"`
 			Mrz struct {
 				Line1 string `json:"line1,omitempty"`
 				Line2 string `json:"line2,omitempty"`
-				Conf  string `json:"conf,omitempty"`
+				Conf  int    `json:"conf,omitempty"`
 			} `json:"mrz,omitempty"`
 			Type struct {
 				Value string `json:"value,omitempty"`
-				Conf  string `json:"conf,omitempty"`
+				Conf  int    `json:"conf,omitempty"`
 			} `json:"type,omitempty"`
 			Address struct {
 				District    string `json:"district,omitempty"`
@@ -177,35 +177,35 @@ type HypervergePassportResponse struct {
 			} `json:"address,omitempty"`
 			Father struct {
 				Value string `json:"value,omitempty"`
-				Conf  string `json:"conf,omitempty"`
+				Conf  int    `json:"conf,omitempty"`
 			} `json:"father,omitempty"`
 			Mother struct {
 				Value string `json:"value,omitempty"`
-				Conf  string `json:"conf,omitempty"`
+				Conf  int    `json:"conf,omitempty"`
 			} `json:"mother,omitempty"`
 			FileNum struct {
 				Value string `json:"value,omitempty"`
-				Conf  string `json:"conf,omitempty"`
+				Conf  int    `json:"conf,omitempty"`
 			} `json:"file_num,omitempty"`
 			OldDoi struct {
 				Value string `json:"value,omitempty"`
-				Conf  string `json:"conf,omitempty"`
+				Conf  int    `json:"conf,omitempty"`
 			} `json:"old_doi,omitempty"`
 			OldPassportNum struct {
 				Value string `json:"value,omitempty"`
-				Conf  string `json:"conf,omitempty"`
+				Conf  int    `json:"conf,omitempty"`
 			} `json:"old_passport_num,omitempty"`
 			OldPlaceOfIssue struct {
 				Value string `json:"value,omitempty"`
-				Conf  string `json:"conf,omitempty"`
+				Conf  int    `json:"conf,omitempty"`
 			} `json:"old_place_of_issue,omitempty"`
 			Pin struct {
 				Value string `json:"value,omitempty"`
-				Conf  string `json:"conf,omitempty"`
+				Conf  int    `json:"conf,omitempty"`
 			} `json:"pin,omitempty"`
 			Spouse struct {
 				Value string `json:"value,omitempty"`
-				Conf  string `json:"conf,omitempty"`
+				Conf  int    `json:"conf,omitempty"`
 			} `json:"spouse,omitempty"`
 		} `json:"details"`
 	} `json:"result"`
@@ -219,45 +219,45 @@ type HypervergeVoterIdResponse struct {
 		Details struct {
 			Voterid struct {
 				Value string `json:"value,omitempty"`
-				Conf  string `json:"conf,omitempty"`
+				Conf  int    `json:"conf,omitempty"`
 			} `json:"voterid,omitempty"`
 			Name struct {
 				Value string `json:"value,omitempty"`
-				Conf  string `json:"conf,omitempty"`
+				Conf  int    `json:"conf,omitempty"`
 			} `json:"name,omitempty"`
 			Gender struct {
 				Value string `json:"value,omitempty"`
-				Conf  string `json:"conf,omitempty"`
+				Conf  int    `json:"conf,omitempty"`
 			} `json:"gender,omitempty"`
 			Relation struct {
 				Value string `json:"value,omitempty"`
-				Conf  string `json:"conf,omitempty"`
+				Conf  int    `json:"conf,omitempty"`
 			} `json:"relation,omitempty"`
 			Dob struct {
 				Value string `json:"value,omitempty"`
-				Conf  string `json:"conf,omitempty"`
+				Conf  int    `json:"conf,omitempty"`
 			} `json:"dob,omitempty"`
 			Doc struct {
 				Value string `json:"value,omitempty"`
-				Conf  string `json:"conf,omitempty"`
+				Conf  int    `json:"conf,omitempty"`
 			} `json:"doc,omitempty"`
 			Age struct {
 				Value string `json:"value,omitempty"`
-				Conf  string `json:"conf,omitempty"`
+				Conf  int    `json:"conf,omitempty"`
 			} `json:"age,omitempty"`
 
 			Pin struct {
 				Value string `json:"value,omitempty"`
-				Conf  string `json:"conf,omitempty"`
+				Conf  int    `json:"conf,omitempty"`
 			} `json:"pin,omitempty"`
 
 			Date struct {
 				Value string `json:"value,omitempty"`
-				Conf  string `json:"conf,omitempty"`
+				Conf  int    `json:"conf,omitempty"`
 			} `json:"date,omitempty"`
 			Type struct {
 				Value string `json:"value,omitempty"`
-				Conf  string `json:"conf,omitempty"`
+				Conf  int    `json:"conf,omitempty"`
 			} `json:"type,omitempty"`
 			Address struct {
 				District    string `json:"district,omitempty"`
