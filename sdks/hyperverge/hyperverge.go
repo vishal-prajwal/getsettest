@@ -3,6 +3,7 @@ package hyperverge
 import (
 	"bytes"
 	"encoding/json"
+	"fmt"
 	"io"
 	"mime/multipart"
 	"net/http"
@@ -62,6 +63,9 @@ func (hypervergeImpl *HypervergeImpl) ReadPan(hypervergeRequest HypervergeReques
 	if err != nil {
 		return nil, err
 	}
+	if hypervergePanResponseStruct.StatusCode != "200" {
+		return nil, fmt.Errorf("status %v errorMessage %v", hypervergePanResponseStruct.Status, hypervergePanResponseStruct.Error)
+	}
 	hypervergePanResponse := hypervergePanResponseStruct.Result[0].Details
 	panResponse := PanResponse{
 		Date:        hypervergePanResponse.Date.Value,
@@ -84,6 +88,9 @@ func (hypervergeImpl *HypervergeImpl) ReadAadhar(hypervergeRequest HypervergeReq
 	err = json.Unmarshal(body.Bytes(), &hypervergeAadharResponseStruct)
 	if err != nil {
 		return nil, err
+	}
+	if hypervergeAadharResponseStruct.StatusCode != "200" {
+		return nil, fmt.Errorf("status %v errorMessage %v", hypervergeAadharResponseStruct.Status, hypervergeAadharResponseStruct.Error)
 	}
 	hypervergeAadharResponse := hypervergeAadharResponseStruct.Result[0].Details
 	aadharResponse := AadharResponse{
@@ -123,6 +130,9 @@ func (hypervergeImpl *HypervergeImpl) ReadPassport(hypervergeRequest HypervergeR
 	err = json.Unmarshal(body.Bytes(), &hypervergePassportResponseStruct)
 	if err != nil {
 		return nil, err
+	}
+	if hypervergePassportResponseStruct.StatusCode != "200" {
+		return nil, fmt.Errorf("status %v errorMessage %v", hypervergePassportResponseStruct.Status, hypervergePassportResponseStruct.Error)
 	}
 	hypervergePassportResponse := hypervergePassportResponseStruct.Result[0].Details
 	passportResponse := PassportResponse{
@@ -171,6 +181,9 @@ func (hypervergeImpl *HypervergeImpl) ReadVotedID(hypervergeRequest HypervergeRe
 	err = json.Unmarshal(body.Bytes(), &hypervergeVoterIdResponseStruct)
 	if err != nil {
 		return nil, err
+	}
+	if hypervergeVoterIdResponseStruct.StatusCode != "200" {
+		return nil, fmt.Errorf("status %v errorMessage %v", hypervergeVoterIdResponseStruct.Status, hypervergeVoterIdResponseStruct.Error)
 	}
 	hypervergeVoterIdResponse := hypervergeVoterIdResponseStruct.Result[0].Details
 	voterIdResponse := VoterIdResponse{

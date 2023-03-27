@@ -10,6 +10,7 @@ type HypervergeRequest struct {
 type HypervergePanResponse struct {
 	Status     string `json:"status"`
 	StatusCode string `json:"statusCode"`
+	Error      string `json:"error"`
 	Result     []struct {
 		Type    string `json:"type"`
 		Details struct {
@@ -40,6 +41,7 @@ type HypervergePanResponse struct {
 type HypervergeAadharResponse struct {
 	Status     string `json:"status"`
 	StatusCode string `json:"statusCode"`
+	Error      string `json:"error"`
 	Result     []struct {
 		Type    string `json:"type"`
 		Details struct {
@@ -105,6 +107,7 @@ type HypervergeAadharResponse struct {
 type HypervergePassportResponse struct {
 	Status     string `json:"status"`
 	StatusCode string `json:"statusCode"`
+	Error      string `json:"error"`
 	Result     []struct {
 		Type    string `json:"type"`
 		Details struct {
@@ -214,6 +217,7 @@ type HypervergePassportResponse struct {
 type HypervergeVoterIdResponse struct {
 	Status     string `json:"status"`
 	StatusCode string `json:"statusCode"`
+	Error      string `json:"error"`
 	Result     []struct {
 		Type    string `json:"type"`
 		Details struct {

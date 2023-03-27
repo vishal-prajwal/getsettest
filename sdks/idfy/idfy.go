@@ -3,6 +3,7 @@ package idfy
 import (
 	"bytes"
 	"encoding/json"
+	"fmt"
 	"net/http"
 	"strings"
 
@@ -59,6 +60,12 @@ func (idfyImpl *IdfyImpl) ExtractPan(idfyrequest IdfyRequest) (*IdfyPanResponse,
 	}
 	var idfyPanResp PanResponse
 	err = json.Unmarshal(byteResp.Bytes(), &idfyPanResp)
+	if err != nil {
+		return nil, err
+	}
+	if idfyPanResp.Status != "completed" {
+		return nil, fmt.Errorf("%v %v", idfyPanResp.Message, idfyPanResp.Error)
+	}
 	return &idfyPanResp.Result.ExtractionOutput, err
 }
 
@@ -70,6 +77,12 @@ func (idfyImpl *IdfyImpl) ExtractAadhar(idfyrequest IdfyRequest) (*IdfyAadharRes
 	}
 	var idfyAadharResp AadharResponse
 	err = json.Unmarshal(byteResp.Bytes(), &idfyAadharResp)
+	if err != nil {
+		return nil, err
+	}
+	if idfyAadharResp.Status != "completed" {
+		return nil, fmt.Errorf("%v %v", idfyAadharResp.Message, idfyAadharResp.Error)
+	}
 	return &idfyAadharResp.Result.ExtractionOutput, err
 }
 
@@ -81,6 +94,12 @@ func (idfyImpl *IdfyImpl) ExtractDl(idfyrequest IdfyRequest) (*IdfyDlResponse, e
 	}
 	var idfyDlResp DlResponse
 	err = json.Unmarshal(byteResp.Bytes(), &idfyDlResp)
+	if err != nil {
+		return nil, err
+	}
+	if idfyDlResp.Status != "completed" {
+		return nil, fmt.Errorf("%v %v", idfyDlResp.Message, idfyDlResp.Error)
+	}
 	return &idfyDlResp.Result.ExtractionOutput, err
 }
 
@@ -92,6 +111,12 @@ func (idfyImpl *IdfyImpl) ExtractVoter(idfyrequest IdfyRequest) (*IdfyVoterIdRes
 	}
 	var idfyVoterResp VoterResponse
 	err = json.Unmarshal(byteResp.Bytes(), &idfyVoterResp)
+	if err != nil {
+		return nil, err
+	}
+	if idfyVoterResp.Status != "completed" {
+		return nil, fmt.Errorf("%v %v", idfyVoterResp.Message, idfyVoterResp.Error)
+	}
 	return &idfyVoterResp.Result.ExtractionOutput, err
 }
 
@@ -103,6 +128,12 @@ func (idfyImpl *IdfyImpl) ExtractPassport(idfyrequest IdfyRequest) (*IdfyPasspor
 	}
 	var idfyPassportResp PassportResponse
 	err = json.Unmarshal(byteResp.Bytes(), &idfyPassportResp)
+	if err != nil {
+		return nil, err
+	}
+	if idfyPassportResp.Status != "completed" {
+		return nil, fmt.Errorf("%v %v", idfyPassportResp.Message, idfyPassportResp.Error)
+	}
 	return &idfyPassportResp.Result.ExtractionOutput, err
 }
 

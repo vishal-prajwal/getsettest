@@ -26,7 +26,7 @@ type IdfyPanResponse struct {
 	Date_of_issue string `json:"date_of_issues"`
 	Age           int    `json:"age"`
 	Minor         int    `json:"minor"`
-	Is_scanned    bool    `json:"is_scanned"`
+	Is_scanned    bool   `json:"is_scanned"`
 	Pan_type      int    `json:"pan_type"`
 }
 
@@ -43,7 +43,7 @@ type IdfyAadharResponse struct {
 	District       string `json:"district"`
 	Pincode        string `json:"pincode"`
 	State          string `json:"state"`
-	Is_scanned     bool    `json:"is_scanned"`
+	Is_scanned     bool   `json:"is_scanned"`
 }
 
 type IdfyDlResponse struct {
@@ -111,6 +111,8 @@ type PanResponse struct {
 	Status      string    `json:"status"`
 	TaskID      string    `json:"task_id"`
 	Type        string    `json:"type"`
+	Message     string    `json:"message"`
+	Error       string    `json:"error"`
 }
 
 type ResultPan struct {
@@ -127,6 +129,8 @@ type AadharResponse struct {
 	Status      string       `json:"status"`
 	TaskID      string       `json:"task_id"`
 	Type        string       `json:"type"`
+	Message     string       `json:"message"`
+	Error       string       `json:"error"`
 }
 
 type ResultAadhar struct {
@@ -143,6 +147,8 @@ type PassportResponse struct {
 	Status      string         `json:"status"`
 	TaskID      string         `json:"task_id"`
 	Type        string         `json:"type"`
+	Message     string         `json:"message"`
+	Error       string         `json:"error"`
 }
 
 type ResultPassport struct {
@@ -159,6 +165,8 @@ type VoterResponse struct {
 	Status      string      `json:"status"`
 	TaskID      string      `json:"task_id"`
 	Type        string      `json:"type"`
+	Message     string      `json:"message"`
+	Error       string      `json:"error"`
 }
 
 type ResultVoter struct {
@@ -175,6 +183,8 @@ type DlResponse struct {
 	Status      string    `json:"status"`
 	TaskID      string    `json:"task_id"`
 	Type        string    `json:"type"`
+	Message     string    `json:"message"`
+	Error       string    `json:"error"`
 }
 
 type ResultDl struct {
