@@ -30,12 +30,10 @@ type CreateTaskRequest struct {
 }
 
 type SaleForceCreateTaskHTTPRequest struct {
-	Status        string `json:"Status" validate:"required"`
-	Subject       string `json:"Subject" validate:"required"`
-	Priority      string `json:"Priority" validate:"required"`
-	UserID        string `json:"UserId__c" validate:"required"`
-	SocialNetwork string `json:"social_network__c" validate:"required"`
-	Name string `json:"Name" validate:"required"`
+	UserID        string `json:"User_ID__c" validate:"required"`
+	SocialNetwork string `json:"Social_Network__c" validate:"required"`
+	AccessToken   string `json:",omitempty"`
+	BaseURL       string `json:",omitempty"`
 }
 
 type CreateTaskResponse struct {
