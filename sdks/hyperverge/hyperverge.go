@@ -92,6 +92,9 @@ func (hypervergeImpl *HypervergeImpl) ReadAadhar(hypervergeRequest HypervergeReq
 	if hypervergeAadharResponseStruct.StatusCode != "200" {
 		return nil, fmt.Errorf("status %v errorMessage %v", hypervergeAadharResponseStruct.Status, hypervergeAadharResponseStruct.Error)
 	}
+	if len(hypervergeAadharResponseStruct.Result) > 1 {
+		mergeAadharDetails(&hypervergeAadharResponseStruct)
+	}
 	hypervergeAadharResponse := hypervergeAadharResponseStruct.Result[0].Details
 	aadharResponse := AadharResponse{
 		Aadhaar:     hypervergeAadharResponse.Aadhaar.Value,
@@ -256,4 +259,22 @@ func getURLFor(docType, baseURL string) string {
 		path = "readKYC"
 	}
 	return baseURL + path
+}
+
+func mergeAadharDetails(hypervergeAadharResult *HypervergeAadharResponse) {
+	size := len(hypervergeAadharResult.Result)
+	for i := size - 2; i >= 0; i-- {
+		if hypervergeAadharResult.Result[i].Details.Aadhaar.Value == "" {
+			hypervergeAadharResult.Result[i].Details.Aadhaar.Value = hypervergeAadharResult.Result[i+1].Details.Aadhaar.Value
+		}
+		if hypervergeAadharResult.Result[i].Details.Dob.Value == "" {
+			hypervergeAadharResult.Result[i].Details.Dob.Value = hypervergeAadharResult.Result[i+1].Details.Dob.Value
+		}
+		if hypervergeAadharResult.Result[i].Details.Pin.Value == "" {
+			hypervergeAadharResult.Result[i].Details.Pin.Value = hypervergeAadharResult.Result[i+1].Details.Pin.Value
+		}
+		if hypervergeAadharResult.Result[i].Details.Name.Value == "" {
+			hypervergeAadharResult.Result[i].Details.Name.Value = hypervergeAadharResult.Result[i+1].Details.Name.Value
+		}
+	}
 }
