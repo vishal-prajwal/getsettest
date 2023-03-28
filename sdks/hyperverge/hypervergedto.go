@@ -86,7 +86,7 @@ type HypervergeAadharResponse struct {
 				Pin         string `json:"pin,omitempty"`
 				State       string `json:"state,omitempty"`
 				Value       string `json:"value,omitempty"`
-				Conf        string `json:"conf,omitempty"`
+				Conf        int    `json:"conf,omitempty"`
 			} `json:"address,omitempty"`
 			Husband struct {
 				Value string `json:"value,omitempty"`
@@ -176,7 +176,7 @@ type HypervergePassportResponse struct {
 				Pin         string `json:"pin,omitempty"`
 				State       string `json:"state,omitempty"`
 				Value       string `json:"value,omitempty"`
-				Conf        string `json:"conf,omitempty"`
+				Conf        int `json:"conf,omitempty"`
 			} `json:"address,omitempty"`
 			Father struct {
 				Value string `json:"value,omitempty"`
@@ -275,7 +275,7 @@ type HypervergeVoterIdResponse struct {
 				Pin         string `json:"pin,omitempty"`
 				State       string `json:"state,omitempty"`
 				Value       string `json:"value,omitempty"`
-				Conf        string `json:"conf,omitempty"`
+				Conf        int `json:"conf,omitempty"`
 			} `json:"address,omitempty"`
 		} `json:"details"`
 	} `json:"result"`
