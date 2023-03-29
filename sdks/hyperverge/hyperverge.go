@@ -32,7 +32,7 @@ func New(config HypervergeConfig, nr newrelic.Agent, client httpclient.HTTPClien
 
 func (hypervergeImpl *HypervergeImpl) readDocument(documentType string, hypervergeRequest HypervergeRequest) (*bytes.Buffer, error) {
 	url := getURLFor(documentType, hypervergeImpl.config.GetHypervergeEndpoint())
-	req, err := newfileUploadRequest(url, hypervergeRequest.Path, hypervergeImpl.config.GetHypervergeAppKey(), hypervergeImpl.config.GetHypervergeAppID(), hypervergeImpl.config.GetHypervergeTransactionId())
+	req, err := newfileUploadRequest(url, hypervergeRequest.Path, hypervergeImpl.config.GetHypervergeAppKey(), hypervergeImpl.config.GetHypervergeAppID())
 	if err != nil {
 		return nil, err
 	}
@@ -214,7 +214,7 @@ func (hypervergeImpl *HypervergeImpl) ReadVotedID(hypervergeRequest HypervergeRe
 	return &voterIdResponse, err
 }
 
-func newfileUploadRequest(uri, path, appKey, appID, transactionId string) (*http.Request, error) {
+func newfileUploadRequest(uri, path, appKey, appID string) (*http.Request, error) {
 	file, err := os.Open(path)
 	if err != nil {
 		return nil, err
@@ -240,7 +240,6 @@ func newfileUploadRequest(uri, path, appKey, appID, transactionId string) (*http
 	req.Header.Set("Content-Type", writer.FormDataContentType())
 	req.Header.Set("appId", appID)
 	req.Header.Set("appkey", appKey)
-	req.Header.Set("transactionId", transactionId)
 	return req, err
 }
 
