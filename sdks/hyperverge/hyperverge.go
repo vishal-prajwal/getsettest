@@ -248,15 +248,15 @@ func getURLFor(docType, baseURL string) string {
 	var path string
 	switch docType {
 	case "aadhar":
-		path = "readAadhaar"
+		path = "/readAadhaar"
 	case "passport":
-		path = "readPassport"
+		path = "/readPassport"
 	case "pan":
-		path = "readPAN"
+		path = "/readPAN"
 	case "voter":
-		path = "readVoterID"
+		path = "/readVoterID"
 	default:
-		path = "readKYC"
+		path = "/readKYC"
 	}
 	return baseURL + path
 }
