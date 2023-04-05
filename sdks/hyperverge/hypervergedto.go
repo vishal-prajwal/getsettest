@@ -1,10 +1,11 @@
 package hyperverge
 
 type HypervergeRequest struct {
-	Path                string `json:"path"`
+	ImageFile                string `json:"imageFile"`
 	EnableDashboard     string `json:"enableDashboard"`
 	MaskAadhaarComplete string `json:"maskAadhaarComplete"`
 	OutputImageUrl      string `json:"outputImageUrl"`
+	ImageName string `json:"imageName"`
 }
 
 type HypervergePanResponse struct {

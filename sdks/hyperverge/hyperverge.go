@@ -32,7 +32,8 @@ func New(config HypervergeConfig, nr newrelic.Agent, client httpclient.HTTPClien
 
 func (hypervergeImpl *HypervergeImpl) readDocument(documentType string, hypervergeRequest HypervergeRequest) (*bytes.Buffer, error) {
 	url := getURLFor(documentType, hypervergeImpl.config.GetHypervergeEndpoint())
-	req, err := newfileUploadRequest(url, hypervergeRequest.Path, hypervergeImpl.config.GetHypervergeAppKey(), hypervergeImpl.config.GetHypervergeAppID())
+	req, err := newfileUploadRequest(url, hypervergeRequest.ImageFile,
+		hypervergeImpl.config.GetHypervergeAppKey(), hypervergeImpl.config.GetHypervergeAppID(),hypervergeRequest.ImageName)
 	if err != nil {
 		return nil, errors.Wrap(ErrUploadError,err.Error())
 	}
@@ -248,20 +249,15 @@ func (hypervergeImpl *HypervergeImpl) ReadVotedID(hypervergeRequest HypervergeRe
 	return &voterIdResponse, err
 }
 
-func newfileUploadRequest(uri, file, appKey, appID string) (*http.Request, error) {
+func newfileUploadRequest(uri, file, appKey, appID,fileName string) (*http.Request, error) {
 
 	body := &bytes.Buffer{}
 	writer := multipart.NewWriter(body)
-	err := writer.WriteField("image",file)
+	part, err := writer.CreateFormFile("image",fileName)
 	if err != nil {
 		return nil, err
 	}
-	part, err := writer.CreateFormField("image")
-	if err != nil {
-		return nil, err
-	}
-	// Defining source
-    src := strings.NewReader(file)
+	src := bytes.NewReader([]byte(file))
 	_, err = io.Copy(part, src)
 	if err != nil {
 		return nil, err
@@ -270,7 +266,6 @@ func newfileUploadRequest(uri, file, appKey, appID string) (*http.Request, error
 	if err != nil {
 		return nil, err
 	}
-
 	req, err := http.NewRequest(http.MethodPost, uri, body)
 	req.Header.Set("Content-Type", writer.FormDataContentType())
 	req.Header.Set("appId", appID)
