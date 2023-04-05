@@ -190,3 +190,175 @@ type DlResponse struct {
 type ResultDl struct {
 	ExtractionOutput IdfyDlResponse `json:"extraction_output"`
 }
+
+type FraudCheckRequest struct {
+	TaskID  string         `json:"task_id"`
+	GroupID string         `json:"group_id"`
+	Data    FraudCheckData `json:"data"`
+}
+type FraudCheckData struct {
+	IdNumber           string `json:"id_number"`
+	PassportFileNumber string `json:"passport_file_number"`
+	DateOfBirth        string `json:"date_of_birth"`
+	AadhaarNumber      string `json:"aadhaar_number"`
+}
+
+type FraudCheckResponse struct {
+	RequestID string `json:"request_id"`
+}
+
+type FraudCheckDlResponse struct {
+	Action      string    `json:"action"`
+	CompletedAt time.Time `json:"completed_at"`
+	CreatedAt   time.Time `json:"created_at"`
+	GroupID     string    `json:"group_id"`
+	RequestID   string    `json:"request_id"`
+	Result      struct {
+		SourceOutput struct {
+			Address      interface{} `json:"address"`
+			BadgeDetails interface{} `json:"badge_details"`
+			CardSerialNo interface{} `json:"card_serial_no"`
+			City         interface{} `json:"city"`
+			CovDetails   []struct {
+				Category  string `json:"category"`
+				Cov       string `json:"cov"`
+				IssueDate string `json:"issue_date"`
+			} `json:"cov_details"`
+			DateOfIssue           string      `json:"date_of_issue"`
+			DateOfLastTransaction interface{} `json:"date_of_last_transaction"`
+			DlStatus              string      `json:"dl_status"`
+			Dob                   string      `json:"dob"`
+			FaceImage             interface{} `json:"face_image"`
+			Gender                interface{} `json:"gender"`
+			HazardousValidTill    interface{} `json:"hazardous_valid_till"`
+			HillValidTill         interface{} `json:"hill_valid_till"`
+			IDNumber              string      `json:"id_number"`
+			IssuingRtoName        string      `json:"issuing_rto_name"`
+			LastTransactedAt      interface{} `json:"last_transacted_at"`
+			Name                  string      `json:"name"`
+			NtValidityFrom        string      `json:"nt_validity_from"`
+			NtValidityTo          string      `json:"nt_validity_to"`
+			RelativesName         interface{} `json:"relatives_name"`
+			Source                string      `json:"source"`
+			Status                string      `json:"status"`
+			TValidityFrom         string      `json:"t_validity_from"`
+			TValidityTo           string      `json:"t_validity_to"`
+			State                 string      `json:"state"`
+			IsMinor               bool        `json:"is_minor"`
+		} `json:"source_output"`
+	} `json:"result"`
+	Status  string `json:"status"`
+	TaskID  string `json:"task_id"`
+	Type    string `json:"type"`
+	Error   string `json:"error"`
+	Message string `json:"message"`
+}
+
+type FraudCheckPanResponse struct {
+	Action      string    `json:"action"`
+	CompletedAt time.Time `json:"completed_at"`
+	CreatedAt   time.Time `json:"created_at"`
+	GroupID     string    `json:"group_id"`
+	RequestID   string    `json:"request_id"`
+	Result      struct {
+		SourceOutput struct {
+			AadhaarSeedingStatus bool        `json:"aadhaar_seeding_status"`
+			FirstName            string      `json:"first_name"`
+			Gender               interface{} `json:"gender"`
+			IDNumber             string      `json:"id_number"`
+			LastName             string      `json:"last_name"`
+			MiddleName           string      `json:"middle_name"`
+			NameOnCard           string      `json:"name_on_card"`
+			Source               string      `json:"source"`
+			Status               string      `json:"status"`
+		} `json:"source_output"`
+	} `json:"result"`
+	Status  string `json:"status"`
+	TaskID  string `json:"task_id"`
+	Type    string `json:"type"`
+	Error   string `json:"error"`
+	Message string `json:"message"`
+}
+
+type FraudCheckVoterResponse struct {
+	Action      string    `json:"action"`
+	CompletedAt time.Time `json:"completed_at"`
+	CreatedAt   time.Time `json:"created_at"`
+	GroupID     string    `json:"group_id"`
+	RequestID   string    `json:"request_id"`
+	Result      struct {
+		SourceOutput struct {
+			AcNo        string      `json:"ac_no"`
+			DateOfBirth interface{} `json:"date_of_birth"`
+			District    string      `json:"district"`
+			Gender      string      `json:"gender"`
+			HouseNo     interface{} `json:"house_no"`
+			IDNumber    string      `json:"id_number"`
+			LastUpdate  string      `json:"last_update"`
+			NameOnCard  string      `json:"name_on_card"`
+			PartNo      string      `json:"part_no"`
+			PsLatLong   string      `json:"ps_lat_long"`
+			PsName      string      `json:"ps_name"`
+			RlnName     string      `json:"rln_name"`
+			SectionNo   string      `json:"section_no"`
+			Source      string      `json:"source"`
+			StCode      string      `json:"st_code"`
+			State       string      `json:"state"`
+			Status      string      `json:"status"`
+		} `json:"source_output"`
+	} `json:"result"`
+	Status  string `json:"status"`
+	TaskID  string `json:"task_id"`
+	Type    string `json:"type"`
+	Error   string `json:"error"`
+	Message string `json:"message"`
+}
+
+type FraudCheckPassportResponse struct {
+	Action      string    `json:"action"`
+	CompletedAt time.Time `json:"completed_at"`
+	CreatedAt   time.Time `json:"created_at"`
+	GroupID     string    `json:"group_id"`
+	RequestID   string    `json:"request_id"`
+	Result      struct {
+		SourceOutput struct {
+			ApplicationDate string `json:"application_date"`
+			DateOfBirth     string `json:"date_of_birth"`
+			FileNumber      string `json:"file_number"`
+			Name            string `json:"name"`
+			PassportStatus  string `json:"passport_status"`
+			Status          string `json:"status"`
+			Surname         string `json:"surname"`
+		} `json:"source_output"`
+	} `json:"result"`
+	Status  string `json:"status"`
+	TaskID  string `json:"task_id"`
+	Type    string `json:"type"`
+	Error   string `json:"error"`
+	Message string `json:"message"`
+}
+
+type FraudCheckAadharResponse struct {
+	Action      string    `json:"action"`
+	CompletedAt time.Time `json:"completed_at"`
+	CreatedAt   time.Time `json:"created_at"`
+	GroupID     string    `json:"group_id"`
+	RequestID   string    `json:"request_id"`
+	Result      struct {
+		SourceOutput struct {
+			AgeBand struct {
+				LowerLimit string `json:"lower_limit"`
+				UpperLimit string `json:"upper_limit"`
+			} `json:"age_band"`
+			Gender       string `json:"gender"`
+			MobileNumber string `json:"mobile_number"`
+			State        string `json:"state"`
+			Status       string `json:"status"`
+		} `json:"source_output"`
+	} `json:"result"`
+	Status  string `json:"status"`
+	TaskID  string `json:"task_id"`
+	Type    string `json:"type"`
+	Error   string `json:"error"`
+	Message string `json:"message"`
+}

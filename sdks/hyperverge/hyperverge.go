@@ -9,6 +9,7 @@ import (
 	"net/http"
 	"os"
 	"path/filepath"
+	"strings"
 
 	"bitbucket.org/junglee_games/getsetgo/httpclient"
 	"bitbucket.org/junglee_games/getsetgo/instrumenting/newrelic"
@@ -276,4 +277,130 @@ func mergeAadharDetails(hypervergeAadharResult *HypervergeAadharResponse) {
 			hypervergeAadharResult.Result[i].Details.Name.Value = hypervergeAadharResult.Result[i+1].Details.Name.Value
 		}
 	}
+}
+
+func (hypervergeImpl *HypervergeImpl) addHeaders(req *http.Request) {
+	req.Header.Add("appId", hypervergeImpl.config.GetHypervergeAppID())
+	req.Header.Add("apikey", hypervergeImpl.config.GetHypervergeAppKey())
+	req.Header.Add("Content-Type", "application/json")
+}
+
+func (hypervergeImpl *HypervergeImpl) FraudCheckPan(fraudCheckPanRequest FraudCheckPanRequest) (*FraudCheckPanResponse, error) {
+	url := hypervergeImpl.config.GetHypervergeFraudCheckEndpoint() + "/verifyPAN"
+	reqObj, _ := json.Marshal(fraudCheckPanRequest)
+	payload := strings.NewReader(string(reqObj))
+	req, err := http.NewRequest(http.MethodPost, url, payload)
+	if err != nil {
+		return nil, err
+	}
+	hypervergeImpl.addHeaders(req)
+	res, err := hypervergeImpl.httpClient.Do(req)
+	if err != nil {
+		return nil, err
+	}
+	body := &bytes.Buffer{}
+	_, err = body.ReadFrom(res.Body)
+	if err != nil {
+		return nil, err
+	}
+	defer res.Body.Close()
+	var fraudCheckPanResponse FraudCheckPanResponse
+	err = json.Unmarshal(body.Bytes(), &fraudCheckPanRequest)
+	return &fraudCheckPanResponse, err
+}
+
+func (hypervergeImpl *HypervergeImpl) FraudCheckDl(fraudCheckDlRequest FraudCheckDlRequest) (*FraudCheckDlResponse, error) {
+	url := hypervergeImpl.config.GetHypervergeFraudCheckEndpoint() + "/checkDL"
+	reqObj, _ := json.Marshal(fraudCheckDlRequest)
+	payload := strings.NewReader(string(reqObj))
+	req, err := http.NewRequest(http.MethodPost, url, payload)
+	if err != nil {
+		return nil, err
+	}
+	hypervergeImpl.addHeaders(req)
+	res, err := hypervergeImpl.httpClient.Do(req)
+	if err != nil {
+		return nil, err
+	}
+	body := &bytes.Buffer{}
+	_, err = body.ReadFrom(res.Body)
+	if err != nil {
+		return nil, err
+	}
+	defer res.Body.Close()
+	var fraudCheckDlResponse FraudCheckDlResponse
+	err = json.Unmarshal(body.Bytes(), &fraudCheckDlResponse)
+	return &fraudCheckDlResponse, err
+}
+
+func (hypervergeImpl *HypervergeImpl) FraudCheckVoter(fraudCheckVoterRequest FraudCheckVoterRequest) (*FraudCheckVoterResponse, error) {
+	url := hypervergeImpl.config.GetHypervergeFraudCheckEndpoint() + "/checkVoterId"
+	reqObj, _ := json.Marshal(fraudCheckVoterRequest)
+	payload := strings.NewReader(string(reqObj))
+	req, err := http.NewRequest(http.MethodPost, url, payload)
+	if err != nil {
+		return nil, err
+	}
+	hypervergeImpl.addHeaders(req)
+	res, err := hypervergeImpl.httpClient.Do(req)
+	if err != nil {
+		return nil, err
+	}
+	body := &bytes.Buffer{}
+	_, err = body.ReadFrom(res.Body)
+	if err != nil {
+		return nil, err
+	}
+	defer res.Body.Close()
+	var fraudCheckVoterResponse FraudCheckVoterResponse
+	err = json.Unmarshal(body.Bytes(), &fraudCheckVoterResponse)
+	return &fraudCheckVoterResponse, err
+}
+
+func (hypervergeImpl *HypervergeImpl) FraudCheckPassport(fraudCheckPassportRequest FraudCheckPassportRequest) (*FraudCheckPassportResponse, error) {
+	url := hypervergeImpl.config.GetHypervergeFraudCheckEndpoint() + "/verifyPassport"
+	reqObj, _ := json.Marshal(fraudCheckPassportRequest)
+	payload := strings.NewReader(string(reqObj))
+	req, err := http.NewRequest(http.MethodPost, url, payload)
+	if err != nil {
+		return nil, err
+	}
+	hypervergeImpl.addHeaders(req)
+	res, err := hypervergeImpl.httpClient.Do(req)
+	if err != nil {
+		return nil, err
+	}
+	body := &bytes.Buffer{}
+	_, err = body.ReadFrom(res.Body)
+	if err != nil {
+		return nil, err
+	}
+	defer res.Body.Close()
+	var fraudCheckPassportResponse FraudCheckPassportResponse
+	err = json.Unmarshal(body.Bytes(), &fraudCheckPassportResponse)
+	return &fraudCheckPassportResponse, err
+}
+
+func (hypervergeImpl *HypervergeImpl) FraudCheckAadhar(fraudCheckAadharRequest FraudCheckAadharRequest) (*FraudCheckAadharResponse, error) {
+	url := hypervergeImpl.config.GetHypervergeFraudCheckAadharEndpoint() + "verifyAadhaar"
+	reqObj, _ := json.Marshal(fraudCheckAadharRequest)
+	payload := strings.NewReader(string(reqObj))
+	req, err := http.NewRequest(http.MethodPost, url, payload)
+	if err != nil {
+		return nil, err
+	}
+	hypervergeImpl.addHeaders(req)
+	res, err := hypervergeImpl.httpClient.Do(req)
+	if err != nil {
+		return nil, err
+	}
+	body := &bytes.Buffer{}
+	_, err = body.ReadFrom(res.Body)
+	if err != nil {
+		return nil, err
+	}
+	defer res.Body.Close()
+	var fraudCheckAadharResponse FraudCheckAadharResponse
+	err = json.Unmarshal(body.Bytes(), &fraudCheckAadharResponse)
+	return &fraudCheckAadharResponse, err
 }

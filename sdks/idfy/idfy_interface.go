@@ -6,10 +6,17 @@ type Idfy interface {
 	ExtractDl(idfyrequest IdfyRequest) (*IdfyDlResponse, error)
 	ExtractVoter(idfyrequest IdfyRequest) (*IdfyVoterIdResponse, error)
 	ExtractPassport(idfyrequest IdfyRequest) (*IdfyPassportResponse, error)
+	FraudCheckPan(fraudCheckRequest FraudCheckRequest) (*FraudCheckPanResponse, error)
+	FraudCheckAadhar(fraudCheckRequest FraudCheckRequest) (*FraudCheckAadharResponse, error)
+	FraudCheckDl(fraudCheckRequest FraudCheckRequest) (*FraudCheckDlResponse, error)
+	FraudCheckVoter(fraudCheckRequest FraudCheckRequest) (*FraudCheckVoterResponse, error)
+	FraudCheckPassport(fraudCheckRequest FraudCheckRequest) (*FraudCheckPassportResponse, error)
 }
 
 type IdfyConfig interface {
 	GetIdfyAccountId() string
 	GetIdfyApiKey() string
 	GetIdfyEndpoint() string
+	GetIdfyFraudCheckPostEndpoint() string
+	GetIdfyFraudCheckGetEndpoint() string
 }

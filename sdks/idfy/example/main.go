@@ -6,9 +6,8 @@ import (
 	"bitbucket.org/junglee_games/getsetgo/sdks/idfy"
 )
 
-
 type IdfyConfig struct {
-	ApiKey string
+	ApiKey    string
 	Something string
 }
 
@@ -21,9 +20,14 @@ func (this IdfyConfig) GetIdfyApiKey() string {
 func (this IdfyConfig) GetIdfyEndpoint() string {
 	return "blah blah"
 }
-
+func (this IdfyConfig) GetIdfyFraudCheckPostEndpoint() string {
+	return "blah blah"
+}
+func (this IdfyConfig) GetIdfyFraudCheckGetEndpoint() string {
+	return "blah blah"
+}
 
 func main() {
-	d :=  idfy.New(IdfyConfig{},newrelic.Agent{},httpclient.NewHttpClient(30))
-	d.ExtractAadhar(idfy.IdfyRequest{})
+	d := idfy.New(IdfyConfig{}, newrelic.Agent{}, httpclient.NewHttpClient(30))
+	d.FraudCheckAadhar(idfy.FraudCheckRequest{})
 }

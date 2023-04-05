@@ -176,7 +176,7 @@ type HypervergePassportResponse struct {
 				Pin         string `json:"pin,omitempty"`
 				State       string `json:"state,omitempty"`
 				Value       string `json:"value,omitempty"`
-				Conf        int `json:"conf,omitempty"`
+				Conf        int    `json:"conf,omitempty"`
 			} `json:"address,omitempty"`
 			Father struct {
 				Value string `json:"value,omitempty"`
@@ -275,7 +275,7 @@ type HypervergeVoterIdResponse struct {
 				Pin         string `json:"pin,omitempty"`
 				State       string `json:"state,omitempty"`
 				Value       string `json:"value,omitempty"`
-				Conf        int `json:"conf,omitempty"`
+				Conf        int    `json:"conf,omitempty"`
 			} `json:"address,omitempty"`
 		} `json:"details"`
 	} `json:"result"`
@@ -373,4 +373,148 @@ type VoterIdResponse struct {
 	Value       string `json:"value,omitempty"`
 	Conf        string `json:"conf,omitempty"`
 	AddressPin  string `json:"address_pin,omitempty"`
+}
+
+type FraudCheckPanRequest struct {
+	Pan                       string `json:"pan"`
+	Name                      string `json:"name"`
+	Dob                       string `json:"dob"`
+	StrictlyUseGetNameFromPan string `json:"strictlyUseGetNameFromPan"`
+	MatchDob                  string `json:"matchDob"`
+}
+
+type FraudCheckPanResponse struct {
+	Status     string `json:"status"`
+	StatusCode string `json:"statusCode"`
+	Error      string `json:"error"`
+	Result     struct {
+		DobMatch  bool        `json:"dobMatch"`
+		NameMatch bool        `json:"nameMatch"`
+		Status    string      `json:"status"`
+		Duplicate interface{} `json:"duplicate"`
+	} `json:"result"`
+}
+
+type FraudCheckDlRequest struct {
+	DlNumber string `json:"dlNumber"`
+	Dob      string `json:"dob"`
+}
+
+type FraudCheckDlResponse struct {
+	Status     string `json:"status"`
+	StatusCode string `json:"statusCode"`
+	Error      string `json:"error"`
+	Result     struct {
+		IssueDate  string `json:"issue_date"`
+		FatherName string `json:"father/husband"`
+		Name       string `json:"name"`
+		Image      string `json:"img"`
+		BloodGroup string `json:"blood_group"`
+		DOB        string `json:"dob"`
+		Validity   struct {
+			NonTransport string `json:"non-transport"`
+			Transport    string `json:"transport"`
+		} `json:"validity"`
+		COVDetails []struct {
+			IssueDate string `json:"issue_date"`
+			COV       string `json:"cov"`
+		} `json:"cov_details"`
+		Address string `json:"address"`
+	} `json:"result"`
+}
+
+type FraudCheckPassportRequest struct {
+	FileNo     string `json:"fileNo"`
+	Dob        string `json:"dob"`
+	Doi        string `json:"doi"`
+	PassportNo string `json:"passportNo"`
+	Name       string `json:"name"`
+}
+
+type FraudCheckPassportResponse struct {
+	Status     string `json:"status"`
+	StatusCode string `json:"statusCode"`
+	Error      string `json:"error"`
+	Result     struct {
+		ApplicationDate string `json:"applicationDate"`
+		DateOfIssue     struct {
+			DispatchedOnFromSource string `json:"dispatchedOnFromSource"`
+			DateOfIssueMatch       bool   `json:"dateOfIssueMatch"`
+		} `json:"dateOfIssue"`
+		PassportNumber struct {
+			PassportNumberFromSource string `json:"passportNumberFromSource"`
+			PassportNumberMatch      bool   `json:"passportNumberMatch"`
+		} `json:"passportNumber"`
+		Name struct {
+			NameMatch           bool   `json:"nameMatch"`
+			SurnameFromPassport string `json:"surnameFromPassport"`
+			NameScore           int    `json:"nameScore"`
+			NameFromPassport    string `json:"nameFromPassport"`
+		} `json:"name"`
+		TypeOfApplication string `json:"typeOfApplication"`
+	} `json:"result"`
+}
+
+type FraudCheckVoterRequest struct {
+	EpicNumber string `json:"epicNumber"`
+}
+
+type FraudCheckVoterResponse struct {
+	Status     string `json:"status"`
+	StatusCode string `json:"statusCode"`
+	Error      string `json:"error"`
+	Result     struct {
+		PSLatLong  string `json:"ps_lat_long"`
+		RLNNameV1  string `json:"rln_name_v1"`
+		RLNNameV2  string `json:"rln_name_v2"`
+		RLNNameV3  string `json:"rln_name_v3"`
+		PartNo     string `json:"part_no"`
+		RLNType    string `json:"rln_type"`
+		SectionNo  string `json:"section_no"`
+		ID         string `json:"id"`
+		EpicNo     string `json:"epic_no"`
+		RLNName    string `json:"rln_name"`
+		District   string `json:"district"`
+		LastUpdate string `json:"last_update"`
+		State      string `json:"state"`
+		ACNo       string `json:"ac_no"`
+		HouseNo    string `json:"house_no"`
+		PSName     string `json:"ps_name"`
+		PCName     string `json:"pc_name"`
+		SlnoInPart string `json:"slno_inpart"`
+		Name       string `json:"name"`
+		PartName   string `json:"part_name"`
+		DOB        string `json:"dob"`
+		Gender     string `json:"gender"`
+		Age        int    `json:"age"`
+		ACName     string `json:"ac_name"`
+		NameV1     string `json:"name_v1"`
+		StCode     string `json:"st_code"`
+		NameV3     string `json:"name_v3"`
+		NameV2     string `json:"name_v2"`
+	} `json:"result"`
+}
+
+type FraudCheckAadharResponse struct {
+	Message            string            `json:"message"`
+	Error              string            `json:"error"`
+	StatusCode         int               `json:"statusCode"`
+	Code               int               `json:"code"`
+	DetailsFromUIDAI   map[string]string `json:"detailsFromUIDAI"`
+	AadhaarNumberCheck fraudMatch        `json:"aadhaarNumberCheck"`
+	DobMatch           fraudMatch        `json:"dobMatch"`
+	StateMatch         fraudMatch        `json:"stateMatch"`
+}
+
+type fraudMatch struct {
+	Match   bool   `json:"match"`
+	Channel string `json:"channel"`
+}
+
+type FraudCheckAadharRequest struct{
+	SessionID     string `json:"sessionId"`
+	AadhaarNoUser string `json:"aadhaarNoUser"`
+	SecurityCode  string `json:"securityCode"`
+	Match         bool   `json:"match"`
+	DOB           string `json:"dob"`
 }
