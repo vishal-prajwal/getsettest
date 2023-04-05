@@ -13,6 +13,7 @@ import (
 
 	"bitbucket.org/junglee_games/getsetgo/httpclient"
 	"bitbucket.org/junglee_games/getsetgo/instrumenting/newrelic"
+	"github.com/pkg/errors"
 )
 
 type HypervergeImpl struct {
@@ -59,21 +60,30 @@ func (hypervergeImpl *HypervergeImpl) ReadPan(hypervergeRequest HypervergeReques
 	if err != nil {
 		return nil, err
 	}
-	var hypervergePanResponseStruct HypervergePanResponse
-	err = json.Unmarshal(body.Bytes(), &hypervergePanResponseStruct)
+	var hypervergePanResponse HypervergePanResponse
+	err = json.Unmarshal(body.Bytes(), &hypervergePanResponse)
 	if err != nil {
 		return nil, err
 	}
-	if hypervergePanResponseStruct.StatusCode != "200" {
-		return nil, fmt.Errorf("status %v errorMessage %v", hypervergePanResponseStruct.Status, hypervergePanResponseStruct.Error)
+	if hypervergePanResponse.StatusCode != "200" {
+		switch hypervergePanResponse.StatusCode {
+		case "437":
+			return nil, errors.Wrap(ErrBlurredImage,hypervergePanResponse.Error)
+		case "432":
+			return nil, errors.Wrap(ErrTemperedImage,hypervergePanResponse.Error)
+		case "422":
+			return nil, errors.Wrap(ErrInvalidDoc,hypervergePanResponse.Error)
+		default:
+			return nil, fmt.Errorf("status %v errorMessage %v", hypervergePanResponse.Status, hypervergePanResponse.Error)
+		}
 	}
-	hypervergePanResponse := hypervergePanResponseStruct.Result[0].Details
+	details := hypervergePanResponse.Result[0].Details
 	panResponse := PanResponse{
-		Date:        hypervergePanResponse.Date.Value,
-		Father:      hypervergePanResponse.Father.Value,
-		Name:        hypervergePanResponse.Name.Value,
-		PanNo:       hypervergePanResponse.PanNo.Value,
-		DateOfIssue: hypervergePanResponse.DateOfIssue.Value,
+		Date:        details.Date.Value,
+		Father:      details.Father.Value,
+		Name:        details.Name.Value,
+		PanNo:       details.PanNo.Value,
+		DateOfIssue: details.DateOfIssue.Value,
 	}
 
 	return &panResponse, err
@@ -85,40 +95,49 @@ func (hypervergeImpl *HypervergeImpl) ReadAadhar(hypervergeRequest HypervergeReq
 	if err != nil {
 		return nil, err
 	}
-	var hypervergeAadharResponseStruct HypervergeAadharResponse
-	err = json.Unmarshal(body.Bytes(), &hypervergeAadharResponseStruct)
+	var hypervergeAadharResponse HypervergeAadharResponse
+	err = json.Unmarshal(body.Bytes(), &hypervergeAadharResponse)
 	if err != nil {
 		return nil, err
 	}
-	if hypervergeAadharResponseStruct.StatusCode != "200" {
-		return nil, fmt.Errorf("status %v errorMessage %v", hypervergeAadharResponseStruct.Status, hypervergeAadharResponseStruct.Error)
+	if hypervergeAadharResponse.StatusCode != "200" {
+		switch hypervergeAadharResponse.StatusCode {
+		case "437":
+			return nil, errors.Wrap(ErrBlurredImage,hypervergeAadharResponse.Error)
+		case "432":
+			return nil, errors.Wrap(ErrTemperedImage,hypervergeAadharResponse.Error)
+		case "422":
+			return nil, errors.Wrap(ErrInvalidDoc,hypervergeAadharResponse.Error)
+		default:
+			return nil, fmt.Errorf("status %v errorMessage %v", hypervergeAadharResponse.Status, hypervergeAadharResponse.Error)
+		}
 	}
-	if len(hypervergeAadharResponseStruct.Result) > 1 {
-		mergeAadharDetails(&hypervergeAadharResponseStruct)
+	if len(hypervergeAadharResponse.Result) > 1 {
+		mergeAadharDetails(&hypervergeAadharResponse)
 	}
-	hypervergeAadharResponse := hypervergeAadharResponseStruct.Result[0].Details
+	details := hypervergeAadharResponse.Result[0].Details
 	aadharResponse := AadharResponse{
-		Aadhaar:     hypervergeAadharResponse.Aadhaar.Value,
-		Dob:         hypervergeAadharResponse.Dob.Value,
-		Father:      hypervergeAadharResponse.Father.Value,
-		Gender:      hypervergeAadharResponse.Gender.Value,
-		Mother:      hypervergeAadharResponse.Mother.Value,
-		Name:        hypervergeAadharResponse.Name.Value,
-		Yob:         hypervergeAadharResponse.Yob.Value,
-		Husband:     hypervergeAadharResponse.Husband.Value,
-		Phone:       hypervergeAadharResponse.Phone.Value,
-		Pin:         hypervergeAadharResponse.Pin.Value,
-		CareOf:      hypervergeAadharResponse.Address.CareOf,
-		District:    hypervergeAadharResponse.Address.District,
-		City:        hypervergeAadharResponse.Address.City,
-		Locality:    hypervergeAadharResponse.Address.Locality,
-		Landmark:    hypervergeAadharResponse.Address.Landmark,
-		Street:      hypervergeAadharResponse.Address.Street,
-		Line1:       hypervergeAadharResponse.Address.Line1,
-		Line2:       hypervergeAadharResponse.Address.Line2,
-		HouseNumber: hypervergeAadharResponse.Address.HouseNumber,
-		State:       hypervergeAadharResponse.Address.State,
-		AddressPin:  hypervergeAadharResponse.Address.Pin,
+		Aadhaar:     details.Aadhaar.Value,
+		Dob:         details.Dob.Value,
+		Father:      details.Father.Value,
+		Gender:      details.Gender.Value,
+		Mother:      details.Mother.Value,
+		Name:        details.Name.Value,
+		Yob:         details.Yob.Value,
+		Husband:     details.Husband.Value,
+		Phone:       details.Phone.Value,
+		Pin:         details.Pin.Value,
+		CareOf:      details.Address.CareOf,
+		District:    details.Address.District,
+		City:        details.Address.City,
+		Locality:    details.Address.Locality,
+		Landmark:    details.Address.Landmark,
+		Street:      details.Address.Street,
+		Line1:       details.Address.Line1,
+		Line2:       details.Address.Line2,
+		HouseNumber: details.Address.HouseNumber,
+		State:       details.Address.State,
+		AddressPin:  details.Address.Pin,
 	}
 
 	return &aadharResponse, err
@@ -130,47 +149,56 @@ func (hypervergeImpl *HypervergeImpl) ReadPassport(hypervergeRequest HypervergeR
 	if err != nil {
 		return nil, err
 	}
-	var hypervergePassportResponseStruct HypervergePassportResponse
-	err = json.Unmarshal(body.Bytes(), &hypervergePassportResponseStruct)
+	var hypervergePassportResponse HypervergePassportResponse
+	err = json.Unmarshal(body.Bytes(), &hypervergePassportResponse)
 	if err != nil {
 		return nil, err
 	}
-	if hypervergePassportResponseStruct.StatusCode != "200" {
-		return nil, fmt.Errorf("status %v errorMessage %v", hypervergePassportResponseStruct.Status, hypervergePassportResponseStruct.Error)
+	if hypervergePassportResponse.StatusCode != "200" {
+		switch hypervergePassportResponse.StatusCode {
+		case "437":
+			return nil, errors.Wrap(ErrBlurredImage,hypervergePassportResponse.Error)
+		case "432":
+			return nil, errors.Wrap(ErrTemperedImage,hypervergePassportResponse.Error)
+		case "422":
+			return nil, errors.Wrap(ErrInvalidDoc,hypervergePassportResponse.Error)
+		default:
+			return nil, fmt.Errorf("status %v errorMessage %v", hypervergePassportResponse.Status, hypervergePassportResponse.Error)
+		}
 	}
-	hypervergePassportResponse := hypervergePassportResponseStruct.Result[0].Details
+	details := hypervergePassportResponse.Result[0].Details
 	passportResponse := PassportResponse{
-		CountryCode:     hypervergePassportResponse.CountryCode.Value,
-		Dob:             hypervergePassportResponse.Dob.Value,
-		Doe:             hypervergePassportResponse.Doe.Value,
-		Doi:             hypervergePassportResponse.Doi.Value,
-		Gender:          hypervergePassportResponse.Gender.Value,
-		GivenName:       hypervergePassportResponse.GivenName.Value,
-		Nationality:     hypervergePassportResponse.Nationality.Value,
-		PassportNum:     hypervergePassportResponse.PassportNum.Value,
-		PlaceOfBirth:    hypervergePassportResponse.PlaceOfBirth.Value,
-		PlaceOfIssue:    hypervergePassportResponse.PlaceOfIssue.Value,
-		Surname:         hypervergePassportResponse.Surname.Value,
-		Mrz:             hypervergePassportResponse.Mrz.Line1,
-		Type:            hypervergePassportResponse.Type.Value,
-		District:        hypervergePassportResponse.Address.District,
-		City:            hypervergePassportResponse.Address.City,
-		Locality:        hypervergePassportResponse.Address.Locality,
-		Landmark:        hypervergePassportResponse.Address.Landmark,
-		Street:          hypervergePassportResponse.Address.Street,
-		Line1:           hypervergePassportResponse.Address.Line1,
-		Line2:           hypervergePassportResponse.Address.Line2,
-		HouseNumber:     hypervergePassportResponse.Address.HouseNumber,
-		State:           hypervergePassportResponse.Address.State,
-		Father:          hypervergePassportResponse.Father.Value,
-		Mother:          hypervergePassportResponse.Mother.Value,
-		FileNum:         hypervergePassportResponse.FileNum.Value,
-		OldDoi:          hypervergePassportResponse.OldDoi.Value,
-		OldPassportNum:  hypervergePassportResponse.OldPassportNum.Value,
-		OldPlaceOfIssue: hypervergePassportResponse.OldPlaceOfIssue.Value,
-		Pin:             hypervergePassportResponse.Pin.Value,
-		Spouse:          hypervergePassportResponse.Spouse.Value,
-		AddressPin:      hypervergePassportResponse.Address.Pin,
+		CountryCode:     details.CountryCode.Value,
+		Dob:             details.Dob.Value,
+		Doe:             details.Doe.Value,
+		Doi:             details.Doi.Value,
+		Gender:          details.Gender.Value,
+		GivenName:       details.GivenName.Value,
+		Nationality:     details.Nationality.Value,
+		PassportNum:     details.PassportNum.Value,
+		PlaceOfBirth:    details.PlaceOfBirth.Value,
+		PlaceOfIssue:    details.PlaceOfIssue.Value,
+		Surname:         details.Surname.Value,
+		Mrz:             details.Mrz.Line1,
+		Type:            details.Type.Value,
+		District:        details.Address.District,
+		City:            details.Address.City,
+		Locality:        details.Address.Locality,
+		Landmark:        details.Address.Landmark,
+		Street:          details.Address.Street,
+		Line1:           details.Address.Line1,
+		Line2:           details.Address.Line2,
+		HouseNumber:     details.Address.HouseNumber,
+		State:           details.Address.State,
+		Father:          details.Father.Value,
+		Mother:          details.Mother.Value,
+		FileNum:         details.FileNum.Value,
+		OldDoi:          details.OldDoi.Value,
+		OldPassportNum:  details.OldPassportNum.Value,
+		OldPlaceOfIssue: details.OldPlaceOfIssue.Value,
+		Pin:             details.Pin.Value,
+		Spouse:          details.Spouse.Value,
+		AddressPin:      details.Address.Pin,
 	}
 
 	return &passportResponse, err
@@ -181,35 +209,44 @@ func (hypervergeImpl *HypervergeImpl) ReadVotedID(hypervergeRequest HypervergeRe
 	if err != nil {
 		return nil, err
 	}
-	var hypervergeVoterIdResponseStruct HypervergeVoterIdResponse
-	err = json.Unmarshal(body.Bytes(), &hypervergeVoterIdResponseStruct)
+	var hypervergeVoterIdResponse HypervergeVoterIdResponse
+	err = json.Unmarshal(body.Bytes(), &hypervergeVoterIdResponse)
 	if err != nil {
 		return nil, err
 	}
-	if hypervergeVoterIdResponseStruct.StatusCode != "200" {
-		return nil, fmt.Errorf("status %v errorMessage %v", hypervergeVoterIdResponseStruct.Status, hypervergeVoterIdResponseStruct.Error)
+	if hypervergeVoterIdResponse.StatusCode != "200" {
+		switch hypervergeVoterIdResponse.StatusCode {
+		case "437":
+			return nil, errors.Wrap(ErrBlurredImage,hypervergeVoterIdResponse.Error)
+		case "432":
+			return nil, errors.Wrap(ErrTemperedImage,hypervergeVoterIdResponse.Error)
+		case "422":
+			return nil, errors.Wrap(ErrInvalidDoc,hypervergeVoterIdResponse.Error)
+		default:
+			return nil, fmt.Errorf("status %v errorMessage %v", hypervergeVoterIdResponse.Status, hypervergeVoterIdResponse.Error)
+		}
 	}
-	hypervergeVoterIdResponse := hypervergeVoterIdResponseStruct.Result[0].Details
+	details := hypervergeVoterIdResponse.Result[0].Details
 	voterIdResponse := VoterIdResponse{
-		Voterid:     hypervergeVoterIdResponse.Voterid.Value,
-		Name:        hypervergeVoterIdResponse.Name.Value,
-		Gender:      hypervergeVoterIdResponse.Gender.Value,
-		Relation:    hypervergeVoterIdResponse.Relation.Value,
-		Dob:         hypervergeVoterIdResponse.Dob.Value,
-		Doc:         hypervergeVoterIdResponse.Doc.Value,
-		Age:         hypervergeVoterIdResponse.Age.Value,
-		Pin:         hypervergeVoterIdResponse.Pin.Value,
-		Date:        hypervergeVoterIdResponse.Date.Value,
-		Type:        hypervergeVoterIdResponse.Type.Value,
-		District:    hypervergeVoterIdResponse.Address.District,
-		City:        hypervergeVoterIdResponse.Address.City,
-		Locality:    hypervergeVoterIdResponse.Address.Locality,
-		Street:      hypervergeVoterIdResponse.Address.Street,
-		Line1:       hypervergeVoterIdResponse.Address.Line1,
-		Line2:       hypervergeVoterIdResponse.Address.Line2,
-		HouseNumber: hypervergeVoterIdResponse.Address.HouseNumber,
-		State:       hypervergeVoterIdResponse.Address.State,
-		AddressPin:  hypervergeVoterIdResponse.Address.Pin,
+		Voterid:     details.Voterid.Value,
+		Name:        details.Name.Value,
+		Gender:      details.Gender.Value,
+		Relation:    details.Relation.Value,
+		Dob:         details.Dob.Value,
+		Doc:         details.Doc.Value,
+		Age:         details.Age.Value,
+		Pin:         details.Pin.Value,
+		Date:        details.Date.Value,
+		Type:        details.Type.Value,
+		District:    details.Address.District,
+		City:        details.Address.City,
+		Locality:    details.Address.Locality,
+		Street:      details.Address.Street,
+		Line1:       details.Address.Line1,
+		Line2:       details.Address.Line2,
+		HouseNumber: details.Address.HouseNumber,
+		State:       details.Address.State,
+		AddressPin:  details.Address.Pin,
 	}
 
 	return &voterIdResponse, err
