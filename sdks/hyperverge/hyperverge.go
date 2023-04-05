@@ -7,8 +7,6 @@ import (
 	"io"
 	"mime/multipart"
 	"net/http"
-	"os"
-	"path/filepath"
 	"strings"
 
 	"bitbucket.org/junglee_games/getsetgo/httpclient"
@@ -36,7 +34,7 @@ func (hypervergeImpl *HypervergeImpl) readDocument(documentType string, hyperver
 	url := getURLFor(documentType, hypervergeImpl.config.GetHypervergeEndpoint())
 	req, err := newfileUploadRequest(url, hypervergeRequest.Path, hypervergeImpl.config.GetHypervergeAppKey(), hypervergeImpl.config.GetHypervergeAppID())
 	if err != nil {
-		return nil, err
+		return nil, errors.Wrap(ErrUploadError,err.Error())
 	}
 
 	resp, err := hypervergeImpl.httpClient.Do(req)
@@ -50,15 +48,13 @@ func (hypervergeImpl *HypervergeImpl) readDocument(documentType string, hyperver
 		return nil, err
 	}
 	defer resp.Body.Close()
-
 	return body, nil
-
 }
 
 func (hypervergeImpl *HypervergeImpl) ReadPan(hypervergeRequest HypervergeRequest) (*PanResponse, error) {
 	body, err := hypervergeImpl.readDocument("pan", hypervergeRequest)
 	if err != nil {
-		return nil, err
+		return nil, errors.Wrap(ErrHttpError,err.Error())
 	}
 	var hypervergePanResponse HypervergePanResponse
 	err = json.Unmarshal(body.Bytes(), &hypervergePanResponse)
@@ -252,20 +248,21 @@ func (hypervergeImpl *HypervergeImpl) ReadVotedID(hypervergeRequest HypervergeRe
 	return &voterIdResponse, err
 }
 
-func newfileUploadRequest(uri, path, appKey, appID string) (*http.Request, error) {
-	file, err := os.Open(path)
-	if err != nil {
-		return nil, err
-	}
-	defer file.Close()
+func newfileUploadRequest(uri, file, appKey, appID string) (*http.Request, error) {
 
 	body := &bytes.Buffer{}
 	writer := multipart.NewWriter(body)
-	part, err := writer.CreateFormFile("image", filepath.Base(path))
+	err := writer.WriteField("image",file)
 	if err != nil {
 		return nil, err
 	}
-	_, err = io.Copy(part, file)
+	part, err := writer.CreateFormField("image")
+	if err != nil {
+		return nil, err
+	}
+	// Defining source
+    src := strings.NewReader(file)
+	_, err = io.Copy(part, src)
 	if err != nil {
 		return nil, err
 	}
