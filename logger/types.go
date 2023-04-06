@@ -21,4 +21,5 @@ type MiddleLayer func(ctx context.Context, msg string, fields *Fields) (context.
 type Config struct {
 	AppName string
 	Build   string
+	Level   LogLevel
 }

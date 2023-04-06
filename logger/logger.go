@@ -2,6 +2,7 @@ package logger
 
 import (
 	"context"
+	"errors"
 	"fmt"
 
 	"go.uber.org/zap"
@@ -30,6 +31,13 @@ func (c Config) InitiateLogger() error {
 		zapConfig = zap.NewProductionConfig()
 	} else {
 		zapConfig = zap.NewDevelopmentConfig()
+	}
+	if c.Level != "" {
+		level, found := logLevelToZapLevelMap[c.Level]
+		if !found {
+			return errors.New("invalid log level in config")
+		}
+		zapConfig.Level = zap.NewAtomicLevelAt(level)
 	}
 	zapConfig.DisableStacktrace = true
 
