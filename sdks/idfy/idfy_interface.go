@@ -11,6 +11,7 @@ type Idfy interface {
 	FraudCheckDl(fraudCheckRequest FraudCheckRequest) (*FraudCheckDlResponse, error)
 	FraudCheckVoter(fraudCheckRequest FraudCheckRequest) (*FraudCheckVoterResponse, error)
 	FraudCheckPassport(fraudCheckRequest FraudCheckRequest) (*FraudCheckPassportResponse, error)
+	CheckTemperedImage(req CheckTemperedReq)(bool,error)
 }
 
 type IdfyConfig interface {

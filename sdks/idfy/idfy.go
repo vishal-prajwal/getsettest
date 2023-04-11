@@ -280,3 +280,33 @@ func (idfyImpl *IdfyImpl) FraudCheckPassport(fraudCheckRequest FraudCheckRequest
 	}
 	return &fraudCheckPassportResponse, err
 }
+
+func (idfyImpl *IdfyImpl) CheckTemperedImage(req CheckTemperedReq)(bool,error) {
+
+	url := idfyImpl.config.GetIdfyEndpoint() + "/sync/check_tampering/document"
+	reqObj, _ := json.Marshal(req)
+	payload := strings.NewReader(string(reqObj))
+	httpReq, err := http.NewRequest(http.MethodPost, url, payload)
+	if err != nil {
+		return false, err
+	}
+	idfyImpl.addHeaders(httpReq)
+
+	res, err := idfyImpl.httpClient.Do(httpReq)
+	if err != nil {
+		return false, err
+	}
+
+	body := &bytes.Buffer{}
+	_, err = body.ReadFrom(res.Body)
+	if err != nil {
+		return false, err
+	}
+	defer res.Body.Close()
+	var httpRes CheckTemperedRes
+	err = json.Unmarshal(body.Bytes(), &httpRes)
+	if err != nil {
+		return false, err
+	}
+	return httpRes.Result.IsTampered, nil
+}

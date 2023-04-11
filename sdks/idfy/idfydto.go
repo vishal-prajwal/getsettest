@@ -7,6 +7,17 @@ type IdfyRequest struct {
 	GroupID string `json:"group_id"`
 	Data    Data   `json:"data"`
 }
+
+type CheckTemperedReq struct {
+	TaskID  string `json:"task_id"`
+	GroupID string `json:"group_id"`
+	Data    CheckTemperedReqData   `json:"data"`
+}
+
+type CheckTemperedReqData struct {
+	Document1 string `json:"document1"`
+}
+
 type AdvancedDetails struct {
 	ExtractQrInfo     bool `json:"extract_qr_info"`
 	ExtractLast4Digit bool `json:"extract_last_4_digit"`
@@ -312,6 +323,30 @@ type FraudCheckVoterResponse struct {
 	Type    string `json:"type"`
 	Error   string `json:"error"`
 	Message string `json:"message"`
+}
+
+
+type CheckTemperedRes struct {
+	Action      string    `json:"action"`
+	CompletedAt time.Time `json:"completed_at"`
+	CreatedAt   time.Time `json:"created_at"`
+	GroupID     string    `json:"group_id"`
+	RequestID   string    `json:"request_id"`
+	Result      struct {
+		ConfidenceScore interface{} `json:"confidence_score"`
+		Details         struct {
+			IsAppCreated          bool        `json:"is_app_created"`
+			IsDataValidated       interface{} `json:"is_data_validated"`
+			IsLayoutIncorrect     interface{} `json:"is_layout_incorrect"`
+			IsLive                interface{} `json:"is_live"`
+			IsMrzBarcodeValidated interface{} `json:"is_mrz_barcode_validated"`
+			IsScanned             interface{} `json:"is_scanned"`
+		} `json:"details"`
+		IsTampered bool `json:"is_tampered"`
+	} `json:"result"`
+	Status string `json:"status"`
+	TaskID string `json:"task_id"`
+	Type   string `json:"type"`
 }
 
 type FraudCheckPassportResponse struct {
