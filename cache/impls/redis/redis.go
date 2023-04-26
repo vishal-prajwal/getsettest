@@ -17,7 +17,6 @@ func NewRedisClient(config Config) *Redis {
 		Password: config.GetPassword(), // no password set
 		DB:       0,                    // use default DB
 	})
-
 	return &Redis{client: client}
 }
 

@@ -10,7 +10,6 @@ import (
 var Nil = redis.Nil
 
 type Client interface {
-	Conn() *redis.Client
 	Publish(ctx context.Context, channel string, message interface{}) error
 	BLPop(ctx context.Context, timeout time.Duration, keys ...string) ([]string, error)
 	Subscribe(ctx context.Context, channels ...string) *redis.PubSub
