@@ -31,6 +31,10 @@ func (c *clusterRedis) BLPop(ctx context.Context, timeout time.Duration, keys ..
 	return c.std.BLPop(ctx, timeout, keys...).Result()
 }
 
+func (c *clusterRedis) Incr(ctx context.Context, key string)  error{
+	return c.std.Incr(ctx,key).Err()
+}
+
 func (c *clusterRedis) Subscribe(ctx context.Context, channels ...string) *redis.PubSub {
 	return c.std.Subscribe(ctx, channels...)
 }

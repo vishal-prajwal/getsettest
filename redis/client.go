@@ -15,6 +15,7 @@ type Client interface {
 	Subscribe(ctx context.Context, channels ...string) *redis.PubSub
 
 	Get(ctx context.Context, key string) (string, error)
+	Incr(ctx context.Context, key string) error
 	Set(ctx context.Context, key string, value string, expiresIn time.Duration) error
 
 	LPush(ctx context.Context, key string, value ...interface{}) *redis.IntCmd
@@ -36,6 +37,10 @@ func (c *wrappedClient) Get(ctx context.Context, key string) (string, error) {
 
 func (c *wrappedClient) Set(ctx context.Context, key, value string, expiresIn time.Duration) error {
 	return c.std.Set(ctx, key, value, expiresIn).Err()
+}
+
+func (c *wrappedClient) Incr(ctx context.Context, key string)  error{
+	return c.std.Incr(ctx,key).Err()
 }
 
 func (c *wrappedClient) Publish(ctx context.Context, channel string, message interface{}) error {
