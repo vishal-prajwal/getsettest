@@ -6,6 +6,8 @@ type HypervergeRequest struct {
 	MaskAadhaarComplete string `json:"maskAadhaarComplete"`
 	OutputImageUrl      string `json:"outputImageUrl"`
 	ImageName string `json:"imageName"`
+	RejectBlur string `json:"rejectBlur"`
+	RejectTempredImage string `json:"rejectBasicTampering"`
 }
 
 type HypervergePanResponse struct {

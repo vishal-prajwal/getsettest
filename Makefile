@@ -7,3 +7,4 @@ mocks :
 	mockery --name='(.*)' --case=underscore --dir=sdks/dms --output=sdks/dms/mocks
 	mockery --name='(.*)' --case=underscore --dir=sdks/deposit --output=sdks/deposit/mocks
 	mockery --name='(.*)' --case=underscore --dir=sdks/profile --output=sdks/profile/mocks
+	mockery --name='(.*)' --case=underscore --dir=sdks/idfy --output=sdks/idfy/mocks
