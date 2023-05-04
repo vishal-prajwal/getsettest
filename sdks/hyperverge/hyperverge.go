@@ -62,6 +62,7 @@ func (hypervergeImpl *HypervergeImpl) ReadPan(hypervergeRequest HypervergeReques
 	if err != nil {
 		return nil, err
 	}
+	fmt.Printf("#@### %v",hypervergePanResponse)
 	if hypervergePanResponse.StatusCode != "200" {
 		switch hypervergePanResponse.StatusCode {
 		case "437":
@@ -97,6 +98,7 @@ func (hypervergeImpl *HypervergeImpl) ReadAadhar(hypervergeRequest HypervergeReq
 	if err != nil {
 		return nil, err
 	}
+	fmt.Printf("#@### %v",hypervergeAadharResponse)
 	if hypervergeAadharResponse.StatusCode != "200" {
 		switch hypervergeAadharResponse.StatusCode {
 		case "437":
@@ -211,6 +213,7 @@ func (hypervergeImpl *HypervergeImpl) ReadVotedID(hypervergeRequest HypervergeRe
 	if err != nil {
 		return nil, err
 	}
+	fmt.Printf("#@### %v",hypervergeVoterIdResponse)
 	if hypervergeVoterIdResponse.StatusCode != "200" {
 		switch hypervergeVoterIdResponse.StatusCode {
 		case "437":
