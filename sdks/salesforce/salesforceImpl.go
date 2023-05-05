@@ -22,9 +22,7 @@ type SalesforceImpl struct {
 }
 
 func (salesforceImpl *SalesforceImpl) RequestAccessToken(ctx context.Context, accessTokenRequest AccessTokenRequest, apiTimeout int) (*AccessTokenResponse, error) {
-	url := "https://test.salesforce.com/services/oauth2/token"
 	method := "POST"
-
 	payload := &bytes.Buffer{}
 	writer := multipart.NewWriter(payload)
 	_ = writer.WriteField("username", accessTokenRequest.Username)
@@ -40,7 +38,7 @@ func (salesforceImpl *SalesforceImpl) RequestAccessToken(ctx context.Context, ac
 	}
 
 	client := &http.Client{}
-	req, err := http.NewRequest(method, url, payload)
+	req, err := http.NewRequest(method, salesforceImpl.BaseURL, payload)
 
 	if err != nil {
 		return nil, err
