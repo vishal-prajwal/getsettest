@@ -82,6 +82,7 @@ func (hypervergeImpl *HypervergeImpl) ReadPan(hypervergeRequest HypervergeReques
 		Name:        details.Name.Value,
 		PanNo:       details.PanNo.Value,
 		DateOfIssue: details.DateOfIssue.Value,
+		RawResponse: body.String(),
 	}
 
 	return &panResponse, err
@@ -137,6 +138,7 @@ func (hypervergeImpl *HypervergeImpl) ReadAadhar(hypervergeRequest HypervergeReq
 		HouseNumber: details.Address.HouseNumber,
 		State:       details.Address.State,
 		AddressPin:  details.Address.Pin,
+		RawResponse: body.String(),
 	}
 
 	return &aadharResponse, err
@@ -198,6 +200,7 @@ func (hypervergeImpl *HypervergeImpl) ReadPassport(hypervergeRequest HypervergeR
 		Pin:             details.Pin.Value,
 		Spouse:          details.Spouse.Value,
 		AddressPin:      details.Address.Pin,
+		RawResponse: body.String(),
 	}
 
 	return &passportResponse, err
@@ -213,7 +216,6 @@ func (hypervergeImpl *HypervergeImpl) ReadVotedID(hypervergeRequest HypervergeRe
 	if err != nil {
 		return nil, err
 	}
-	fmt.Printf("#@### %v",hypervergeVoterIdResponse)
 	if hypervergeVoterIdResponse.StatusCode != "200" {
 		switch hypervergeVoterIdResponse.StatusCode {
 		case "437":
@@ -247,6 +249,7 @@ func (hypervergeImpl *HypervergeImpl) ReadVotedID(hypervergeRequest HypervergeRe
 		HouseNumber: details.Address.HouseNumber,
 		State:       details.Address.State,
 		AddressPin:  details.Address.Pin,
+		RawResponse: body.String(),
 	}
 
 	return &voterIdResponse, err

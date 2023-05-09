@@ -290,6 +290,7 @@ type PanResponse struct {
 	Name        string `json:"name,omitempty"`
 	PanNo       string `json:"pan_no,omitempty"`
 	DateOfIssue string `json:"date_of_issue,omitempty"`
+	RawResponse string
 }
 
 type AadharResponse struct {
@@ -315,6 +316,7 @@ type AadharResponse struct {
 	Phone       string `json:"phone,omitempty"`
 	Pin         string `json:"pin,omitempty"`
 	AddressPin  string `json:"address_pin,omitempty"`
+	RawResponse string
 }
 
 type PassportResponse struct {
@@ -351,6 +353,7 @@ type PassportResponse struct {
 	Pin             string `json:"pin,omitempty"`
 	Spouse          string `json:"spouse,omitempty"`
 	AddressPin      string `json:"address_pin,omitempty"`
+	RawResponse string
 }
 
 type VoterIdResponse struct {
@@ -376,6 +379,7 @@ type VoterIdResponse struct {
 	Value       string `json:"value,omitempty"`
 	Conf        string `json:"conf,omitempty"`
 	AddressPin  string `json:"address_pin,omitempty"`
+	RawResponse string
 }
 
 type FraudCheckPanRequest struct {
