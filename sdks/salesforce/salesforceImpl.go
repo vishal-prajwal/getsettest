@@ -38,7 +38,7 @@ func (salesforceImpl *SalesforceImpl) RequestAccessToken(ctx context.Context, ac
 	}
 
 	client := &http.Client{}
-	req, err := http.NewRequest(method, salesforceImpl.BaseURL, payload)
+	req, err := http.NewRequest(method, salesforceImpl.BaseURL+RequestAccessTokenPath, payload)
 
 	if err != nil {
 		return nil, err
