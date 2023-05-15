@@ -455,7 +455,7 @@ type FraudCheckPassportResponse struct {
 		Name struct {
 			NameMatch           bool   `json:"nameMatch"`
 			SurnameFromPassport string `json:"surnameFromPassport"`
-			NameScore           int    `json:"nameScore"`
+			NameScore           float64    `json:"nameScore"`
 			NameFromPassport    string `json:"nameFromPassport"`
 		} `json:"name"`
 		TypeOfApplication string `json:"typeOfApplication"`
