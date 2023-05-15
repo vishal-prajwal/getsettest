@@ -130,7 +130,7 @@ func (idfyImpl *IdfyImpl) addHeaders(req *http.Request) {
 }
 
 func (idfyImpl *IdfyImpl) fraudCheck(documentType string, fraudCheckRequest FraudCheckRequest) (*bytes.Buffer, error) {
-	postUrl := idfyImpl.config.GetIdfyFraudCheckPostEndpoint() + documentType
+	postUrl := idfyImpl.config.GetIdfyEndpoint() + documentType
 	reqObj, _ := json.Marshal(fraudCheckRequest)
 	payload := strings.NewReader(string(reqObj))
 	req, err := http.NewRequest(http.MethodPost, postUrl, payload)
@@ -158,7 +158,7 @@ func (idfyImpl *IdfyImpl) fraudCheck(documentType string, fraudCheckRequest Frau
 	if fraudCheckResponse.RequestID == "" {
 		return nil, fmt.Errorf("empty_requestid")
 	}
-	getUrl := idfyImpl.config.GetIdfyFraudCheckGetEndpoint()
+	getUrl := idfyImpl.config.GetIdfyEndpoint() + GetTaskStatus
 	params := url.Values{}
 	params.Add("request_id", fraudCheckResponse.RequestID)
 	fullURL := fmt.Sprintf("%v?%v", getUrl, params.Encode())

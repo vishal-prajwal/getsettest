@@ -321,7 +321,7 @@ func (hypervergeImpl *HypervergeImpl) addHeaders(req *http.Request) {
 }
 
 func (hypervergeImpl *HypervergeImpl) FraudCheckPan(fraudCheckPanRequest FraudCheckPanRequest) (*FraudCheckPanResponse, error) {
-	url := hypervergeImpl.config.GetHypervergeFraudCheckEndpoint() + "/verifyPAN"
+	url := hypervergeImpl.config.GetHypervergeEndpoint() + "/api/verifyPAN"
 	reqObj, _ := json.Marshal(fraudCheckPanRequest)
 	payload := strings.NewReader(string(reqObj))
 	req, err := http.NewRequest(http.MethodPost, url, payload)
@@ -345,7 +345,7 @@ func (hypervergeImpl *HypervergeImpl) FraudCheckPan(fraudCheckPanRequest FraudCh
 }
 
 func (hypervergeImpl *HypervergeImpl) FraudCheckDl(fraudCheckDlRequest FraudCheckDlRequest) (*FraudCheckDlResponse, error) {
-	url := hypervergeImpl.config.GetHypervergeFraudCheckEndpoint() + "/checkDL"
+	url := hypervergeImpl.config.GetHypervergeEndpoint() + "/api/checkDL"
 	reqObj, _ := json.Marshal(fraudCheckDlRequest)
 	payload := strings.NewReader(string(reqObj))
 	req, err := http.NewRequest(http.MethodPost, url, payload)
@@ -369,7 +369,7 @@ func (hypervergeImpl *HypervergeImpl) FraudCheckDl(fraudCheckDlRequest FraudChec
 }
 
 func (hypervergeImpl *HypervergeImpl) FraudCheckVoter(fraudCheckVoterRequest FraudCheckVoterRequest) (*FraudCheckVoterResponse, error) {
-	url := hypervergeImpl.config.GetHypervergeFraudCheckEndpoint() + "/checkVoterId"
+	url := hypervergeImpl.config.GetHypervergeEndpoint() + "/api/checkVoterId"
 	reqObj, _ := json.Marshal(fraudCheckVoterRequest)
 	payload := strings.NewReader(string(reqObj))
 	req, err := http.NewRequest(http.MethodPost, url, payload)
@@ -393,7 +393,7 @@ func (hypervergeImpl *HypervergeImpl) FraudCheckVoter(fraudCheckVoterRequest Fra
 }
 
 func (hypervergeImpl *HypervergeImpl) FraudCheckPassport(fraudCheckPassportRequest FraudCheckPassportRequest) (*FraudCheckPassportResponse, error) {
-	url := hypervergeImpl.config.GetHypervergeFraudCheckEndpoint() + "/verifyPassport"
+	url := hypervergeImpl.config.GetHypervergeEndpoint() + "/api/verifyPassport"
 	reqObj, _ := json.Marshal(fraudCheckPassportRequest)
 	payload := strings.NewReader(string(reqObj))
 	req, err := http.NewRequest(http.MethodPost, url, payload)
@@ -417,7 +417,7 @@ func (hypervergeImpl *HypervergeImpl) FraudCheckPassport(fraudCheckPassportReque
 }
 
 func (hypervergeImpl *HypervergeImpl) FraudCheckAadhar(fraudCheckAadharRequest FraudCheckAadharRequest) (*FraudCheckAadharResponse, error) {
-	url := hypervergeImpl.config.GetHypervergeFraudCheckAadharEndpoint() + "verifyAadhaar"
+	url := hypervergeImpl.config.GetHypervergeEndpoint() + "/api/verifyAadhaar"
 	reqObj, _ := json.Marshal(fraudCheckAadharRequest)
 	payload := strings.NewReader(string(reqObj))
 	req, err := http.NewRequest(http.MethodPost, url, payload)

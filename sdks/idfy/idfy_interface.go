@@ -18,6 +18,4 @@ type IdfyConfig interface {
 	GetIdfyAccountId() string
 	GetIdfyApiKey() string
 	GetIdfyEndpoint() string
-	GetIdfyFraudCheckPostEndpoint() string
-	GetIdfyFraudCheckGetEndpoint() string
 }

@@ -19,6 +19,4 @@ type HypervergeConfig interface {
 	GetHypervergeAppID() string
 	GetHypervergeAppKey() string
 	GetHypervergeEndpoint() string
-	GetHypervergeFraudCheckEndpoint() string
-	GetHypervergeFraudCheckAadharEndpoint() string
 }
