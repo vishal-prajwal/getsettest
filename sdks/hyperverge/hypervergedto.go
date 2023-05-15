@@ -403,8 +403,8 @@ type FraudCheckPanResponse struct {
 }
 
 type FraudCheckDlRequest struct {
-	DlNumber string `json:"dlNumber"`
-	Dob      string `json:"dob"`
+	DlNumber string `json:"dlNumber,omitempty"`
+	Dob      string `json:"dob,omitempty"`
 }
 
 type FraudCheckDlResponse struct {
@@ -431,11 +431,11 @@ type FraudCheckDlResponse struct {
 }
 
 type FraudCheckPassportRequest struct {
-	FileNo     string `json:"fileNo"`
-	Dob        string `json:"dob"`
-	Doi        string `json:"doi"`
-	PassportNo string `json:"passportNo"`
-	Name       string `json:"name"`
+	FileNo     string `json:"fileNo,omitempty"`
+	Dob        string `json:"dob,omitempty"`
+	Doi        string `json:"doi,omitempty"`
+	PassportNo string `json:"passportNo,omitempty"`
+	Name       string `json:"name,omitempty"`
 }
 
 type FraudCheckPassportResponse struct {
@@ -463,7 +463,7 @@ type FraudCheckPassportResponse struct {
 }
 
 type FraudCheckVoterRequest struct {
-	EpicNumber string `json:"epicNumber"`
+	EpicNumber string `json:"epicNumber,omitempty"`
 }
 
 type FraudCheckVoterResponse struct {
