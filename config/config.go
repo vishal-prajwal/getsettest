@@ -67,7 +67,7 @@ func getValue(a any) reflect.Value {
 	return value
 }
 
-//to load config from secret manager just implement above interface and attach it to configuration , LoadConfig will automatically determines that this needs to be loaded from secret manager
+// to load config from secret manager just implement above interface and attach it to configuration , LoadConfig will automatically determines that this needs to be loaded from secret manager
 func LoadFromSM(sm SM, config interface{}) error {
 	smStructType := reflect.TypeOf((*SMStruct)(nil)).Elem()
 	value := getValue(config)

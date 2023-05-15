@@ -39,8 +39,8 @@ func (c *wrappedClient) Set(ctx context.Context, key, value string, expiresIn ti
 	return c.std.Set(ctx, key, value, expiresIn).Err()
 }
 
-func (c *wrappedClient) Incr(ctx context.Context, key string)  error{
-	return c.std.Incr(ctx,key).Err()
+func (c *wrappedClient) Incr(ctx context.Context, key string) error {
+	return c.std.Incr(ctx, key).Err()
 }
 
 func (c *wrappedClient) Publish(ctx context.Context, channel string, message interface{}) error {

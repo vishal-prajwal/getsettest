@@ -34,7 +34,7 @@ func GZip(name string, content string) (string, string, error) {
 	return name + ".gz", buffer.String(), nil
 }
 
-//GunZip will uncompress the content and returns the new name with no .gz and uncompressed content
+// GunZip will uncompress the content and returns the new name with no .gz and uncompressed content
 func GunZip(name string, content string) (string, string, error) {
 	if len(name) < 3 || name[len(name)-3:] != ".gz" {
 		return "", "", ErrInvalidGZipFile

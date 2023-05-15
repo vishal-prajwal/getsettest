@@ -10,7 +10,7 @@ type Config interface {
 	GetRedisConfig() redis.Config
 }
 
-//GetCache
+// GetCache
 func GetCache(cfg Config) (cache.Cache, error) {
 	switch cfg.GetName() {
 	case REDIS:

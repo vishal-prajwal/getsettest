@@ -39,7 +39,6 @@ type UploadDocumentResponse struct {
 	Error        interface{} `json:"error"`
 }
 
-
 type ReportResponse struct {
 	CheckId    string `json:"check_id"`
 	CreatedAt  string `json:"created_at"`
@@ -67,7 +66,7 @@ type ReportResponse struct {
 			StreetAddress string `json:"street_address"`
 		} `json:"address_lines"`
 	} `json:"properties"`
-	Result string      `json:"result"`
+	Result    string `json:"result"`
 	Breakdown struct {
 		DataComparison struct {
 			Result    interface{} `json:"result"`
@@ -324,5 +323,5 @@ type ReportResponse struct {
 			} `json:"breakdown"`
 		} `json:"visual_authenticity"`
 	}
-	Error  interface{} `json:"error"`
+	Error interface{} `json:"error"`
 }

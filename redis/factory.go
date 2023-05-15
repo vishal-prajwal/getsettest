@@ -11,26 +11,26 @@ import (
 )
 
 type ClientType string
+
 var Cluster ClientType = "Cluster-Client"
 var Simple ClientType = "Simple-Client"
 
 type RedisConfig struct {
 	PoolSize int
-	Addrs string
-	Type ClientType
+	Addrs    string
+	Type     ClientType
 }
 
-
-func NewClient(ctx context.Context,cfg RedisConfig) (Client, error) {
+func NewClient(ctx context.Context, cfg RedisConfig) (Client, error) {
 	switch cfg.Type {
 	case Cluster:
 		clusterClient := redis.NewClusterClient(&redis.ClusterOptions{
-			Addrs: strings.Split(cfg.Addrs,","),
+			Addrs: strings.Split(cfg.Addrs, ","),
 		})
 		if err := clusterClient.Ping(ctx).Err(); err != nil {
 			return nil, errors.WithStack(err)
 		}
-		return &clusterRedis{std: clusterClient},nil
+		return &clusterRedis{std: clusterClient}, nil
 	case Simple:
 		redisClient := redis.NewClient(&redis.Options{
 			Addr: cfg.Addrs,
@@ -41,5 +41,5 @@ func NewClient(ctx context.Context,cfg RedisConfig) (Client, error) {
 		redisClient.AddHook(nrredis.NewHook(redisClient.Options()))
 		return &wrappedClient{std: redisClient}, nil
 	}
-	return nil,fmt.Errorf("invalid option")
+	return nil, fmt.Errorf("invalid option")
 }

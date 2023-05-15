@@ -63,8 +63,7 @@ func (this *JWRImpl) GetUserProfile(ctx context.Context, userID int, apiTimeOut 
 	return &result, nil
 }
 
-
-func (this JWRImpl) FullUpdateProfile(ctx context.Context,userID int, userProfile UserProfile,apiTimeOut int) error {
+func (this JWRImpl) FullUpdateProfile(ctx context.Context, userID int, userProfile UserProfile, apiTimeOut int) error {
 
 	timeout := this.DefaultAPITimeout
 	if apiTimeOut > 0 {
@@ -89,7 +88,6 @@ func (this JWRImpl) FullUpdateProfile(ctx context.Context,userID int, userProfil
 		Timeout:   timeoutDur,
 		Transport: t,
 	}
-
 
 	resp, err := httpClient.Do(req)
 	if err != nil {

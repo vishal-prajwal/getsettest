@@ -44,7 +44,7 @@ func (fs *LocalFileStore) Save(filesData *filestore.FileData) (string, error) {
 }
 
 // it will upload data to upload queue and ack will receive on ack chan
-//it push the object into queue
+// it push the object into queue
 func (fs *LocalFileStore) SaveAsync(filesData *filestore.FileData) {
 	fs.jobQueue <- filesData
 }
@@ -103,7 +103,7 @@ func (fs *LocalFileStore) GetAckChan(size int) chan *filestore.FileData {
 	return fs.ackChan
 }
 
-//it will temporarily save file and returns signed url
+// it will temporarily save file and returns signed url
 func (fs *LocalFileStore) TemporarySave(filesData *filestore.FileData, expriryMinutes int) (string, error) {
 	err := files.SaveFile(fs.config.GetDirectoryPath(), filesData.Name, filesData.Data)
 	if err != nil {

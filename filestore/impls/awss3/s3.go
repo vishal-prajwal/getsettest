@@ -113,7 +113,7 @@ func (s3S *S3Store) TemporarySave(filesData *filestore.FileData, expriryMinutes 
 	return s3S.GetSignedURL(filesData.Name, expriryMinutes)
 }
 
-//it push the object into queue
+// it push the object into queue
 func (s3S *S3Store) SaveAsync(filesData *filestore.FileData) {
 	s3S.jobQueue <- filesData
 }

@@ -20,7 +20,7 @@ type DigilockerImpl struct {
 	httpClient httpclient.HTTPClient
 }
 
-//New creates a new digilocker client
+// New creates a new digilocker client
 func New(config DigilockerConfig, nr newrelic.Agent, client httpclient.HTTPClient) *DigilockerImpl {
 	dl := DigilockerImpl{
 		config:     config,

@@ -57,10 +57,9 @@ func GetValidDOB(val string) (string, error) {
 	if err != nil {
 		return "", err
 	}
-	diff := time.Now().Year()-dobDate.Year()
+	diff := time.Now().Year() - dobDate.Year()
 	if diff >= 100 {
 		return "", fmt.Errorf("yob is invalid")
 	}
 	return dob, nil
 }
-

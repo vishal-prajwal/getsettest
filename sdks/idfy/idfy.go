@@ -28,34 +28,34 @@ func New(config IdfyConfig, nr newrelic.Agent, client httpclient.HTTPClient) *Id
 	return &idfy
 }
 
-func (idfyImpl *IdfyImpl) extract(documentType string, idfyrequest IdfyRequest) (*bytes.Buffer,int, error) {
+func (idfyImpl *IdfyImpl) extract(documentType string, idfyrequest IdfyRequest) (*bytes.Buffer, int, error) {
 	url := idfyImpl.config.GetIdfyEndpoint() + documentType
 	reqObj, _ := json.Marshal(idfyrequest)
 	payload := strings.NewReader(string(reqObj))
 	req, err := http.NewRequest(http.MethodPost, url, payload)
 	if err != nil {
-		return nil,0, err
+		return nil, 0, err
 	}
 	idfyImpl.addHeaders(req)
 
 	res, err := idfyImpl.httpClient.Do(req)
 	if err != nil {
-		return nil,0, err
+		return nil, 0, err
 	}
 
 	body := &bytes.Buffer{}
 	_, err = body.ReadFrom(res.Body)
 	if err != nil {
-		return nil,0, err
+		return nil, 0, err
 	}
 	defer res.Body.Close()
 
-	return body,res.StatusCode, err
+	return body, res.StatusCode, err
 }
 
 func (idfyImpl *IdfyImpl) ExtractPan(idfyrequest IdfyRequest) (*IdfyPanResponse, error) {
 	documentType := PAN_DOC_TYPE
-	byteResp,statusCode, err := idfyImpl.extract(documentType, idfyrequest)
+	byteResp, statusCode, err := idfyImpl.extract(documentType, idfyrequest)
 	if err != nil {
 		return nil, err
 	}
@@ -64,12 +64,12 @@ func (idfyImpl *IdfyImpl) ExtractPan(idfyrequest IdfyRequest) (*IdfyPanResponse,
 	if err != nil {
 		return nil, err
 	}
-	return &idfyPanResp.Result.ExtractionOutput, idfyImpl.handleError(statusCode,idfyPanResp.Error)
+	return &idfyPanResp.Result.ExtractionOutput, idfyImpl.handleError(statusCode, idfyPanResp.Error)
 }
 
 func (idfyImpl *IdfyImpl) ExtractAadhar(idfyrequest IdfyRequest) (*IdfyAadharResponse, error) {
 	documentType := AADHAR_DOC_TYPE
-	byteResp,statusCode, err := idfyImpl.extract(documentType, idfyrequest)
+	byteResp, statusCode, err := idfyImpl.extract(documentType, idfyrequest)
 	if err != nil {
 		return nil, err
 	}
@@ -78,12 +78,12 @@ func (idfyImpl *IdfyImpl) ExtractAadhar(idfyrequest IdfyRequest) (*IdfyAadharRes
 	if err != nil {
 		return nil, err
 	}
-	return &idfyAadharResp.Result.ExtractionOutput,  idfyImpl.handleError(statusCode,idfyAadharResp.Error)
+	return &idfyAadharResp.Result.ExtractionOutput, idfyImpl.handleError(statusCode, idfyAadharResp.Error)
 }
 
 func (idfyImpl *IdfyImpl) ExtractDl(idfyrequest IdfyRequest) (*IdfyDlResponse, error) {
 	documentType := DL_DOC_TYPE
-	byteResp,statusCode, err := idfyImpl.extract(documentType, idfyrequest)
+	byteResp, statusCode, err := idfyImpl.extract(documentType, idfyrequest)
 	if err != nil {
 		return nil, err
 	}
@@ -92,12 +92,12 @@ func (idfyImpl *IdfyImpl) ExtractDl(idfyrequest IdfyRequest) (*IdfyDlResponse, e
 	if err != nil {
 		return nil, err
 	}
-	return &idfyDlResp.Result.ExtractionOutput,  idfyImpl.handleError(statusCode,idfyDlResp.Error)
+	return &idfyDlResp.Result.ExtractionOutput, idfyImpl.handleError(statusCode, idfyDlResp.Error)
 }
 
 func (idfyImpl *IdfyImpl) ExtractVoter(idfyrequest IdfyRequest) (*IdfyVoterIdResponse, error) {
 	documentType := VOTER_DOC_TYPE
-	byteResp,statusCode, err := idfyImpl.extract(documentType, idfyrequest)
+	byteResp, statusCode, err := idfyImpl.extract(documentType, idfyrequest)
 	if err != nil {
 		return nil, err
 	}
@@ -106,12 +106,12 @@ func (idfyImpl *IdfyImpl) ExtractVoter(idfyrequest IdfyRequest) (*IdfyVoterIdRes
 	if err != nil {
 		return nil, err
 	}
-	return &idfyVoterResp.Result.ExtractionOutput, idfyImpl.handleError(statusCode,idfyVoterResp.Error)
+	return &idfyVoterResp.Result.ExtractionOutput, idfyImpl.handleError(statusCode, idfyVoterResp.Error)
 }
 
 func (idfyImpl *IdfyImpl) ExtractPassport(idfyrequest IdfyRequest) (*IdfyPassportResponse, error) {
 	documentType := PASSPORT_DOC_TYPE
-	byteResp,statusCode, err := idfyImpl.extract(documentType, idfyrequest)
+	byteResp, statusCode, err := idfyImpl.extract(documentType, idfyrequest)
 	if err != nil {
 		return nil, err
 	}
@@ -120,13 +120,81 @@ func (idfyImpl *IdfyImpl) ExtractPassport(idfyrequest IdfyRequest) (*IdfyPasspor
 	if err != nil {
 		return nil, err
 	}
-	return &idfyPassportResp.Result.ExtractionOutput, idfyImpl.handleError(statusCode,idfyPassportResp.Error)
+	return &idfyPassportResp.Result.ExtractionOutput, idfyImpl.handleError(statusCode, idfyPassportResp.Error)
 }
 
 func (idfyImpl *IdfyImpl) addHeaders(req *http.Request) {
 	req.Header.Add("account-id", idfyImpl.config.GetIdfyAccountId())
 	req.Header.Add("api-key", idfyImpl.config.GetIdfyApiKey())
 	req.Header.Add("Content-Type", "application/json")
+}
+
+func (this *IdfyImpl) PostFruadValidationReq(documentType string, fraudCheckRequest FraudCheckRequest) (*string, error) {
+	postUrl := this.config.GetIdfyEndpoint() + documentType
+	reqObj, _ := json.Marshal(fraudCheckRequest)
+	payload := strings.NewReader(string(reqObj))
+	req, err := http.NewRequest(http.MethodPost, postUrl, payload)
+	if err != nil {
+		return nil, err
+	}
+	this.addHeaders(req)
+
+	res, err := this.httpClient.Do(req)
+	if err != nil {
+		return nil, err
+	}
+
+	body := &bytes.Buffer{}
+	_, err = body.ReadFrom(res.Body)
+	if err != nil {
+		return nil, err
+	}
+	defer res.Body.Close()
+	var fraudCheckResponse FraudCheckResponse
+	err = json.Unmarshal(body.Bytes(), &fraudCheckResponse)
+	if err != nil {
+		return nil, err
+	}
+	if fraudCheckResponse.RequestID == "" {
+		return nil, fmt.Errorf("empty_requestid")
+	}
+	return &fraudCheckResponse.RequestID, nil
+}
+
+func (this *IdfyImpl) FetchPostedReq(requestID string) (*FraudCheckAadharResponse, error) {
+	var fraudCheckAadharResponse []FraudCheckAadharResponse
+	getUrl := this.config.GetIdfyEndpoint() + GetTaskStatus
+	params := url.Values{}
+	params.Add("request_id", requestID)
+	fullURL := fmt.Sprintf("%v?%v", getUrl, params.Encode())
+	request, err := http.NewRequest("GET", fullURL, nil)
+	if err != nil {
+		return nil, err
+	}
+	this.addHeaders(request)
+	res, err := this.httpClient.Do(request)
+	if err != nil {
+		return nil, err
+	}
+
+	byteResp := &bytes.Buffer{}
+	_, err = byteResp.ReadFrom(res.Body)
+	if err != nil {
+		return nil, err
+	}
+	defer res.Body.Close()
+	err = json.Unmarshal(byteResp.Bytes(), &fraudCheckAadharResponse)
+	if err != nil {
+		return nil, err
+	}
+	if len(fraudCheckAadharResponse) == 0 {
+		return nil, fmt.Errorf("unable to validate aadhar")
+	}
+	frRes := fraudCheckAadharResponse[0]
+	if frRes.Status != "completed" {
+		return nil, fmt.Errorf("%v %v", frRes.Message, frRes.Error)
+	}
+	return &frRes, err
 }
 
 func (idfyImpl *IdfyImpl) fraudCheck(documentType string, fraudCheckRequest FraudCheckRequest) (*bytes.Buffer, error) {
@@ -200,19 +268,11 @@ func (idfyImpl *IdfyImpl) FraudCheckPan(fraudCheckRequest FraudCheckRequest) (*F
 
 func (idfyImpl *IdfyImpl) FraudCheckAadhar(fraudCheckRequest FraudCheckRequest) (*FraudCheckAadharResponse, error) {
 	documentType := FraudCheckAadhar
-	byteResp, err := idfyImpl.fraudCheck(documentType, fraudCheckRequest)
+	requestID, err := idfyImpl.PostFruadValidationReq(documentType, fraudCheckRequest)
 	if err != nil {
 		return nil, err
 	}
-	var fraudCheckAadharResponse FraudCheckAadharResponse
-	err = json.Unmarshal(byteResp.Bytes(), &fraudCheckAadharResponse)
-	if err != nil {
-		return nil, err
-	}
-	if fraudCheckAadharResponse.Status != "completed" {
-		return nil, fmt.Errorf("%v %v", fraudCheckAadharResponse.Message, fraudCheckAadharResponse.Error)
-	}
-	return &fraudCheckAadharResponse, err
+	return idfyImpl.FetchPostedReq(*requestID)
 }
 
 func (idfyImpl *IdfyImpl) FraudCheckDl(fraudCheckRequest FraudCheckRequest) (*FraudCheckDlResponse, error) {
@@ -266,7 +326,7 @@ func (idfyImpl *IdfyImpl) FraudCheckPassport(fraudCheckRequest FraudCheckRequest
 	return &fraudCheckPassportResponse, nil
 }
 
-func (idfyImpl *IdfyImpl) CheckTemperedImage(req CheckTemperedReq)(bool,error) {
+func (idfyImpl *IdfyImpl) CheckTemperedImage(req CheckTemperedReq) (bool, error) {
 
 	url := idfyImpl.config.GetIdfyEndpoint() + "/sync/check_tampering/document"
 	reqObj, _ := json.Marshal(req)
@@ -296,24 +356,24 @@ func (idfyImpl *IdfyImpl) CheckTemperedImage(req CheckTemperedReq)(bool,error) {
 	return httpRes.Result.IsTampered, nil
 }
 
-func (this *IdfyImpl) handleError(statusCode int,errMsg string) error {
+func (this *IdfyImpl) handleError(statusCode int, errMsg string) error {
 	if statusCode == 200 {
 		return nil
 	}
 	switch statusCode {
 	case 422:
-		if strings.Contains(errMsg,"INVALID_IMAGE") ||
-			strings.Contains(errMsg,"PDF is non compliant to request/quality standard") ||
-			strings.Contains(errMsg,"IMAGE_NOT_ACCESSIBLE"){
+		if strings.Contains(errMsg, "INVALID_IMAGE") ||
+			strings.Contains(errMsg, "PDF is non compliant to request/quality standard") ||
+			strings.Contains(errMsg, "IMAGE_NOT_ACCESSIBLE") {
 			return ErrImageNotAccessible
 		}
 	case 400:
-		if strings.Contains(errMsg,"INVALID_IMAGE"){
+		if strings.Contains(errMsg, "INVALID_IMAGE") {
 			return ErrBadRequest
 		}
 	case 413:
 		return ErrBadRequest
-	case 500,502:
+	case 500, 502:
 		return ErrInternalServerError
 	case 504:
 		return ErrTimeout

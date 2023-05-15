@@ -9,9 +9,9 @@ type IdfyRequest struct {
 }
 
 type CheckTemperedReq struct {
-	TaskID  string `json:"task_id"`
-	GroupID string `json:"group_id"`
-	Data    CheckTemperedReqData   `json:"data"`
+	TaskID  string               `json:"task_id"`
+	GroupID string               `json:"group_id"`
+	Data    CheckTemperedReqData `json:"data"`
 }
 
 type CheckTemperedReqData struct {
@@ -324,7 +324,6 @@ type FraudCheckVoterResponse struct {
 	Error   string `json:"error"`
 	Message string `json:"message"`
 }
-
 
 type CheckTemperedRes struct {
 	Action      string    `json:"action"`

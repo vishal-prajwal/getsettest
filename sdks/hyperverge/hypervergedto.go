@@ -1,13 +1,13 @@
 package hyperverge
 
 type HypervergeRequest struct {
-	ImageFile                string `json:"imageFile"`
+	ImageFile           string `json:"imageFile"`
 	EnableDashboard     string `json:"enableDashboard"`
 	MaskAadhaarComplete string `json:"maskAadhaarComplete"`
 	OutputImageUrl      string `json:"outputImageUrl"`
-	ImageName string `json:"imageName"`
-	RejectBlur string `json:"rejectBlur"`
-	RejectTempredImage string `json:"rejectBasicTampering"`
+	ImageName           string `json:"imageName"`
+	RejectBlur          string `json:"rejectBlur"`
+	RejectTempredImage  string `json:"rejectBasicTampering"`
 }
 
 type HypervergePanResponse struct {
@@ -353,7 +353,7 @@ type PassportResponse struct {
 	Pin             string `json:"pin,omitempty"`
 	Spouse          string `json:"spouse,omitempty"`
 	AddressPin      string `json:"address_pin,omitempty"`
-	RawResponse string
+	RawResponse     string
 }
 
 type VoterIdResponse struct {
@@ -453,10 +453,10 @@ type FraudCheckPassportResponse struct {
 			PassportNumberMatch      bool   `json:"passportNumberMatch"`
 		} `json:"passportNumber"`
 		Name struct {
-			NameMatch           bool   `json:"nameMatch"`
-			SurnameFromPassport string `json:"surnameFromPassport"`
-			NameScore           float64    `json:"nameScore"`
-			NameFromPassport    string `json:"nameFromPassport"`
+			NameMatch           bool    `json:"nameMatch"`
+			SurnameFromPassport string  `json:"surnameFromPassport"`
+			NameScore           float64 `json:"nameScore"`
+			NameFromPassport    string  `json:"nameFromPassport"`
 		} `json:"name"`
 		TypeOfApplication string `json:"typeOfApplication"`
 	} `json:"result"`
@@ -518,7 +518,7 @@ type fraudMatch struct {
 	Channel string `json:"channel"`
 }
 
-type FraudCheckAadharRequest struct{
+type FraudCheckAadharRequest struct {
 	SessionID     string `json:"sessionId"`
 	AadhaarNoUser string `json:"aadhaarNoUser"`
 	SecurityCode  string `json:"securityCode"`
