@@ -208,10 +208,10 @@ type FraudCheckRequest struct {
 	Data    FraudCheckData `json:"data"`
 }
 type FraudCheckData struct {
-	IdNumber           string `json:"id_number"`
-	PassportFileNumber string `json:"passport_file_number"`
-	DateOfBirth        string `json:"date_of_birth"`
-	AadhaarNumber      string `json:"aadhaar_number"`
+	IdNumber           string `json:"id_number,omitempty"`
+	PassportFileNumber string `json:"passport_file_number,omitempty"`
+	DateOfBirth        string `json:"date_of_birth,omitempty"`
+	AadhaarNumber      string `json:"aadhaar_number,omitempty"`
 }
 
 type FraudCheckResponse struct {
