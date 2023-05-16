@@ -14,6 +14,7 @@ type Idfy interface {
 	CheckTemperedImage(req CheckTemperedReq) (bool, error)
 	PostFruadValidationReq(documentType string, fraudCheckRequest FraudCheckRequest) (*string, error)
 	FetchPostedReq(requestID string) (*FraudCheckAadharResponse, error)
+	Healthcheck() (*HealthCheckRes, error)
 }
 
 type IdfyConfig interface {

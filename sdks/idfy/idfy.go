@@ -4,12 +4,14 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
+	"io/ioutil"
 	"net/http"
 	"net/url"
 	"strings"
 
 	"bitbucket.org/junglee_games/getsetgo/httpclient"
 	"bitbucket.org/junglee_games/getsetgo/instrumenting/newrelic"
+	"github.com/google/uuid"
 )
 
 type IdfyImpl struct {
@@ -381,4 +383,42 @@ func (this *IdfyImpl) handleError(statusCode int, errMsg string) error {
 		return ErrInternalServerError
 	}
 	return nil
+}
+
+func (idfyImpl *IdfyImpl) Healthcheck() (*HealthCheckRes, error) {
+
+	var healthCheckRes HealthCheckRes
+	url := idfyImpl.config.GetIdfyEndpoint() + "/retrieve/status"
+	req := HealthCheckReq {
+		TaskID: uuid.NewString(),
+		GroupID: uuid.NewString(),
+		Data: HealthCheckReqData{
+			TaskType: "verify_with_source_aadhaar_lite",
+		},
+	}
+	reqObj, err := json.Marshal(req)
+	if err != nil {
+		return nil,err
+	}
+	payload := strings.NewReader(string(reqObj))
+	httpReq, err := http.NewRequest(http.MethodPost, url, payload)
+	if err != nil {
+		return nil, err
+	}
+	idfyImpl.addHeaders(httpReq)
+	res, err := idfyImpl.httpClient.Do(httpReq)
+	if err != nil {
+		return nil, err
+	}
+	defer res.Body.Close()
+	body, err := ioutil.ReadAll(res.Body)
+	if err != nil {
+	  return nil,err
+	}
+
+	err = json.Unmarshal(body,&healthCheckRes)
+	if err != nil {
+		return nil,err
+	}
+	return &healthCheckRes,nil
 }

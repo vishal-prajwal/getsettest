@@ -396,3 +396,26 @@ type FraudCheckAadharResponse struct {
 	Error   string `json:"error"`
 	Message string `json:"message"`
 }
+
+type HealthCheckRes struct {
+	RequestID string            `json:"request_id"`
+	Result    HealthCheckResult `json:"result"`
+}
+
+type HealthCheckResult struct {
+	LastUpdated string `json:"last_updated"`
+	Metadata    string `json:"metadata"`
+	ServiceName string `json:"service_name"`
+	Status      string `json:"status"`
+}
+
+
+type HealthCheckReq struct {
+	TaskID  string `json:"task_id"`
+	GroupID string `json:"group_id"`
+	Data    HealthCheckReqData `json:"data"`
+}
+
+type HealthCheckReqData struct {
+	TaskType string `json:"task_type"`
+}
