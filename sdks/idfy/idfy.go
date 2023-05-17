@@ -193,9 +193,6 @@ func (this *IdfyImpl) FetchPostedReq(requestID string) (*FraudCheckAadharRespons
 		return nil, fmt.Errorf("unable to validate aadhar")
 	}
 	frRes := fraudCheckAadharResponse[0]
-	if frRes.Status != "completed" {
-		return nil, fmt.Errorf("%v %v", frRes.Message, frRes.Error)
-	}
 	return &frRes, err
 }
 
