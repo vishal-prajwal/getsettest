@@ -385,7 +385,8 @@ func (this *IdfyImpl) handleError(statusCode int, errMsg string) error {
 func (idfyImpl *IdfyImpl) Healthcheck() (*HealthCheckRes, error) {
 
 	var healthCheckRes HealthCheckRes
-	url := "https://apihealth.idfy.com/retrieve/status"
+	url := idfyImpl.config.GetIdfyHealthCheckEndpoint() + "/retrieve/status"
+	fmt.Printf("healthcheck url idfy %v",url)
 	req := HealthCheckReq {
 		TaskID: uuid.NewString(),
 		GroupID: uuid.NewString(),

@@ -27,6 +27,10 @@ func (this IdfyConfig) GetIdfyFraudCheckGetEndpoint() string {
 	return "blah blah"
 }
 
+func (this IdfyConfig) GetIdfyHealthCheckEndpoint() string {
+	return "blah blah"
+}
+
 func main() {
 	d := idfy.New(IdfyConfig{}, newrelic.Agent{}, httpclient.NewHttpClient(30))
 	d.FraudCheckAadhar(idfy.FraudCheckRequest{})

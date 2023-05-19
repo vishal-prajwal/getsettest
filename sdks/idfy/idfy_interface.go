@@ -21,4 +21,5 @@ type IdfyConfig interface {
 	GetIdfyAccountId() string
 	GetIdfyApiKey() string
 	GetIdfyEndpoint() string
+	GetIdfyHealthCheckEndpoint() string
 }
