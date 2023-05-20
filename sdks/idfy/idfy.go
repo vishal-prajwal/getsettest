@@ -386,7 +386,6 @@ func (idfyImpl *IdfyImpl) Healthcheck() (*HealthCheckRes, error) {
 
 	var healthCheckRes HealthCheckRes
 	url := idfyImpl.config.GetIdfyHealthCheckEndpoint() + "/retrieve/status"
-	fmt.Printf("healthcheck url idfy %v",url)
 	req := HealthCheckReq {
 		TaskID: uuid.NewString(),
 		GroupID: uuid.NewString(),
@@ -404,6 +403,7 @@ func (idfyImpl *IdfyImpl) Healthcheck() (*HealthCheckRes, error) {
 		return nil, err
 	}
 	idfyImpl.addHeaders(httpReq)
+	idfyImpl.httpClient = httpclient.NewHttpClient(HealthCheckTimeout)
 	res, err := idfyImpl.httpClient.Do(httpReq)
 	if err != nil {
 		return nil, err
