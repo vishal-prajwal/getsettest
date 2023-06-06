@@ -8,6 +8,7 @@ import (
 	"strconv"
 	"time"
 
+	nrf "github.com/newrelic/go-agent/v3/newrelic"
 	"github.com/pkg/errors"
 )
 
@@ -19,6 +20,7 @@ type JWRImpl struct {
 
 func (this *JWRImpl) GetUserProfile(ctx context.Context, userID int, apiTimeOut int) (*UserProfile, error) {
 
+	defer nrf.FromContext(ctx).StartSegment("GetUserProfile").End()
 	var result UserProfile
 	request, err := http.NewRequest(http.MethodGet, this.BaseURL+GetUserProfilePath+"?id="+strconv.Itoa(userID), nil)
 	if err != nil {
@@ -65,6 +67,7 @@ func (this *JWRImpl) GetUserProfile(ctx context.Context, userID int, apiTimeOut 
 
 func (this JWRImpl) FullUpdateProfile(ctx context.Context, userID int, userProfile UserProfile, apiTimeOut int) error {
 
+	defer nrf.FromContext(ctx).StartSegment("FullUpdateProfile").End()
 	timeout := this.DefaultAPITimeout
 	if apiTimeOut > 0 {
 		timeout = apiTimeOut
