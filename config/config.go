@@ -87,9 +87,11 @@ func LoadFromSM(sm SM, config interface{}) error {
 				return fmt.Errorf("%s => %s", field.String(), err.Error())
 			}
 		}
-		err := LoadFromSM(sm, field.Interface())
-		if err != nil {
-			return fmt.Errorf("%s => %s", field.String(), err.Error())
+		if field.CanInterface() {
+			err := LoadFromSM(sm, field.Interface())
+			if err != nil {
+				return fmt.Errorf("%s => %s", field.String(), err.Error())
+			}
 		}
 	}
 	return nil
