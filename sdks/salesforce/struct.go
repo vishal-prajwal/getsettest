@@ -27,11 +27,13 @@ type CreateTaskRequest struct {
 	AccessToken   string `json:",omitempty"`
 	BaseURL       string `json:",omitempty"`
 	Name          string `json:"name"`
+	PlatformName string
 }
 
 type SaleForceCreateTaskHTTPRequest struct {
 	UserID        string `json:"User_ID__c" validate:"required"`
 	SocialNetwork string `json:"Social_Network__c" validate:"required"`
+	PlatformName string `json:"PlatformName__c"`
 	AccessToken   string `json:",omitempty"`
 	BaseURL       string `json:",omitempty"`
 }
