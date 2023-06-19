@@ -409,10 +409,9 @@ type HealthCheckResult struct {
 	Status      string `json:"status"`
 }
 
-
 type HealthCheckReq struct {
-	TaskID  string `json:"task_id"`
-	GroupID string `json:"group_id"`
+	TaskID  string             `json:"task_id"`
+	GroupID string             `json:"group_id"`
 	Data    HealthCheckReqData `json:"data"`
 }
 

@@ -70,7 +70,7 @@ func (salesforceImpl *SalesforceImpl) CreateTask(ctx context.Context, createTask
 	httpReq := SaleForceCreateTaskHTTPRequest{
 		UserID:        createTaskRequest.UserID,
 		SocialNetwork: createTaskRequest.SocialNetwork,
-		PlatformName: createTaskRequest.PlatformName,
+		PlatformName:  createTaskRequest.PlatformName,
 	}
 
 	createTaskRequestBytes, err := json.Marshal(httpReq)
