@@ -3,7 +3,6 @@ module bitbucket.org/junglee_games/getsetgo
 go 1.18
 
 require (
-	bitbucket.org/junglee_games/japi-event-pub-go/japieventpub v0.0.0-20230110132158-bbc915f0fce7
 	github.com/aws/aws-sdk-go v1.44.136
 	github.com/getsentry/sentry-go v0.15.0
 	github.com/go-playground/validator/v10 v10.11.1
@@ -12,6 +11,7 @@ require (
 	github.com/google/uuid v1.3.0
 	github.com/hashicorp/consul/api v1.18.0
 	github.com/kataras/iris/v12 v12.2.0-beta5
+	github.com/klauspost/shutdown2 v1.1.0
 	github.com/newrelic/go-agent/v3 v3.20.2
 	github.com/newrelic/go-agent/v3/integrations/nrredis-v8 v1.0.0
 	github.com/pkg/errors v0.9.1
