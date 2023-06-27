@@ -340,6 +340,9 @@ func (idfyImpl *IdfyImpl) CheckTemperedImage(req CheckTemperedReq) (bool, error)
 	if err != nil {
 		return false, err
 	}
+	if res.StatusCode != 200 {
+		return false, fmt.Errorf("return with error code %d res %v", res.StatusCode, res)
+	}
 
 	body := &bytes.Buffer{}
 	_, err = body.ReadFrom(res.Body)

@@ -36,9 +36,9 @@ type IdfyPanResponse struct {
 	Date_of_birth string `json:"date_of_birth"`
 	Date_of_issue string `json:"date_of_issues"`
 	Age           int    `json:"age"`
-	Minor         bool    `json:"minor"`
+	Minor         bool   `json:"minor"`
 	Is_scanned    bool   `json:"is_scanned"`
-	Pan_type      string    `json:"pan_type"`
+	Pan_type      string `json:"pan_type"`
 }
 
 type IdfyAadharResponse struct {

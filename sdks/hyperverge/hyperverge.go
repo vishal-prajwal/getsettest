@@ -42,6 +42,9 @@ func (hypervergeImpl *HypervergeImpl) readDocument(documentType string, hyperver
 	if err != nil {
 		return nil, err
 	}
+	if resp.StatusCode != 200 {
+		return nil, fmt.Errorf("return with error code %d res %v", resp.StatusCode, resp)
+	}
 
 	body := &bytes.Buffer{}
 	_, err = body.ReadFrom(resp.Body)
@@ -334,6 +337,9 @@ func (hypervergeImpl *HypervergeImpl) FraudCheckPan(fraudCheckPanRequest FraudCh
 	if err != nil {
 		return nil, err
 	}
+	if res.StatusCode != 200 {
+		return nil, fmt.Errorf("return with error code %d res %v", res.StatusCode, res)
+	}
 	body := &bytes.Buffer{}
 	_, err = body.ReadFrom(res.Body)
 	if err != nil {
@@ -357,6 +363,9 @@ func (hypervergeImpl *HypervergeImpl) FraudCheckDl(fraudCheckDlRequest FraudChec
 	res, err := hypervergeImpl.httpClient.Do(req)
 	if err != nil {
 		return nil, err
+	}
+	if res.StatusCode != 200 {
+		return nil, fmt.Errorf("return with error code %d res %v", res.StatusCode, res)
 	}
 	body := &bytes.Buffer{}
 	_, err = body.ReadFrom(res.Body)
@@ -382,6 +391,9 @@ func (hypervergeImpl *HypervergeImpl) FraudCheckVoter(fraudCheckVoterRequest Fra
 	if err != nil {
 		return nil, err
 	}
+	if res.StatusCode != 200 {
+		return nil, fmt.Errorf("return with error code %d res %v", res.StatusCode, res)
+	}
 	body := &bytes.Buffer{}
 	_, err = body.ReadFrom(res.Body)
 	if err != nil {
@@ -406,6 +418,9 @@ func (hypervergeImpl *HypervergeImpl) FraudCheckPassport(fraudCheckPassportReque
 	if err != nil {
 		return nil, err
 	}
+	if res.StatusCode != 200 {
+		return nil, fmt.Errorf("return with error code %d res %v", res.StatusCode, res)
+	}
 	body := &bytes.Buffer{}
 	_, err = body.ReadFrom(res.Body)
 	if err != nil {
@@ -429,6 +444,9 @@ func (hypervergeImpl *HypervergeImpl) FraudCheckAadhar(fraudCheckAadharRequest F
 	res, err := hypervergeImpl.httpClient.Do(req)
 	if err != nil {
 		return nil, err
+	}
+	if res.StatusCode != 200 {
+		return nil, fmt.Errorf("return with error code %d res %v", res.StatusCode, res)
 	}
 	body := &bytes.Buffer{}
 	_, err = body.ReadFrom(res.Body)
