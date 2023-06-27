@@ -386,8 +386,8 @@ type FraudCheckPanRequest struct {
 	Pan                       string `json:"pan,omitempty"`
 	Name                      string `json:"name,omitempty"`
 	Dob                       string `json:"dob,omitempty"`
-	StrictlyUseGetNameFromPan string `json:"strictlyUseGetNameFromPan"`
-	MatchDob                  string `json:"matchDob"`
+	StrictlyUseGetNameFromPan string `json:"strictlyUseGetNameFromPan,omitempty"`
+	MatchDob                  string `json:"matchDob,omitempty"`
 }
 
 type FraudCheckPanResponse struct {
