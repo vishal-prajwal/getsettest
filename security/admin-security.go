@@ -1,7 +1,6 @@
 package security
 
 import (
-	"fmt"
 	"strings"
 )
 
@@ -43,7 +42,6 @@ func (permission *Permission) getDisplayName() (displayName string) {
 		return permission.DisplayName
 	}
 	displayNames := strings.Split(permission.Rsname, ".")
-	fmt.Println("DisplayNames slice::::", displayNames)
 	permission.DisplayName = displayNames[len(displayNames)-1]
 	return permission.DisplayName
 }
@@ -53,7 +51,7 @@ func (authorization *Authorization) getPermissionsMap() (permissionsMap map[stri
 		authorization.PermissionsMap = make(map[string][]string)
 	}
 	for _, p := range authorization.Permissions {
-		authorization.PermissionsMap[p.getDisplayName()] = p.Scopes
+		authorization.PermissionsMap[p.Rsname] = p.Scopes
 	}
 	return authorization.PermissionsMap
 }
