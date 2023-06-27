@@ -350,7 +350,7 @@ func (hypervergeImpl *HypervergeImpl) FraudCheckPan(fraudCheckPanRequest FraudCh
 	}
 	defer res.Body.Close()
 	var fraudCheckPanResponse FraudCheckPanResponse
-	err = json.Unmarshal(body.Bytes(), &fraudCheckPanRequest)
+	err = json.Unmarshal(body.Bytes(), &fraudCheckPanResponse)
 	return &fraudCheckPanResponse, err
 }
 
