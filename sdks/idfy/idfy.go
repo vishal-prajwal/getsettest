@@ -188,6 +188,7 @@ func (this *IdfyImpl) FetchPostedReq(requestID string) (*FraudCheckAadharRespons
 	if err != nil {
 		return nil, err
 	}
+	fmt.Printf("@@@@ FetchPostedReq debug %s",byteResp.Bytes())
 	defer res.Body.Close()
 	err = json.Unmarshal(byteResp.Bytes(), &fraudCheckAadharResponse)
 	if err != nil {
