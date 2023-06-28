@@ -152,6 +152,7 @@ func (this *IdfyImpl) PostFruadValidationReq(documentType string, fraudCheckRequ
 		return nil, err
 	}
 	defer res.Body.Close()
+	fmt.Printf("@@@@ debug %s",body.Bytes())
 	var fraudCheckResponse FraudCheckResponse
 	err = json.Unmarshal(body.Bytes(), &fraudCheckResponse)
 	if err != nil {
