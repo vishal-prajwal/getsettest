@@ -179,10 +179,11 @@ func (this *IdfyImpl) FetchPostedReq(requestID string) (*FraudCheckAadharRespons
 	if err != nil {
 		return nil, err
 	}
+	fmt.Printf("@@@@ FetchPostedReq  StatusCode debug %d",res.StatusCode)
+	fmt.Printf("@@@@ FetchPostedReq  res debug %v",res)
 	if res.StatusCode != 200 {
 		return nil, fmt.Errorf("statusCode %d body %s",res.StatusCode,res.Body)
 	}
-
 	byteResp := &bytes.Buffer{}
 	_, err = byteResp.ReadFrom(res.Body)
 	if err != nil {
