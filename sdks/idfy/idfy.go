@@ -179,8 +179,6 @@ func (this *IdfyImpl) FetchPostedReq(requestID string) (*FraudCheckAadharRespons
 	if err != nil {
 		return nil, err
 	}
-	fmt.Printf("@@@@ FetchPostedReq  StatusCode debug %d",res.StatusCode)
-	fmt.Printf("@@@@ FetchPostedReq  res debug %v",res)
 	if res.StatusCode != 200 {
 		return nil, fmt.Errorf("statusCode %d body %s",res.StatusCode,res.Body)
 	}
@@ -189,11 +187,10 @@ func (this *IdfyImpl) FetchPostedReq(requestID string) (*FraudCheckAadharRespons
 	if err != nil {
 		return nil, err
 	}
-	fmt.Printf("@@@@ FetchPostedReq debug %s",byteResp.Bytes())
 	defer res.Body.Close()
 	err = json.Unmarshal(byteResp.Bytes(), &fraudCheckAadharResponse)
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("res %s error %v",byteResp.Bytes(),err)
 	}
 	if len(fraudCheckAadharResponse) == 0 {
 		return nil, fmt.Errorf("unable to validate aadhar")
