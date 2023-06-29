@@ -10,4 +10,5 @@ const (
 	GetTaskStatus      = "/v3/tasks"
 	HealthCheckTimeout = 5
 	TemperedImage = "/v3/tasks/sync/check_tampering/document"
+	HealthCheck = "/retrieve/status"
 )

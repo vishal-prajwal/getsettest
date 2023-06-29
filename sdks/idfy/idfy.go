@@ -330,7 +330,7 @@ func (idfyImpl *IdfyImpl) FraudCheckPassport(fraudCheckRequest FraudCheckRequest
 
 func (idfyImpl *IdfyImpl) CheckTemperedImage(req CheckTemperedReq) (bool, error) {
 
-	url := idfyImpl.config.GetIdfyEndpoint() + "/sync/check_tampering/document"
+	url := idfyImpl.config.GetIdfyEndpoint() + TemperedImage
 	reqObj, _ := json.Marshal(req)
 	payload := strings.NewReader(string(reqObj))
 	httpReq, err := http.NewRequest(http.MethodPost, url, payload)
@@ -391,7 +391,7 @@ func (this *IdfyImpl) handleError(statusCode int, errMsg string) error {
 func (idfyImpl *IdfyImpl) Healthcheck() (*HealthCheckRes, error) {
 
 	var healthCheckRes HealthCheckRes
-	url := idfyImpl.config.GetIdfyHealthCheckEndpoint() + "/retrieve/status"
+	url := idfyImpl.config.GetIdfyHealthCheckEndpoint() + HealthCheck
 	req := HealthCheckReq{
 		TaskID:  uuid.NewString(),
 		GroupID: uuid.NewString(),
