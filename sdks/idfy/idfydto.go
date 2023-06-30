@@ -86,7 +86,7 @@ type IdfyVoterIdResponse struct {
 	District       string `json:"district"`
 	Pincode        string `json:"pincode"`
 	State          string `json:"state"`
-	Age            int    `json:"age"`
+	Age            string `json:"age"`
 }
 
 type IdfyPassportResponse struct {
