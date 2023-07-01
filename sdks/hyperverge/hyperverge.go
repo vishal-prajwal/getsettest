@@ -335,8 +335,9 @@ func (hypervergeImpl *HypervergeImpl) FraudCheckPan(fraudCheckPanRequest FraudCh
 	if err != nil {
 		return nil, err
 	}
-	if res.StatusCode != 200 {
-		return nil, fmt.Errorf("return with error code %d res %v", res.StatusCode, res)
+	err = hypervergeImpl.handlFruadCheckErrorStatusCode(res)
+	if err != nil {
+		return nil,err
 	}
 	body := &bytes.Buffer{}
 	_, err = body.ReadFrom(res.Body)
@@ -347,6 +348,24 @@ func (hypervergeImpl *HypervergeImpl) FraudCheckPan(fraudCheckPanRequest FraudCh
 	var fraudCheckPanResponse FraudCheckPanResponse
 	err = json.Unmarshal(body.Bytes(), &fraudCheckPanResponse)
 	return &fraudCheckPanResponse, err
+}
+
+func (hypervergeImpl HypervergeImpl) handlFruadCheckErrorStatusCode(res *http.Response)error {
+	if res.StatusCode != 200 {
+		switch res.StatusCode {
+		case 422:
+			return  errors.Wrap(ErrInvalidDocID,fmt.Sprintf("%d  %v", res.StatusCode, res))
+		case 400:
+			return errors.Wrap(ErrBadRequest,fmt.Sprintf("%d %v", res.StatusCode, res))
+		case 500:
+			return errors.Wrap(ErrSomethingWentWrong,fmt.Sprintf("%d %v", res.StatusCode, res))
+		case 401:
+			return errors.Wrap(ErrFruadCheckUnauthrised,fmt.Errorf("%d %v", res.StatusCode, res).Error())
+		default:
+			return errors.Wrap(ErrSomethingWentWrong,fmt.Sprintf("%d %v", res.StatusCode, res))
+		}
+	}
+	return nil
 }
 
 func (hypervergeImpl *HypervergeImpl) FraudCheckDl(fraudCheckDlRequest FraudCheckDlRequest, txnID string) (*FraudCheckDlResponse, error) {
@@ -362,8 +381,9 @@ func (hypervergeImpl *HypervergeImpl) FraudCheckDl(fraudCheckDlRequest FraudChec
 	if err != nil {
 		return nil, err
 	}
-	if res.StatusCode != 200 {
-		return nil, fmt.Errorf("return with error code %d res %v", res.StatusCode, res)
+	err = hypervergeImpl.handlFruadCheckErrorStatusCode(res)
+	if err != nil {
+		return nil,err
 	}
 	body := &bytes.Buffer{}
 	_, err = body.ReadFrom(res.Body)
@@ -389,8 +409,9 @@ func (hypervergeImpl *HypervergeImpl) FraudCheckVoter(fraudCheckVoterRequest Fra
 	if err != nil {
 		return nil, err
 	}
-	if res.StatusCode != 200 {
-		return nil, fmt.Errorf("return with error code %d res %v", res.StatusCode, res)
+	err = hypervergeImpl.handlFruadCheckErrorStatusCode(res)
+	if err != nil {
+		return nil,err
 	}
 	body := &bytes.Buffer{}
 	_, err = body.ReadFrom(res.Body)
@@ -416,8 +437,9 @@ func (hypervergeImpl *HypervergeImpl) FraudCheckPassport(fraudCheckPassportReque
 	if err != nil {
 		return nil, err
 	}
-	if res.StatusCode != 200 {
-		return nil, fmt.Errorf("return with error code %d res %v", res.StatusCode, res)
+	err = hypervergeImpl.handlFruadCheckErrorStatusCode(res)
+	if err != nil {
+		return nil,err
 	}
 	body := &bytes.Buffer{}
 	_, err = body.ReadFrom(res.Body)
@@ -443,8 +465,9 @@ func (hypervergeImpl *HypervergeImpl) FraudCheckAadhar(fraudCheckAadharRequest F
 	if err != nil {
 		return nil, err
 	}
-	if res.StatusCode != 200 {
-		return nil, fmt.Errorf("return with error code %d res %v", res.StatusCode, res)
+	err = hypervergeImpl.handlFruadCheckErrorStatusCode(res)
+	if err != nil {
+		return nil,err
 	}
 	body := &bytes.Buffer{}
 	_, err = body.ReadFrom(res.Body)
