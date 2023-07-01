@@ -367,10 +367,11 @@ func (this *IdfyImpl) handleError(statusCode int, errMsg string) error {
 	}
 	switch statusCode {
 	case 422:
+		// will have to confirm the scnario with idfy
 		if strings.Contains(errMsg, "INVALID_IMAGE") ||
 			strings.Contains(errMsg, "PDF is non compliant to request/quality standard") ||
 			strings.Contains(errMsg, "IMAGE_NOT_ACCESSIBLE") {
-			return ErrImageNotAccessible
+			return ErrBadRequest
 		}
 	case 400:
 		if strings.Contains(errMsg, "INVALID_IMAGE") {
