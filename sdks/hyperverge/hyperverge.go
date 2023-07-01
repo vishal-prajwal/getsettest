@@ -42,9 +42,6 @@ func (hypervergeImpl *HypervergeImpl) readDocument(documentType string, hyperver
 	if err != nil {
 		return nil, err
 	}
-	if resp.StatusCode != 200 {
-		return nil, fmt.Errorf("return with error code %d res %v", resp.StatusCode, resp)
-	}
 
 	body := &bytes.Buffer{}
 	_, err = body.ReadFrom(resp.Body)
@@ -65,7 +62,6 @@ func (hypervergeImpl *HypervergeImpl) ReadPan(hypervergeRequest HypervergeReques
 	if err != nil {
 		return nil, err
 	}
-	fmt.Printf("#@### %v", hypervergePanResponse)
 	if hypervergePanResponse.StatusCode != "200" {
 		switch hypervergePanResponse.StatusCode {
 		case "437":
@@ -102,7 +98,6 @@ func (hypervergeImpl *HypervergeImpl) ReadAadhar(hypervergeRequest HypervergeReq
 	if err != nil {
 		return nil, err
 	}
-	fmt.Printf("#@### %v", hypervergeAadharResponse)
 	if hypervergeAadharResponse.StatusCode != "200" {
 		switch hypervergeAadharResponse.StatusCode {
 		case "437":
