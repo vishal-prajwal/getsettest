@@ -27,7 +27,7 @@ type CreateTaskRequest struct {
 	AccessToken   string `json:",omitempty"`
 	BaseURL       string `json:",omitempty"`
 	Name          string `json:"name"`
-	PlatformName  string
+	PlatformName  string `json:"PlatformName__c"`
 }
 
 type SaleForceCreateTaskHTTPRequest struct {
