@@ -13,11 +13,14 @@ func HasHierarchialPermissionForResource(authToken *AuthToken, resource string) 
 		return false
 	}
 	resources := strings.Split(resource, ".")
+	permissionToCheck := ""
 	if len(resources) > 1 {
 		for _, v := range resources {
-			if HasParentPermission(authToken, v) {
+			permissionToCheck += v
+			if HasParentPermission(authToken, permissionToCheck) {
 				return true
 			}
+			permissionToCheck += "."
 		}
 	}
 	return HasParentPermission(authToken, resource)
@@ -32,11 +35,14 @@ func HasHierarchialPermissionForScope(authToken *AuthToken, resource string, sco
 	}
 
 	resources := strings.Split(resource, ".")
+	permissionToCheck := ""
 	if len(resources) > 1 {
 		for _, v := range resources {
-			if HasParentPermission(authToken, v) {
+			permissionToCheck += v
+			if HasParentPermission(authToken, permissionToCheck) {
 				return true
 			}
+			permissionToCheck += "."
 		}
 	}
 	return HasParentPermission(authToken, resource) || HasSpecificPermission(authToken, resource, scope)
