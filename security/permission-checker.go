@@ -49,15 +49,7 @@ func HasHierarchialPermissionForScope(authToken *AuthToken, resource string, sco
 }
 
 func HasParentPermission(authToken *AuthToken, resource string) (hasAccess bool) {
-	if authToken == nil {
-		return false
-	}
-	if authToken.Authorization == nil {
-		return false
-	}
-	scopes, present := authToken.Authorization.getPermissionsMap()[resource]
-	// resource permission should not have any scopes
-	return present && len(scopes) == 0
+	return HasSpecificPermission(authToken, resource, "*")
 }
 
 func HasSpecificPermission(authToken *AuthToken, resource string, scope string) (hasAccess bool) {
@@ -68,7 +60,6 @@ func HasSpecificPermission(authToken *AuthToken, resource string, scope string) 
 		return false
 	}
 	scopes := authToken.Authorization.getPermissionsMap()[resource]
-	// resource permission should not have any scopes
 	for _, v := range scopes {
 		if v == scope {
 			return true
