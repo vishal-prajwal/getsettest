@@ -14,6 +14,7 @@ require (
 	github.com/klauspost/shutdown2 v1.1.0
 	github.com/newrelic/go-agent/v3 v3.20.2
 	github.com/newrelic/go-agent/v3/integrations/nrredis-v8 v1.0.0
+	github.com/nfnt/resize v0.0.0-20180221191011-83c6a9932646
 	github.com/pkg/errors v0.9.1
 	github.com/segmentio/kafka-go v0.4.25
 	github.com/spf13/viper v1.15.0

@@ -1,0 +1,49 @@
+package main
+
+import (
+	"fmt"
+	"image/jpeg"
+	"log"
+	"os"
+
+	imagecompressor "bitbucket.org/junglee_games/getsetgo/utils/imageCompressor"
+)
+
+func main() {
+	file, err := os.Open("pngwing.png")
+	if err != nil {
+		log.Fatal("err1: ",err)
+	}
+	defer file.Close()
+
+	imageData := make([]byte, 0)
+	buffer := make([]byte, 4096)
+	for {
+		n, err := file.Read(buffer)
+		if n > 0 {
+			imageData = append(imageData, buffer[:n]...)
+		}
+		if err != nil {
+			break
+		}
+	}
+
+	resizedImg, err := imagecompressor.ImageCompressor(imageData, 1080)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	outputFile, err := os.Create("output.png")
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer outputFile.Close()
+
+	// Encode the resized image as JPEG and write it to the output file with 80% quality (you can adjust the quality as needed)
+	err = jpeg.Encode(outputFile, resizedImg, &jpeg.Options{Quality: 80})
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	fmt.Println("Image compressed and resized to 360p, and saved to output.jpg")
+}
