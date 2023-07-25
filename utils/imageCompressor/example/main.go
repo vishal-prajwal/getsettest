@@ -5,12 +5,16 @@ import (
 	"image/jpeg"
 	"log"
 	"os"
+	"strings"
 
 	imagecompressor "bitbucket.org/junglee_games/getsetgo/utils/imageCompressor"
 )
 
 func main() {
-	file, err := os.Open("pngwing.png")
+	file, err := os.Open("input2.jpeg")
+	fileNameSplit := strings.Split(file.Name(), ".")
+	ext := fileNameSplit[len(fileNameSplit) - 1]
+	fmt.Println(ext)
 	if err != nil {
 		log.Fatal("err1: ",err)
 	}
@@ -28,12 +32,12 @@ func main() {
 		}
 	}
 
-	resizedImg, err := imagecompressor.ImageCompressor(imageData, 1080)
+	resizedImg, err := imagecompressor.ImageCompressor(imageData, 1080, ext)
 	if err != nil {
 		log.Fatal(err)
 	}
 
-	outputFile, err := os.Create("output.png")
+	outputFile, err := os.Create("output.jpeg")
 	if err != nil {
 		log.Fatal(err)
 	}
