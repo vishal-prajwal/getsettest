@@ -1,6 +1,7 @@
 package main
 
 import (
+	"context"
 	"fmt"
 	"image/jpeg"
 	"log"
@@ -13,10 +14,9 @@ import (
 func main() {
 	file, err := os.Open("input2.jpeg")
 	fileNameSplit := strings.Split(file.Name(), ".")
-	ext := fileNameSplit[len(fileNameSplit) - 1]
-	fmt.Println(ext)
+	ext := fileNameSplit[len(fileNameSplit)-1]
 	if err != nil {
-		log.Fatal("err1: ",err)
+		log.Fatal("err1: ", err)
 	}
 	defer file.Close()
 
@@ -32,9 +32,10 @@ func main() {
 		}
 	}
 
-	resizedImg, err := imagecompressor.ImageCompressor(imageData, 1080, ext)
+	resizedImg, err := imagecompressor.ImageCompressor(context.Background(), imageData, 1080, ext)
 	if err != nil {
-		log.Fatal(err)
+		fmt.Println(err)
+		return
 	}
 
 	outputFile, err := os.Create("output.jpeg")
@@ -49,5 +50,5 @@ func main() {
 		log.Fatal(err)
 	}
 
-	fmt.Println("Image compressed and resized to 360p, and saved to output.jpg")
+	fmt.Println("Image compressed and resized to 360p, and saved to output.jpeg")
 }

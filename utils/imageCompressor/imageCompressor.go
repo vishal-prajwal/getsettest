@@ -2,20 +2,24 @@ package imagecompressor
 
 import (
 	"bytes"
+	"context"
 	"image"
 	"image/png"
 
 	"github.com/adrium/goheif"
+	nrf "github.com/newrelic/go-agent/v3/newrelic"
 
 	"github.com/nfnt/resize"
 )
 
 // It will compress the image size by reducing the pixels
-func ImageCompressor(imageData []byte, pixel int, extension string) (image.Image, error) {
+func ImageCompressor(ctx context.Context, imageData []byte, pixel int, extension string) (image.Image, error) {
+
+	defer nrf.FromContext(ctx).StartSegment("ImageCompressor").End()
 	var img image.Image
 	var err error
 	switch extension {
-	case "jpg" :
+	case "jpg":
 		img, _, err = image.Decode(bytes.NewReader(imageData))
 	case "jpeg":
 		img, _, err = image.Decode(bytes.NewReader(imageData))
@@ -24,8 +28,7 @@ func ImageCompressor(imageData []byte, pixel int, extension string) (image.Image
 	case "HEIC":
 		img, err = goheif.Decode(bytes.NewReader(imageData))
 	default:
-		return nil, nil
-
+		return nil, image.ErrFormat
 	}
 
 	if err != nil {
