@@ -16,6 +16,7 @@ type UserProfile struct {
 	City       string `json:"city"`
 	State      string `json:"state"`
 	Gender     string `json:"gender"`
+	Updatedby  string `json:"updatedBy"`
 }
 
 type JWRSDKConfig struct {
