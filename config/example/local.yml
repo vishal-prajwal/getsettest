@@ -1,4 +1,5 @@
 Name: test
+Build: local
 CB:
   URL: localhost
   Password: 

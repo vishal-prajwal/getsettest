@@ -53,7 +53,7 @@ func LoadConfig(env, path string, config Config) error {
 		return errors.Wrap(err, "Unable to decode into struct")
 	}
 
-	if env != "local" {
+	if config.GetBuild() != "local" {
 		sm, err := aws.NewSecreteManager()
 		if err != nil {
 			return errors.Wrap(err, "while starting aws for sm")
