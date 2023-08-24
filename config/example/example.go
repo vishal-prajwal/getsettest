@@ -10,7 +10,12 @@ import (
 )
 
 type Config struct {
-	CB *CBConfig
+	Build string
+	CB    *CBConfig
+}
+
+func (c *Config) GetBuild() string {
+	return c.Build
 }
 
 type CBConfig struct {

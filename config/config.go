@@ -29,8 +29,12 @@ func load(sm SM, s SMStruct) error {
 	return nil
 }
 
+type Config interface {
+	GetBuild() string
+}
+
 // more general load config function
-func LoadConfig(env, path string, config interface{}) error {
+func LoadConfig(env, path string, config Config) error {
 	logger.Info(context.Background(), path)
 	// =========================================================================
 	// Configuration from file
