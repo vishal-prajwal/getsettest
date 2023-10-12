@@ -6,7 +6,6 @@ import (
 	"image"
 	"image/png"
 
-	"github.com/adrium/goheif"
 	nrf "github.com/newrelic/go-agent/v3/newrelic"
 
 	"github.com/nfnt/resize"
@@ -25,8 +24,6 @@ func ImageCompressor(ctx context.Context, imageData []byte, pixel int, extension
 		img, _, err = image.Decode(bytes.NewReader(imageData))
 	case "png":
 		img, err = png.Decode(bytes.NewReader(imageData))
-	case "HEIC":
-		img, err = goheif.Decode(bytes.NewReader(imageData))
 	default:
 		return nil, image.ErrFormat
 	}

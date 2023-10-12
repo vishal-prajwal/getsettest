@@ -3,7 +3,6 @@ module bitbucket.org/junglee_games/getsetgo
 go 1.18
 
 require (
-	github.com/adrium/goheif v0.0.0-20230113233934-ca402e77a786
 	github.com/aws/aws-sdk-go v1.44.136
 	github.com/getsentry/sentry-go v0.15.0
 	github.com/go-playground/validator/v10 v10.11.1
@@ -30,7 +29,6 @@ require (
 	github.com/magiconair/properties v1.8.7 // indirect
 	github.com/pelletier/go-toml/v2 v2.0.6 // indirect
 	github.com/pierrec/lz4 v2.6.0+incompatible // indirect
-	github.com/rwcarlsen/goexif v0.0.0-20190401172101-9e8deecbddbd // indirect
 	github.com/spf13/afero v1.9.3 // indirect
 	github.com/spf13/cast v1.5.0 // indirect
 	github.com/spf13/jwalterweatherman v1.1.0 // indirect
