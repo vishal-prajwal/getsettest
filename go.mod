@@ -9,6 +9,7 @@ require (
 	github.com/go-redis/redis v6.15.9+incompatible
 	github.com/go-redis/redis/v8 v8.11.5
 	github.com/google/uuid v1.3.0
+	github.com/h2non/bimg v1.1.9
 	github.com/hashicorp/consul/api v1.18.0
 	github.com/kataras/iris/v12 v12.2.0-beta5
 	github.com/klauspost/shutdown2 v1.1.0
