@@ -8,6 +8,7 @@ import (
 	"os"
 	"path/filepath"
 	"strings"
+	"time"
 
 	"bitbucket.org/junglee_games/getsetgo/utils/files"
 )
@@ -26,7 +27,11 @@ func NewZipper() *Zipper {
 }
 
 func (z *Zipper) AddFile(name string, data string) error {
-	w1, err := z.writer.Create(name)
+	w1, err := z.writer.CreateHeader(&zip.FileHeader{
+		Name:     name,
+		Method:   zip.Deflate,
+		Modified: time.Now(),
+	})
 	if err != nil {
 		return err
 	}
