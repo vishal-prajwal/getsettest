@@ -16,6 +16,7 @@ type CheckTemperedReq struct {
 
 type CheckTemperedReqData struct {
 	Document1 string `json:"document1"`
+	DocType   string `json:"doc_type"`
 }
 
 type AdvancedDetails struct {
