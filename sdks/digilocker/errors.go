@@ -10,4 +10,7 @@ var (
 	ErrCreatingRequest   = errors.New("ERROR : creating request")
 	ErrReqValidate       = errors.New("ERROR : hyperverge request validate")
 	ErrHVServer          = errors.New("ERROR : Hyperverge Server")
+	ErrDocumentNotFound  = errors.New("ERROR : document not found")
+	ErrDownloadFile      = errors.New("ERROR : Download addhar xml file")
+	ErrExtractingXML     = errors.New("ERROR : Unable to extract data from xml file addhar")
 )

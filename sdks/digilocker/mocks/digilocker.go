@@ -3,10 +3,9 @@
 package mocks
 
 import (
-	http "net/http"
+	context "context"
 
-	digilocker "bitbucket.org/junglee_games/getsetgo/sdks/digilocker"
-
+	digilocker "bitbucket.org/junglee_games/japi-kyc-service/sdk/digilocker"
 	mock "github.com/stretchr/testify/mock"
 )
 
@@ -15,13 +14,13 @@ type Digilocker struct {
 	mock.Mock
 }
 
-// CheckAccountstatus provides a mock function with given fields: mobile, aadhaar
-func (_m *Digilocker) CheckAccountstatus(mobile string, aadhaar string) (*digilocker.AccountStatusDetails, error) {
-	ret := _m.Called(mobile, aadhaar)
+// CheckAccountstatus provides a mock function with given fields: ctx, mobile, aadhaar
+func (_m *Digilocker) CheckAccountstatus(ctx context.Context, mobile string, aadhaar string) (*digilocker.AccountStatusDetails, error) {
+	ret := _m.Called(ctx, mobile, aadhaar)
 
 	var r0 *digilocker.AccountStatusDetails
-	if rf, ok := ret.Get(0).(func(string, string) *digilocker.AccountStatusDetails); ok {
-		r0 = rf(mobile, aadhaar)
+	if rf, ok := ret.Get(0).(func(context.Context, string, string) *digilocker.AccountStatusDetails); ok {
+		r0 = rf(ctx, mobile, aadhaar)
 	} else {
 		if ret.Get(0) != nil {
 			r0 = ret.Get(0).(*digilocker.AccountStatusDetails)
@@ -29,8 +28,8 @@ func (_m *Digilocker) CheckAccountstatus(mobile string, aadhaar string) (*digilo
 	}
 
 	var r1 error
-	if rf, ok := ret.Get(1).(func(string, string) error); ok {
-		r1 = rf(mobile, aadhaar)
+	if rf, ok := ret.Get(1).(func(context.Context, string, string) error); ok {
+		r1 = rf(ctx, mobile, aadhaar)
 	} else {
 		r1 = ret.Error(1)
 	}
@@ -38,13 +37,13 @@ func (_m *Digilocker) CheckAccountstatus(mobile string, aadhaar string) (*digilo
 	return r0, r1
 }
 
-// GetAddharDetails provides a mock function with given fields: transactionId, referenceId
-func (_m *Digilocker) GetAddharDetails(transactionId string, referenceId string) (*digilocker.AadhaarDetails, error) {
-	ret := _m.Called(transactionId, referenceId)
+// GetAddharDetails provides a mock function with given fields: ctx, transactionId, referenceId
+func (_m *Digilocker) GetAddharDetails(ctx context.Context, transactionId string, referenceId string) (*digilocker.AadhaarDetails, error) {
+	ret := _m.Called(ctx, transactionId, referenceId)
 
 	var r0 *digilocker.AadhaarDetails
-	if rf, ok := ret.Get(0).(func(string, string) *digilocker.AadhaarDetails); ok {
-		r0 = rf(transactionId, referenceId)
+	if rf, ok := ret.Get(0).(func(context.Context, string, string) *digilocker.AadhaarDetails); ok {
+		r0 = rf(ctx, transactionId, referenceId)
 	} else {
 		if ret.Get(0) != nil {
 			r0 = ret.Get(0).(*digilocker.AadhaarDetails)
@@ -52,8 +51,8 @@ func (_m *Digilocker) GetAddharDetails(transactionId string, referenceId string)
 	}
 
 	var r1 error
-	if rf, ok := ret.Get(1).(func(string, string) error); ok {
-		r1 = rf(transactionId, referenceId)
+	if rf, ok := ret.Get(1).(func(context.Context, string, string) error); ok {
+		r1 = rf(ctx, transactionId, referenceId)
 	} else {
 		r1 = ret.Error(1)
 	}
@@ -61,13 +60,27 @@ func (_m *Digilocker) GetAddharDetails(transactionId string, referenceId string)
 	return r0, r1
 }
 
-// Healthcheck provides a mock function with given fields:
-func (_m *Digilocker) Healthcheck() (*digilocker.HealthcheckResult, error) {
-	ret := _m.Called()
+// GetRedirectURL provides a mock function with given fields: ctx
+func (_m *Digilocker) GetRedirectURL(ctx context.Context) string {
+	ret := _m.Called(ctx)
+
+	var r0 string
+	if rf, ok := ret.Get(0).(func(context.Context) string); ok {
+		r0 = rf(ctx)
+	} else {
+		r0 = ret.Get(0).(string)
+	}
+
+	return r0
+}
+
+// Healthcheck provides a mock function with given fields: ctx
+func (_m *Digilocker) Healthcheck(ctx context.Context) (*digilocker.HealthcheckResult, error) {
+	ret := _m.Called(ctx)
 
 	var r0 *digilocker.HealthcheckResult
-	if rf, ok := ret.Get(0).(func() *digilocker.HealthcheckResult); ok {
-		r0 = rf()
+	if rf, ok := ret.Get(0).(func(context.Context) *digilocker.HealthcheckResult); ok {
+		r0 = rf(ctx)
 	} else {
 		if ret.Get(0) != nil {
 			r0 = ret.Get(0).(*digilocker.HealthcheckResult)
@@ -75,8 +88,8 @@ func (_m *Digilocker) Healthcheck() (*digilocker.HealthcheckResult, error) {
 	}
 
 	var r1 error
-	if rf, ok := ret.Get(1).(func() error); ok {
-		r1 = rf()
+	if rf, ok := ret.Get(1).(func(context.Context) error); ok {
+		r1 = rf(ctx)
 	} else {
 		r1 = ret.Error(1)
 	}
@@ -84,13 +97,22 @@ func (_m *Digilocker) Healthcheck() (*digilocker.HealthcheckResult, error) {
 	return r0, r1
 }
 
-// StartKYC provides a mock function with given fields: transactionId, referenceId, redirectURL
-func (_m *Digilocker) StartKYC(transactionId string, referenceId string, redirectURL string) (*digilocker.KYCStartDetails, error) {
-	ret := _m.Called(transactionId, referenceId, redirectURL)
+
+func (_m *Digilocker) GetPanDetails(ctx context.Context, refId string, panNumber string, fullName string) (*digilocker.PanDetails, error){
+	return nil,nil
+}
+
+func ( m *Digilocker)GetPanDigilockerDoc(ctx context.Context, refId string) (*digilocker.PanDetails, error){
+return nil,nil
+}
+
+// StartKYC provides a mock function with given fields: ctx, transactionId, referenceId, redirectURL
+func (_m *Digilocker) StartKYC(ctx context.Context, transactionId string, referenceId string, redirectURL string) (*digilocker.KYCStartDetails, error) {
+	ret := _m.Called(ctx, transactionId, referenceId, redirectURL)
 
 	var r0 *digilocker.KYCStartDetails
-	if rf, ok := ret.Get(0).(func(string, string, string) *digilocker.KYCStartDetails); ok {
-		r0 = rf(transactionId, referenceId, redirectURL)
+	if rf, ok := ret.Get(0).(func(context.Context, string, string, string) *digilocker.KYCStartDetails); ok {
+		r0 = rf(ctx, transactionId, referenceId, redirectURL)
 	} else {
 		if ret.Get(0) != nil {
 			r0 = ret.Get(0).(*digilocker.KYCStartDetails)
@@ -98,18 +120,13 @@ func (_m *Digilocker) StartKYC(transactionId string, referenceId string, redirec
 	}
 
 	var r1 error
-	if rf, ok := ret.Get(1).(func(string, string, string) error); ok {
-		r1 = rf(transactionId, referenceId, redirectURL)
+	if rf, ok := ret.Get(1).(func(context.Context, string, string, string) error); ok {
+		r1 = rf(ctx, transactionId, referenceId, redirectURL)
 	} else {
 		r1 = ret.Error(1)
 	}
 
 	return r0, r1
-}
-
-// addHeaders provides a mock function with given fields: req
-func (_m *Digilocker) addHeaders(req *http.Request) {
-	_m.Called(req)
 }
 
 type mockConstructorTestingTNewDigilocker interface {

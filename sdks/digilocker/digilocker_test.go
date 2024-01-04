@@ -2,14 +2,15 @@ package digilocker
 
 import (
 	"bytes"
+	"context"
 	"encoding/json"
 	"io/ioutil"
 	"net/http"
+	"reflect"
 	"testing"
 
 	httpclientmocks "bitbucket.org/junglee_games/getsetgo/httpclient/mocks"
 	"bitbucket.org/junglee_games/getsetgo/instrumenting/newrelic"
-
 	"github.com/pkg/errors"
 	"github.com/stretchr/testify/mock"
 	"github.com/stretchr/testify/suite"
@@ -22,28 +23,45 @@ func TestDigilockerSuite(t *testing.T) {
 type digilockerSuite struct {
 	suite.Suite
 	httpClient httpclientmocks.HTTPClient
+	nr         newrelic.Agent
 	srv        Digilocker
-}
-
-type Conf struct {
-	appId  string
-	appKey string
-	url    string
-}
-
-func (c *Conf) GetDigilockerAppId() string {
-	return c.appId
-}
-func (c *Conf) GetDigilockerAppKey() string {
-	return c.appKey
-}
-func (c *Conf) GetDigilockerEndpoint() string {
-	return c.url
 }
 
 func (suite *digilockerSuite) SetupTest() {
 	suite.httpClient = *httpclientmocks.NewHTTPClient(suite.T())
-	suite.srv = New(&Conf{}, newrelic.Agent{}, &suite.httpClient)
+	//	suite.nr = *newrelicmocks.NewAgent(suite.T())
+	//	suite.nr.On("StartTransaction", mock.Anything).Return(nil)
+	suite.srv = New("test", "testing", "url.com", &suite.httpClient, "")
+}
+
+func (suite *digilockerSuite) TestNew() {
+	type args struct {
+		appId  string
+		appKey string
+	}
+	tests := []struct {
+		name string
+		args args
+		want *DigilockerImpl
+	}{
+		{name: "1",
+			args: args{
+				appId:  "123",
+				appKey: "appKey",
+			},
+			want: &DigilockerImpl{
+				appId:  "123",
+				appKey: "appKey",
+			},
+		},
+	}
+	for _, tt := range tests {
+		suite.Run(tt.name, func() {
+			if got := New(tt.args.appId, tt.args.appKey, "", nil, ""); !reflect.DeepEqual(got, tt.want) {
+				suite.Equal(tt.want, got)
+			}
+		})
+	}
 }
 
 func (suite *digilockerSuite) TestDigilocker_addHeaders() {
@@ -77,7 +95,8 @@ func (suite *digilockerSuite) TestDigilocker_addHeaders() {
 	for _, tt := range tests {
 		suite.Run(tt.name, func() {
 			dl := &DigilockerImpl{
-				config: &Conf{appId: tt.fields.AppId, appKey: tt.fields.AppKey},
+				appId:  tt.fields.AppId,
+				appKey: tt.fields.AppKey,
 			}
 			dl.addHeaders(tt.args.req)
 			suite.Equal(tt.want, tt.args.req)
@@ -126,7 +145,7 @@ func (suite *digilockerSuite) TestDigilockerImpl_GetAddharDetails() {
 			suite.httpClient.ExpectedCalls = []*mock.Call{}
 			suite.httpClient.Calls = []mock.Call{}
 			suite.httpClient.On("Do", mock.Anything).Return(&http.Response{Status: "Okay", StatusCode: 200, Body: ioutil.NopCloser(bytes.NewBufferString(string(str)))}, tt.doErr)
-			got, err := suite.srv.GetAddharDetails(tt.args.transactionId, tt.args.referenceId)
+			got, err := suite.srv.GetAddharDetails(context.TODO(), tt.args.transactionId, tt.args.referenceId)
 			suite.Equal(tt.want, got)
 			suite.Equal(tt.wantErr, err != nil)
 
@@ -136,12 +155,17 @@ func (suite *digilockerSuite) TestDigilockerImpl_GetAddharDetails() {
 
 func (suite *digilockerSuite) TestDigilockerImpl_CheckAccountstatus() {
 
+	type fields struct {
+		AppId  string
+		AppKey string
+	}
 	type args struct {
 		mobile  string
 		aadhaar string
 	}
 	tests := []struct {
 		name    string
+		fields  fields
 		args    args
 		want    *AccountStatusDetails
 		doErr   error
@@ -176,7 +200,7 @@ func (suite *digilockerSuite) TestDigilockerImpl_CheckAccountstatus() {
 			suite.httpClient.ExpectedCalls = []*mock.Call{}
 			suite.httpClient.Calls = []mock.Call{}
 			suite.httpClient.On("Do", mock.Anything).Return(httpRes, tt.doErr)
-			got, err := suite.srv.CheckAccountstatus(tt.args.mobile, tt.args.aadhaar)
+			got, err := suite.srv.CheckAccountstatus(context.TODO(), tt.args.mobile, tt.args.aadhaar)
 			suite.Equal(tt.want, got)
 			suite.Equal(tt.wantErr, err != nil)
 		})
@@ -184,7 +208,10 @@ func (suite *digilockerSuite) TestDigilockerImpl_CheckAccountstatus() {
 }
 
 func (suite *digilockerSuite) TestDigilockerImpl_StartKYC() {
-
+	type fields struct {
+		AppId  string
+		AppKey string
+	}
 	type args struct {
 		transactionId string
 		referenceId   string
@@ -192,6 +219,7 @@ func (suite *digilockerSuite) TestDigilockerImpl_StartKYC() {
 	}
 	tests := []struct {
 		name    string
+		fields  fields
 		args    args
 		want    *KYCStartDetails
 		wantErr bool
@@ -226,7 +254,7 @@ func (suite *digilockerSuite) TestDigilockerImpl_StartKYC() {
 			suite.httpClient.ExpectedCalls = []*mock.Call{}
 			suite.httpClient.Calls = []mock.Call{}
 			suite.httpClient.On("Do", mock.Anything).Return(httpRes, tt.doErr)
-			got, err := suite.srv.StartKYC(tt.args.transactionId, tt.args.referenceId, tt.args.redirectURL)
+			got, err := suite.srv.StartKYC(context.TODO(), tt.args.transactionId, tt.args.referenceId, tt.args.redirectURL)
 			suite.Equal(tt.want, got)
 			suite.Equal(tt.wantErr, err != nil)
 		})
@@ -273,7 +301,7 @@ func (suite *digilockerSuite) TestDigilockerImpl_Healthcheck() {
 
 			suite.httpClient.On("Do", mock.Anything).Return(httpRes, tt.doErr)
 
-			got, err := suite.srv.Healthcheck()
+			got, err := suite.srv.Healthcheck(context.TODO())
 			suite.Equal(tt.want, got)
 			suite.Equal(tt.wantErr, err != nil)
 		})

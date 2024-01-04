@@ -1,17 +1,15 @@
 package digilocker
 
-import "net/http"
+import (
+	"context"
+)
 
 type Digilocker interface {
-	StartKYC(transactionId, referenceId, redirectURL string) (*KYCStartDetails, error)
-	CheckAccountstatus(mobile, aadhaar string) (*AccountStatusDetails, error)
-	GetAddharDetails(transactionId, referenceId string) (*AadhaarDetails, error)
-	Healthcheck() (*HealthcheckResult, error)
-	addHeaders(req *http.Request)
-}
-
-type DigilockerConfig interface {
-	GetDigilockerAppId() string
-	GetDigilockerAppKey() string
-	GetDigilockerEndpoint() string
+	GetRedirectURL(ctx context.Context) string
+	StartKYC(ctx context.Context, transactionId, referenceId, redirectURL string) (*KYCStartDetails, error)
+	CheckAccountstatus(ctx context.Context, mobile, aadhaar string) (*AccountStatusDetails, error)
+	GetAddharDetails(ctx context.Context, transactionId, referenceId string) (*AadhaarDetails, error)
+	Healthcheck(ctx context.Context) (*HealthcheckResult, error)
+	GetPanDetails(ctx context.Context, refId string, panNumber string, fullName string) (*PanDetails, error)
+	GetPanDigilockerDoc(ctx context.Context, refId string) (*PanDetails, error)
 }
