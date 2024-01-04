@@ -5,7 +5,7 @@ package mocks
 import (
 	context "context"
 
-	digilocker "bitbucket.org/junglee_games/japi-kyc-service/sdk/digilocker"
+	digilocker "bitbucket.org/junglee_games/getsetgo/sdks/digilocker"
 	mock "github.com/stretchr/testify/mock"
 )
 
