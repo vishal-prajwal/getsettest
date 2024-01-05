@@ -4,7 +4,6 @@ import (
 	"encoding/xml"
 	"io/ioutil"
 	"os"
-	"time"
 
 	"bitbucket.org/junglee_games/getsetgo/downloader"
 	"github.com/pkg/errors"
@@ -231,11 +230,10 @@ type DigilockerPanResult struct {
 }
 
 type PanDigilockerRespnseDetails struct {
-	PAN          string    `json:"pan"`
-	Name         string    `json:"name"`
-	DOB          string    `json:"dob"`
-	Gender       string    `json:"gender"`
-	LastVerified time.Time `json:"last_verified"`
+	PAN     string `json:"pan"`
+	Name    string `json:"name"`
+	DOB     string `json:"dob"`
+	FileUrl string `json:"file"`
 }
 type KYCResult struct {
 	Status     string    `json:"status"`
