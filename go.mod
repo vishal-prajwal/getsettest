@@ -3,7 +3,7 @@ module bitbucket.org/junglee_games/getsetgo
 go 1.18
 
 require (
-	github.com/aws/aws-sdk-go v1.44.136
+	github.com/aws/aws-sdk-go v1.25.14-0.20210312192906-f6c4e26cacae
 	github.com/getsentry/sentry-go v0.15.0
 	github.com/go-playground/validator/v10 v10.11.1
 	github.com/go-redis/redis v6.15.9+incompatible
