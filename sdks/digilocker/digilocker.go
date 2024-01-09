@@ -277,7 +277,7 @@ func (dl *DigilockerImpl) GetPanDigilockerDoc(ctx context.Context, refId string)
 		Name:        result.Result.Details[0].Name,
 		DOB:         result.Result.Details[0].DOB,
 		Address:     "",
-		DocImageUrl: "",
+		DocImageUrl: result.Result.Details[0].FileUrl,
 	}
 
 	return &panDetails, nil
