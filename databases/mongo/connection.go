@@ -11,7 +11,7 @@ import (
 	"go.mongodb.org/mongo-driver/mongo/options"
 )
 
-func GetMongoClient(host, username, password, appname string) (*mongo.Client, error) {
+func GetMongoClient(host, username, password, appname string, build string) (*mongo.Client, error) {
 	clientOptions := options.Client().SetAppName(appname)
 	clientOptions.SetMaxConnIdleTime(time.Minute * 10)
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
@@ -23,12 +23,14 @@ func GetMongoClient(host, username, password, appname string) (*mongo.Client, er
 
 	clientOptions.SetHosts(hosts)
 
-	clientOptions.SetAuth(options.Credential{
-		AuthSource:    "admin",
-		AuthMechanism: "SCRAM-SHA-256",
-		Username:      username,
-		Password:      password,
-	})
+	if build != "local" {
+		clientOptions.SetAuth(options.Credential{
+			AuthSource:    "admin",
+			AuthMechanism: "SCRAM-SHA-256",
+			Username:      username,
+			Password:      password,
+		})
+	}
 
 	nrMon := nrmongo.NewCommandMonitor(nil)
 	clientOptions.SetMonitor(nrMon)
