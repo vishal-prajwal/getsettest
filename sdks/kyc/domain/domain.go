@@ -1,4 +1,4 @@
-package kyc
+package domain
 
 type UserByPanRequest struct {
 	PanNumber  []string

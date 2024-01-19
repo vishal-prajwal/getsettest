@@ -1,31 +1,31 @@
-package howzat
+package howzatkyc
 
 import (
 	"encoding/json"
-	"io/ioutil"
+	"io"
 	"net/http"
 
-	"bitbucket.org/junglee_games/getsetgo/instrumenting/newrelic"
+	"bitbucket.org/junglee_games/getsetgo/monitoring"
+	"bitbucket.org/junglee_games/getsetgo/sdks/kyc/domain"
 	"github.com/pkg/errors"
 )
 
-type HowzatImpl struct {
-	endpoint   string
-	nr         newrelic.Agent
-	httpClient *http.Client
+type HowzatKycServiceClient struct {
+	endpoint        string
+	monitoringAgent monitoring.Agent
+	httpClient      *http.Client
 }
 
-func New(endpoint string, nr newrelic.Agent, client *http.Client) *HowzatImpl {
-	return &HowzatImpl{endpoint: endpoint, nr: nr, httpClient: client}
+func New(endpoint string, monitoringAgent monitoring.Agent, client *http.Client) *HowzatKycServiceClient {
+	return &HowzatKycServiceClient{endpoint: endpoint, monitoringAgent: monitoringAgent, httpClient: client}
 }
 
-func (howzatImpl *HowzatImpl) FetchUserByPan(userByPanRequest UserByPanRequest) (UserByPanResponse, error) {
-
-	userPanInfo := make([]UserPanInfo, 0)
-	ch := make(chan UserPanInfo)
+func (howzatImpl *HowzatKycServiceClient) FetchUserByPan(userByPanRequest domain.UserByPanRequest) (domain.UserByPanResponse, error) {
+	userPanInfo := make([]domain.UserPanInfo, 0)
+	ch := make(chan domain.UserPanInfo)
 	for _, pan := range userByPanRequest.PanNumber {
 		go func(pan string) {
-			userPan := UserPanInfo{
+			userPan := domain.UserPanInfo{
 				PanNo: pan,
 			}
 			kycResponse, _ := howzatImpl.getHowzatKyc(pan)
@@ -43,18 +43,15 @@ func (howzatImpl *HowzatImpl) FetchUserByPan(userByPanRequest UserByPanRequest) 
 		}
 	}
 
-	userByPanResponse := UserByPanResponse{
+	userByPanResponse := domain.UserByPanResponse{
 		UserPanInfo: userPanInfo,
-	}
-	if len(userPanInfo) == 0 {
-		userByPanResponse.Error = ErrNotFound.Error()
 	}
 	return userByPanResponse, nil
 }
 
-func (howzatImpl *HowzatImpl) getHowzatKyc(panNumber string) (*KycResponse, error) {
-	howzatImpl.nr.StartTransaction(HOWZAT_INITIATE_CALL)
-
+func (howzatImpl *HowzatKycServiceClient) getHowzatKyc(panNumber string) (*KycResponse, error) {
+	tr := howzatImpl.monitoringAgent.StartTransaction(HOWZAT_USER_BY_PAN_CALL)
+	defer tr.End()
 	url := howzatImpl.endpoint + GET_USER_BY_PAN_URI + panNumber
 
 	request, err := http.NewRequest(http.MethodGet, url, nil)
@@ -68,7 +65,7 @@ func (howzatImpl *HowzatImpl) getHowzatKyc(panNumber string) (*KycResponse, erro
 	}
 	defer res.Body.Close()
 
-	body, err := ioutil.ReadAll(res.Body)
+	body, err := io.ReadAll(res.Body)
 	if err != nil {
 		return nil, errors.Wrap(ErrReadingResponseBody, err.Error())
 	}

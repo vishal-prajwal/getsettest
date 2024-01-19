@@ -1,4 +1,4 @@
-package kyc
+package rummykyc
 
 import "errors"
 

@@ -1,4 +1,4 @@
-package howzat
+package howzatkyc
 
 type KycResponse struct {
 	Code    string `json:"code"`
@@ -26,18 +26,4 @@ type Data struct {
 	Pincode              int     `json:"pincode,omitempty"`
 	Source               string  `json:"source,omitempty"`
 	KycLiteBlocked       bool    `json:"kycLiteBlocked,omitempty"`
-}
-
-type UserByPanRequest struct {
-	PanNumber []string
-}
-
-type UserByPanResponse struct {
-	Error       string        `json:"error,omitempty"`
-	UserPanInfo []UserPanInfo `json:"data,omitempty"`
-}
-
-type UserPanInfo struct {
-	UserID int    `json:"userID"`
-	PanNo  string `json:"panNo"`
 }

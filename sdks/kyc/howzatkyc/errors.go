@@ -1,4 +1,4 @@
-package howzat
+package howzatkyc
 
 import "errors"
 

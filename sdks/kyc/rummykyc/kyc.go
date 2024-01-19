@@ -1,27 +1,28 @@
-package kyc
+package rummykyc
 
 import (
 	"encoding/json"
-	"io/ioutil"
+	"io"
 	"net/http"
 	"strings"
 
-	"bitbucket.org/junglee_games/getsetgo/instrumenting/newrelic"
+	"bitbucket.org/junglee_games/getsetgo/monitoring"
+	"bitbucket.org/junglee_games/getsetgo/sdks/kyc/domain"
 	"github.com/pkg/errors"
 )
 
 type KYCImpl struct {
-	endpoint   string
-	nr         newrelic.Agent
-	httpClient *http.Client
+	endpoint        string
+	monitoringAgent monitoring.Agent
+	httpClient      *http.Client
 }
 
-func New(endpoint string, nr newrelic.Agent, client *http.Client) *KYCImpl {
-	return &KYCImpl{endpoint: endpoint, nr: nr, httpClient: client}
+func New(endpoint string, agent monitoring.Agent, client *http.Client) *KYCImpl {
+	return &KYCImpl{endpoint: endpoint, monitoringAgent: agent, httpClient: client}
 }
 
-func (kyc *KYCImpl) FetchUserByPan(userByPanRequest UserByPanRequest) (*UserByPanResponse, error) {
-	kyc.nr.StartTransaction(KYC_INITIATE_CALL)
+func (kyc *KYCImpl) FetchUserByPan(userByPanRequest domain.UserByPanRequest) (*domain.UserByPanResponse, error) {
+	kyc.monitoringAgent.StartTransaction(KYC_INITIATE_CALL)
 
 	url := kyc.endpoint + GET_USER_BY_PAN_URI + encodeQueryParams("?panNos=", userByPanRequest.PanNumber)
 
@@ -39,11 +40,11 @@ func (kyc *KYCImpl) FetchUserByPan(userByPanRequest UserByPanRequest) (*UserByPa
 	}
 	defer res.Body.Close()
 
-	body, err := ioutil.ReadAll(res.Body)
+	body, err := io.ReadAll(res.Body)
 	if err != nil {
 		return nil, errors.Wrap(ErrReadingResponseBody, err.Error())
 	}
-	var response UserByPanResponse
+	var response domain.UserByPanResponse
 
 	err = json.Unmarshal(body, &response)
 	if err != nil {
