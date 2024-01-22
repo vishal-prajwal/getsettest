@@ -2,6 +2,7 @@ package localfilestore
 
 import (
 	"context"
+	"fmt"
 	"os"
 	"sync"
 
@@ -116,4 +117,36 @@ func (fs *LocalFileStore) TemporarySave(filesData *filestore.FileData, expriryMi
 // it will return signed url for already uploaded file
 func (fs *LocalFileStore) GetSignedURL(filepath string, expriryMinutes int) (string, error) {
 	return filepath, nil
+}
+
+// it will list files in current directory
+func (fs *LocalFileStore) ListFiles(ctx context.Context, folder string, limit int64) ([]string, error) {
+	files, err := os.ReadDir(fs.config.GetDirectoryPath() + "/" + folder)
+	if err != nil {
+		logger.Error(ctx, "failed to read directory: %v", err.Error())
+		return nil, fmt.Errorf("failed to list files: %v", err)
+	}
+
+	var result []string
+	for _, file := range files {
+		if file.IsDir() {
+			continue
+		}
+		result = append(result, file.Name())
+		if int64(len(result)) >= limit {
+			break
+		}
+	}
+
+	return result, nil
+}
+
+// it will rename a file in current  directory
+func (fs *LocalFileStore) RenameFile(ctx context.Context, oldname string, newname string) error {
+	err := os.Rename(fs.config.GetDirectoryPath()+"/"+oldname, fs.config.GetDirectoryPath()+"/"+newname)
+	if err != nil {
+		logger.Error(ctx, "failed to rename file %v", err.Error())
+		return fmt.Errorf("failed to rename file: %v", err)
+	}
+	return nil
 }

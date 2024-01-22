@@ -2,6 +2,7 @@ package awss3
 
 import (
 	"context"
+	"fmt"
 	"io/ioutil"
 	"strings"
 	"sync"
@@ -202,4 +203,59 @@ func (s3S *S3Store) GetSignedURL(filepath string, expriryMinutes int) (string, e
 	}
 
 	return url, nil
+}
+
+func (s3S *S3Store) ListFiles(ctx context.Context, folder string, limit int64) ([]string, error) {
+	prefix := folder // Include trailing slash if listing objects in a specific directory
+
+	var continuationToken *string
+	var objects []*s3.Object
+	var resultObjects []string
+
+	input := &s3.ListObjectsV2Input{
+		Bucket:            aws.String(s3S.bucketName),
+		Prefix:            aws.String(prefix),
+		ContinuationToken: continuationToken,
+		MaxKeys:           aws.Int64(limit), // MaxKeys limits the maximum number of results per page
+	}
+
+	result, err := s3S.s3Service.ListObjectsV2WithContext(ctx, input)
+	if err != nil {
+		logger.Error(ctx, "list objects : %v", err.Error())
+		return nil, err
+	}
+
+	objects = append(objects, result.Contents...)
+
+	// Extract file names
+	for _, obj := range objects {
+		resultObjects = append(resultObjects, *obj.Key)
+	}
+
+	return resultObjects, nil
+
+}
+
+func (s3S *S3Store) RenameFile(ctx context.Context, oldname string, newname string) error {
+	// Copy the object with the new key (rename)
+	_, err := s3S.s3Service.CopyObjectWithContext(ctx, &s3.CopyObjectInput{
+		Bucket:     aws.String(s3S.bucketName),
+		CopySource: aws.String(s3S.bucketName + "/" + oldname),
+		Key:        aws.String(newname),
+	})
+	if err != nil {
+		logger.Error(ctx, "failed to copy object: %v", err.Error())
+		return fmt.Errorf("failed to copy object: %v", err)
+	}
+
+	// Delete the old object
+	_, err = s3S.s3Service.DeleteObjectWithContext(ctx, &s3.DeleteObjectInput{
+		Bucket: aws.String(s3S.bucketName),
+		Key:    aws.String(oldname),
+	})
+	if err != nil {
+		logger.Error(ctx, "failed to delete old object: %v", err)
+		return fmt.Errorf("failed to delete old object: %v", err)
+	}
+	return nil
 }

@@ -1,5 +1,7 @@
 package filestore
 
+import "context"
+
 type FileData struct {
 	Name       string
 	Data       string
@@ -33,4 +35,7 @@ type FileStore interface {
 
 	// it will return signed url for already uploaded file
 	GetSignedURL(filepath string, expriryMinutes int) (string, error)
+
+	ListFiles(ctx context.Context, folder string, limit int64) ([]string, error)
+	RenameFile(ctx context.Context, oldname string, newname string) error
 }
