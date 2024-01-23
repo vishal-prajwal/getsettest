@@ -3,6 +3,7 @@ package localfilestore
 import (
 	"context"
 	"fmt"
+	"io"
 	"os"
 	"sync"
 
@@ -149,4 +150,12 @@ func (fs *LocalFileStore) RenameFile(ctx context.Context, oldname string, newnam
 		return fmt.Errorf("failed to rename file: %v", err)
 	}
 	return nil
+}
+
+func (fs *LocalFileStore) GetFileStream(filename string) (io.ReadCloser, error) {
+	file, err := os.Open(fs.config.GetDirectoryPath() + "/" + filename)
+	if err != nil {
+		return nil, err
+	}
+	return file, nil
 }

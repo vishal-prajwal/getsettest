@@ -1,6 +1,9 @@
 package filestore
 
-import "context"
+import (
+	"context"
+	"io"
+)
 
 type FileData struct {
 	Name       string
@@ -26,6 +29,8 @@ type FileStore interface {
 
 	// download file
 	DownloadFile(filename string) ([]byte, error)
+
+	GetFileStream(filename string) (io.ReadCloser, error)
 
 	// it will return ack chan
 	GetAckChan(size int) chan *FileData

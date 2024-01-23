@@ -3,6 +3,7 @@ package awss3
 import (
 	"context"
 	"fmt"
+	"io"
 	"io/ioutil"
 	"strings"
 	"sync"
@@ -258,4 +259,21 @@ func (s3S *S3Store) RenameFile(ctx context.Context, oldname string, newname stri
 		return fmt.Errorf("failed to delete old object: %v", err)
 	}
 	return nil
+}
+
+func (s *S3Store) GetFileStream(filename string) (io.ReadCloser, error) {
+	// Create a GetObjectInput instance
+	params := &s3.GetObjectInput{
+		Bucket: &s.bucketName,
+		Key:    &filename,
+	}
+
+	// Retrieve the object from Amazon S3
+	resp, err := s.s3Service.GetObject(params)
+	if err != nil {
+		return nil, err
+	}
+
+	// Return the response body as an io.ReadCloser
+	return resp.Body, nil
 }
