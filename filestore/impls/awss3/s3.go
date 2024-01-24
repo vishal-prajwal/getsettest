@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"io"
 	"io/ioutil"
+	"os"
 	"strings"
 	"sync"
 	"time"
@@ -276,4 +277,26 @@ func (s *S3Store) GetFileStream(filename string) (io.ReadCloser, error) {
 
 	// Return the response body as an io.ReadCloser
 	return resp.Body, nil
+}
+
+func (s *S3Store) DownloadFileToLocal(filename string, localPath string) error {
+	// Create a file to write the downloaded object to
+	file, err := os.Create(localPath)
+	if err != nil {
+		return fmt.Errorf("error creating file: %v", err)
+	}
+	defer file.Close()
+
+	// Create a new downloader with the S3 client
+	downloader := s3manager.NewDownloaderWithClient(s.s3Service)
+
+	// Download the object from S3 to the file
+	_, err = downloader.Download(file, &s3.GetObjectInput{
+		Bucket: aws.String(s.bucketName),
+		Key:    aws.String(filename),
+	})
+	if err != nil {
+		return fmt.Errorf("error downloading file: %v", err)
+	}
+	return nil
 }

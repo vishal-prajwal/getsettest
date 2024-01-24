@@ -159,3 +159,26 @@ func (fs *LocalFileStore) GetFileStream(filename string) (io.ReadCloser, error) 
 	}
 	return file, nil
 }
+
+func (fs *LocalFileStore) DownloadFileToLocal(filename string, localPath string) error {
+	// Open the source file in the local file store
+	srcFile, err := os.Open(filename)
+	if err != nil {
+		return fmt.Errorf("error opening source file: %v", err)
+	}
+	defer srcFile.Close()
+
+	// Create the destination file on the local system
+	destFile, err := os.Create(localPath)
+	if err != nil {
+		return fmt.Errorf("error creating destination file: %v", err)
+	}
+	defer destFile.Close()
+
+	// Copy the contents of the source file to the destination file
+	_, err = io.Copy(destFile, srcFile)
+	if err != nil {
+		return fmt.Errorf("error copying file contents: %v", err)
+	}
+	return nil
+}

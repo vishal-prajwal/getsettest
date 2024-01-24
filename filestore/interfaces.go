@@ -29,6 +29,7 @@ type FileStore interface {
 
 	// download file
 	DownloadFile(filename string) ([]byte, error)
+	DownloadFileToLocal(filename string, localPath string) error
 
 	GetFileStream(filename string) (io.ReadCloser, error)
 
