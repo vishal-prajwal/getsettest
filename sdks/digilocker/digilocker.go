@@ -269,7 +269,7 @@ func (dl *DigilockerImpl) GetPanDigilockerDoc(ctx context.Context, refId string)
 		return nil, errors.Wrap(ErrHVServer, result.Error.Message)
 	}
 	if len(result.Result.DocsFound) == 0 {
-		return nil, errors.Wrap(ErrDocumentNotFound, err.Error())
+		return nil, ErrDocumentNotFound
 	}
 	logger.Info(ctx, "%v", result)
 	panDetails := PanDetails{
