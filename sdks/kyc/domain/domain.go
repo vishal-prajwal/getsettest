@@ -14,3 +14,8 @@ type UserPanInfo struct {
 	UserID int    `json:"userID"`
 	PanNo  string `json:"panNo"`
 }
+
+type PanByUserResponse struct {
+	UserID int    `json:"userID"`
+	PanNo  string `json:"panNo"`
+}

@@ -9,4 +9,5 @@ var (
 	ErrUnmarshlingResponse = errors.New("ErrUnmarshlingResponse")
 	ErrReqValidate         = errors.New("ERROR : kyc request validate")
 	ErrHVServer            = errors.New("ERROR : kyc Server")
+	ErrNotFound            = errors.New("ERROR : Not found")
 )

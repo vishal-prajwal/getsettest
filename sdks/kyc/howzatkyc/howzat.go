@@ -78,3 +78,8 @@ func (howzatImpl *HowzatKycServiceClient) getHowzatKyc(panNumber string) (*KycRe
 
 	return &response, nil
 }
+
+func (howzatImpl *HowzatKycServiceClient) FetchPanByUserID(userID int) (*domain.PanByUserResponse, error) {
+	howzatImpl.monitoringAgent.StartTransaction(HOWZAT_USER_BY_PAN_CALL)
+	return nil, nil
+}

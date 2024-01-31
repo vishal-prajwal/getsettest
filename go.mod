@@ -3,7 +3,7 @@ module bitbucket.org/junglee_games/getsetgo
 go 1.18
 
 require (
-	github.com/aws/aws-sdk-go v1.25.14-0.20210312192906-f6c4e26cacae
+	github.com/aws/aws-sdk-go v1.38.20
 	github.com/getsentry/sentry-go v0.15.0
 	github.com/go-playground/validator/v10 v10.11.1
 	github.com/go-redis/redis v6.15.9+incompatible
@@ -28,14 +28,17 @@ require (
 )
 
 require (
+	bitbucket.org/junglee_games/japi-event-pub-go/japieventpub v0.0.0-20210726122320-cf49fce2d10d // indirect
 	github.com/elastic/elastic-transport-go/v8 v8.0.0-20211216131617-bbee439d559c // indirect
 	github.com/fsnotify/fsnotify v1.6.0 // indirect
+	github.com/golang/freetype v0.0.0-20170609003504-e2365dfdc4a0 // indirect
 	github.com/hashicorp/hcl v1.0.0 // indirect
 	github.com/hhrutter/lzw v1.0.0 // indirect
 	github.com/hhrutter/tiff v1.0.1 // indirect
 	github.com/magiconair/properties v1.8.7 // indirect
 	github.com/mattn/go-runewidth v0.0.15 // indirect
 	github.com/montanaflynn/stats v0.0.0-20171201202039-1bf9dbcd8cbe // indirect
+	github.com/paul-mannino/go-fuzzywuzzy v0.0.0-20200127021948-54652b135d0e // indirect
 	github.com/pelletier/go-toml/v2 v2.0.6 // indirect
 	github.com/pierrec/lz4 v2.6.0+incompatible // indirect
 	github.com/rivo/uniseg v0.4.4 // indirect
@@ -60,6 +63,7 @@ require (
 )
 
 require (
+	bitbucket.org/junglee_games/japi-kyc-service v0.0.2
 	github.com/BurntSushi/toml v1.2.0 // indirect
 	github.com/CloudyKit/fastprinter v0.0.0-20200109182630-33d98a066a53 // indirect
 	github.com/CloudyKit/jet/v6 v6.1.0 // indirect

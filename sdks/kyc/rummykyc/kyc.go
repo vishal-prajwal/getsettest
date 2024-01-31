@@ -2,6 +2,7 @@ package rummykyc
 
 import (
 	"encoding/json"
+	"fmt"
 	"io"
 	"net/http"
 	"strings"
@@ -60,6 +61,54 @@ func (kyc *KYCImpl) FetchUserByPan(userByPanRequest domain.UserByPanRequest) (*d
 	}
 
 	return &response, nil
+}
+
+func (kyc *KYCImpl) FetchPanByUserID(userID int) (*domain.PanByUserResponse, error) {
+	kyc.monitoringAgent.StartTransaction(KYC_INITIATE_CALL)
+
+	url := kyc.endpoint + fmt.Sprintf(GET_PAN_BY_USER, userID)
+
+	request, err := http.NewRequest(http.MethodGet, url, nil)
+	if err != nil {
+		return nil, errors.Wrap(ErrCreatingRequest, err.Error())
+	}
+
+	request.Header.Set("accept", "application/json")
+	request.Header.Set(X_PRODUCT_ID, "RUMMY")
+
+	res, err := kyc.httpClient.Do(request)
+	if err != nil {
+		return nil, errors.Wrap(ErrCallingKYC, err.Error())
+	}
+	defer res.Body.Close()
+
+	body, err := io.ReadAll(res.Body)
+	if err != nil {
+		return nil, errors.Wrap(ErrReadingResponseBody, err.Error())
+	}
+	var response Kyc
+
+	err = json.Unmarshal(body, &response)
+	if err != nil {
+		return nil, errors.Wrap(ErrUnmarshlingResponse, err.Error())
+	}
+	var resp domain.PanByUserResponse
+	switch res.StatusCode {
+	case http.StatusOK:
+		if response.PanProof.Status == "APPROVED" {
+			resp.PanNo = response.PanProof.DocumentID
+			resp.UserID = userID
+			return &resp, nil
+		} else {
+			return nil, ErrNotFound
+		}
+	case http.StatusBadRequest:
+		return nil, ErrReqValidate
+	case http.StatusInternalServerError:
+		return nil, ErrHVServer
+	}
+
+	return &resp, nil
 }
 
 // encodeQueryParams encodes query parameters for a URL.
