@@ -80,6 +80,29 @@ func (howzatImpl *HowzatKycServiceClient) getHowzatKyc(panNumber string) (*KycRe
 }
 
 func (howzatImpl *HowzatKycServiceClient) FetchPanByUserID(userID int) (*domain.PanByUserResponse, error) {
-	howzatImpl.monitoringAgent.StartTransaction(HOWZAT_USER_BY_PAN_CALL)
-	return nil, nil
+	tr := howzatImpl.monitoringAgent.StartTransaction(HOWZAT_USER_BY_PAN_CALL)
+	defer tr.End()
+	url := howzatImpl.endpoint + GET_PAN_BY_USER_URI
+	request, err := http.NewRequest(http.MethodGet, url, nil)
+	if err != nil {
+		return nil, errors.Wrap(ErrCreatingRequest, err.Error())
+	}
+
+	res, err := howzatImpl.httpClient.Do(request)
+	if err != nil {
+		return nil, errors.Wrap(ErrCallingHowzat, err.Error())
+	}
+	defer res.Body.Close()
+
+	body, err := io.ReadAll(res.Body)
+	if err != nil {
+		return nil, errors.Wrap(ErrReadingResponseBody, err.Error())
+	}
+	var response domain.PanByUserResponse
+
+	err = json.Unmarshal(body, &response)
+	if err != nil {
+		return nil, errors.Wrap(ErrUnmarshlingResponse, err.Error())
+	}
+	return &response, nil
 }
