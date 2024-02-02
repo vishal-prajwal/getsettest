@@ -2,6 +2,7 @@ package howzatkyc
 
 import (
 	"encoding/json"
+	"fmt"
 	"io"
 	"net/http"
 
@@ -82,7 +83,7 @@ func (howzatImpl *HowzatKycServiceClient) getHowzatKyc(panNumber string) (*KycRe
 func (howzatImpl *HowzatKycServiceClient) FetchPanByUserID(userID int) (*domain.PanByUserResponse, error) {
 	tr := howzatImpl.monitoringAgent.StartTransaction(HOWZAT_USER_BY_PAN_CALL)
 	defer tr.End()
-	url := howzatImpl.endpoint + GET_PAN_BY_USER_URI
+	url := howzatImpl.endpoint + fmt.Sprintf(GET_PAN_BY_USER_URI, userID)
 	request, err := http.NewRequest(http.MethodGet, url, nil)
 	if err != nil {
 		return nil, errors.Wrap(ErrCreatingRequest, err.Error())
@@ -98,11 +99,28 @@ func (howzatImpl *HowzatKycServiceClient) FetchPanByUserID(userID int) (*domain.
 	if err != nil {
 		return nil, errors.Wrap(ErrReadingResponseBody, err.Error())
 	}
-	var response domain.PanByUserResponse
+	var response PanByUserResponse
 
 	err = json.Unmarshal(body, &response)
 	if err != nil {
 		return nil, errors.Wrap(ErrUnmarshlingResponse, err.Error())
 	}
-	return &response, nil
+
+	var resp domain.PanByUserResponse
+	switch res.StatusCode {
+	case http.StatusOK:
+		if response.Data.DocumentType == "PAN" && response.Data.Status == "VERIFIED" {
+			resp.PanNo = response.Data.DocumentNumber
+			resp.UserID = userID
+			return &resp, nil
+		} else {
+			return nil, ErrNotFound
+		}
+	case http.StatusBadRequest:
+		return nil, ErrReqValidate
+	case http.StatusInternalServerError:
+		return nil, ErrHVServer
+	}
+
+	return &resp, nil
 }

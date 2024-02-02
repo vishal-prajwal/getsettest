@@ -9,8 +9,8 @@ import (
 )
 
 func main() {
-	endpoint := "https://kyc-qa-3.jungleerummyqa.com"
+	endpoint := "http://kyc.jwr-qa-3.jwrnonprod.int"
 	httpClient := http.Client{}
 	kyc := rummykyc.New(endpoint, newrelic.Agent{}, &httpClient)
-	fmt.Println(kyc.FetchPanByUserID(68717))
+	fmt.Println(kyc.FetchPanByUserID(1968717))
 }
