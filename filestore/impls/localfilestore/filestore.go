@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"io"
 	"os"
+	"path"
 	"sync"
 
 	"bitbucket.org/junglee_games/getsetgo/filestore"
@@ -162,7 +163,7 @@ func (fs *LocalFileStore) GetFileStream(filename string) (io.ReadCloser, error) 
 
 func (fs *LocalFileStore) DownloadFileToLocal(filename string, localPath string) error {
 	// Open the source file in the local file store
-	srcFile, err := os.Open(filename)
+	srcFile, err := os.Open(path.Join(fs.config.GetDirectoryPath(), filename))
 	if err != nil {
 		return fmt.Errorf("error opening source file: %v", err)
 	}
