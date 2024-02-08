@@ -271,6 +271,9 @@ func (dl *DigilockerImpl) GetPanDigilockerDoc(ctx context.Context, refId string)
 	if len(result.Result.DocsFound) == 0 {
 		return nil, ErrDocumentNotFound
 	}
+	if len(result.Result.Details[0].PAN) == 0 || len(result.Result.Details[0].Name) == 0 || len(result.Result.Details[0].DOB) == 0 || len(result.Result.Details[0].FileUrl) == 0 {
+		return nil, errors.Wrap(ErrHVServerMissingData, fmt.Sprintf("Data recived %+v", result.Result.Details[0]))
+	}
 	logger.Info(ctx, "%v", result)
 	panDetails := PanDetails{
 		PanNumber:   result.Result.Details[0].PAN,
