@@ -166,6 +166,10 @@ func (dl *DigilockerImpl) GetAddharDetails(ctx context.Context, transactionId, r
 		return nil, errors.Wrap(ErrUnmarshalJson, err.Error())
 	}
 
+	if result.Error.Code == "ER_CONSENT_MISSING" {
+		return nil, errors.Wrap(ErrConsentNotProvided, result.Error.Message)
+	}
+
 	switch result.StatusCode {
 	case "200":
 		err = result.Result.SethPinCodeFromXmlFile()

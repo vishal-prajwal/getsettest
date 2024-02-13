@@ -10,6 +10,7 @@ var (
 	ErrCreatingRequest     = errors.New("ERROR : creating request")
 	ErrReqValidate         = errors.New("ERROR : hyperverge request validate")
 	ErrHVServer            = errors.New("ERROR : Hyperverge Server")
+	ErrConsentNotProvided  = errors.New("ERROR : User did not provide the consent")
 	ErrHVServerMissingData = errors.New("ERROR : Hyperverge Sent incomplete data")
 	ErrDocumentNotFound    = errors.New("ERROR : document not found")
 	ErrDownloadFile        = errors.New("ERROR : Download addhar xml file")
