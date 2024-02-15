@@ -9,6 +9,7 @@ import (
 	"sync"
 
 	"bitbucket.org/junglee_games/getsetgo/filestore"
+	"bitbucket.org/junglee_games/getsetgo/filestore/impls/dto"
 	"bitbucket.org/junglee_games/getsetgo/logger"
 	"bitbucket.org/junglee_games/getsetgo/utils/files"
 )
@@ -122,25 +123,34 @@ func (fs *LocalFileStore) GetSignedURL(filepath string, expriryMinutes int) (str
 }
 
 // it will list files in current directory
-func (fs *LocalFileStore) ListFiles(ctx context.Context, folder string, limit int64) ([]string, error) {
+func (fs *LocalFileStore) ListFiles(ctx context.Context, folder string, limit int64) (*dto.ListResponse, error) {
 	files, err := os.ReadDir(fs.config.GetDirectoryPath() + "/" + folder)
 	if err != nil {
 		logger.Error(ctx, "failed to read directory: %v", err.Error())
 		return nil, fmt.Errorf("failed to list files: %v", err)
 	}
 
-	var result []string
+	var result dto.ListResponse
 	for _, file := range files {
 		if file.IsDir() {
 			continue
 		}
-		result = append(result, file.Name())
-		if int64(len(result)) >= limit {
+		resp, err := file.Info()
+		if err != nil {
+			logger.Error(ctx, "failed to read file: %v", err.Error())
+			continue
+		}
+		fileInfo := dto.FileInfo{
+			Name:         file.Name(),
+			UploadedTime: resp.ModTime(),
+		}
+		result.FileInfo = append(result.FileInfo, fileInfo)
+		if int64(len(result.FileInfo)) >= limit {
 			break
 		}
 	}
 
-	return result, nil
+	return &result, nil
 }
 
 // it will rename a file in current  directory

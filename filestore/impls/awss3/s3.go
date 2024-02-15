@@ -12,6 +12,7 @@ import (
 
 	"bitbucket.org/junglee_games/getsetgo/common_errors"
 	"bitbucket.org/junglee_games/getsetgo/filestore"
+	"bitbucket.org/junglee_games/getsetgo/filestore/impls/dto"
 	"bitbucket.org/junglee_games/getsetgo/logger"
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/aws/session"
@@ -207,12 +208,12 @@ func (s3S *S3Store) GetSignedURL(filepath string, expriryMinutes int) (string, e
 	return url, nil
 }
 
-func (s3S *S3Store) ListFiles(ctx context.Context, folder string, limit int64) ([]string, error) {
+func (s3S *S3Store) ListFiles(ctx context.Context, folder string, limit int64) (*dto.ListResponse, error) {
 	prefix := folder // Include trailing slash if listing objects in a specific directory
 
 	var continuationToken *string
 	var objects []*s3.Object
-	var resultObjects []string
+	var resultObjects dto.ListResponse
 
 	input := &s3.ListObjectsV2Input{
 		Bucket:            aws.String(s3S.bucketName),
@@ -231,10 +232,14 @@ func (s3S *S3Store) ListFiles(ctx context.Context, folder string, limit int64) (
 
 	// Extract file names
 	for _, obj := range objects {
-		resultObjects = append(resultObjects, *obj.Key)
+		fileInfo := dto.FileInfo{
+			Name:         *obj.Key,
+			UploadedTime: *obj.LastModified,
+		}
+		resultObjects.FileInfo = append(resultObjects.FileInfo, fileInfo)
 	}
 
-	return resultObjects, nil
+	return &resultObjects, nil
 
 }
 
