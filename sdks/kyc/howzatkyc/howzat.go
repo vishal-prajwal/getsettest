@@ -101,14 +101,13 @@ func (howzatImpl *HowzatKycServiceClient) FetchPanByUserID(userID int) (*domain.
 	}
 	var response PanByUserResponse
 
-	err = json.Unmarshal(body, &response)
-	if err != nil {
-		return nil, errors.Wrap(ErrUnmarshlingResponse, err.Error())
-	}
-
 	var resp domain.PanByUserResponse
 	switch res.StatusCode {
 	case http.StatusOK:
+		err = json.Unmarshal(body, &response)
+		if err != nil {
+			return nil, errors.Wrap(ErrUnmarshlingResponse, err.Error())
+		}
 		if response.Data.DocumentType == "PAN" && response.Data.Status == "VERIFIED" {
 			resp.PanNo = response.Data.DocumentNumber
 			resp.UserID = userID
@@ -120,6 +119,8 @@ func (howzatImpl *HowzatKycServiceClient) FetchPanByUserID(userID int) (*domain.
 		return nil, ErrReqValidate
 	case http.StatusInternalServerError:
 		return nil, ErrHVServer
+	default:
+		return nil, ErrNotFound
 	}
 
 	return &resp, nil
