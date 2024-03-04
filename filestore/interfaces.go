@@ -1,5 +1,12 @@
 package filestore
 
+import (
+	"context"
+	"io"
+
+	"bitbucket.org/junglee_games/getsetgo/filestore/impls/dto"
+)
+
 type FileData struct {
 	Name       string
 	Data       string
@@ -24,6 +31,9 @@ type FileStore interface {
 
 	// download file
 	DownloadFile(filename string) ([]byte, error)
+	DownloadFileToLocal(filename string, localPath string) error
+
+	GetFileStream(filename string) (io.ReadCloser, error)
 
 	// it will return ack chan
 	GetAckChan(size int) chan *FileData
@@ -33,4 +43,7 @@ type FileStore interface {
 
 	// it will return signed url for already uploaded file
 	GetSignedURL(filepath string, expriryMinutes int) (string, error)
+
+	ListFiles(ctx context.Context, folder string, limit int64) (*dto.ListResponse, error)
+	RenameFile(ctx context.Context, oldname string, newname string) error
 }

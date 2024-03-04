@@ -2,10 +2,14 @@ package localfilestore
 
 import (
 	"context"
+	"fmt"
+	"io"
 	"os"
+	"path"
 	"sync"
 
 	"bitbucket.org/junglee_games/getsetgo/filestore"
+	"bitbucket.org/junglee_games/getsetgo/filestore/impls/dto"
 	"bitbucket.org/junglee_games/getsetgo/logger"
 	"bitbucket.org/junglee_games/getsetgo/utils/files"
 )
@@ -116,4 +120,76 @@ func (fs *LocalFileStore) TemporarySave(filesData *filestore.FileData, expriryMi
 // it will return signed url for already uploaded file
 func (fs *LocalFileStore) GetSignedURL(filepath string, expriryMinutes int) (string, error) {
 	return filepath, nil
+}
+
+// it will list files in current directory
+func (fs *LocalFileStore) ListFiles(ctx context.Context, folder string, limit int64) (*dto.ListResponse, error) {
+	files, err := os.ReadDir(fs.config.GetDirectoryPath() + "/" + folder)
+	if err != nil {
+		logger.Error(ctx, "failed to read directory: %v", err.Error())
+		return nil, fmt.Errorf("failed to list files: %v", err)
+	}
+
+	var result dto.ListResponse
+	for _, file := range files {
+		if file.IsDir() {
+			continue
+		}
+		resp, err := file.Info()
+		if err != nil {
+			logger.Error(ctx, "failed to read file: %v", err.Error())
+			continue
+		}
+		fileInfo := dto.FileInfo{
+			Name:         file.Name(),
+			UploadedTime: resp.ModTime(),
+		}
+		result.FileInfo = append(result.FileInfo, fileInfo)
+		if int64(len(result.FileInfo)) >= limit {
+			break
+		}
+	}
+
+	return &result, nil
+}
+
+// it will rename a file in current  directory
+func (fs *LocalFileStore) RenameFile(ctx context.Context, oldname string, newname string) error {
+	err := os.Rename(fs.config.GetDirectoryPath()+"/"+oldname, fs.config.GetDirectoryPath()+"/"+newname)
+	if err != nil {
+		logger.Error(ctx, "failed to rename file %v", err.Error())
+		return fmt.Errorf("failed to rename file: %v", err)
+	}
+	return nil
+}
+
+func (fs *LocalFileStore) GetFileStream(filename string) (io.ReadCloser, error) {
+	file, err := os.Open(fs.config.GetDirectoryPath() + "/" + filename)
+	if err != nil {
+		return nil, err
+	}
+	return file, nil
+}
+
+func (fs *LocalFileStore) DownloadFileToLocal(filename string, localPath string) error {
+	// Open the source file in the local file store
+	srcFile, err := os.Open(path.Join(fs.config.GetDirectoryPath(), filename))
+	if err != nil {
+		return fmt.Errorf("error opening source file: %v", err)
+	}
+	defer srcFile.Close()
+
+	// Create the destination file on the local system
+	destFile, err := os.Create(localPath)
+	if err != nil {
+		return fmt.Errorf("error creating destination file: %v", err)
+	}
+	defer destFile.Close()
+
+	// Copy the contents of the source file to the destination file
+	_, err = io.Copy(destFile, srcFile)
+	if err != nil {
+		return fmt.Errorf("error copying file contents: %v", err)
+	}
+	return nil
 }

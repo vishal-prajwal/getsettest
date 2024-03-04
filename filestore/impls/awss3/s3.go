@@ -2,13 +2,17 @@ package awss3
 
 import (
 	"context"
+	"fmt"
+	"io"
 	"io/ioutil"
+	"os"
 	"strings"
 	"sync"
 	"time"
 
 	"bitbucket.org/junglee_games/getsetgo/common_errors"
 	"bitbucket.org/junglee_games/getsetgo/filestore"
+	"bitbucket.org/junglee_games/getsetgo/filestore/impls/dto"
 	"bitbucket.org/junglee_games/getsetgo/logger"
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/aws/session"
@@ -202,4 +206,102 @@ func (s3S *S3Store) GetSignedURL(filepath string, expriryMinutes int) (string, e
 	}
 
 	return url, nil
+}
+
+func (s3S *S3Store) ListFiles(ctx context.Context, folder string, limit int64) (*dto.ListResponse, error) {
+	prefix := folder // Include trailing slash if listing objects in a specific directory
+
+	var continuationToken *string
+	var objects []*s3.Object
+	var resultObjects dto.ListResponse
+
+	input := &s3.ListObjectsV2Input{
+		Bucket:            aws.String(s3S.bucketName),
+		Prefix:            aws.String(prefix),
+		ContinuationToken: continuationToken,
+		MaxKeys:           aws.Int64(limit), // MaxKeys limits the maximum number of results per page
+	}
+
+	result, err := s3S.s3Service.ListObjectsV2WithContext(ctx, input)
+	if err != nil {
+		logger.Error(ctx, "list objects : %v", err.Error())
+		return nil, err
+	}
+
+	objects = append(objects, result.Contents...)
+
+	// Extract file names
+	for _, obj := range objects {
+		fileInfo := dto.FileInfo{
+			Name:         *obj.Key,
+			UploadedTime: *obj.LastModified,
+		}
+		resultObjects.FileInfo = append(resultObjects.FileInfo, fileInfo)
+	}
+
+	return &resultObjects, nil
+
+}
+
+func (s3S *S3Store) RenameFile(ctx context.Context, oldname string, newname string) error {
+	// Copy the object with the new key (rename)
+	_, err := s3S.s3Service.CopyObjectWithContext(ctx, &s3.CopyObjectInput{
+		Bucket:     aws.String(s3S.bucketName),
+		CopySource: aws.String(s3S.bucketName + "/" + oldname),
+		Key:        aws.String(newname),
+	})
+	if err != nil {
+		logger.Error(ctx, "failed to copy object: %v", err.Error())
+		return fmt.Errorf("failed to copy object: %v", err)
+	}
+
+	// Delete the old object
+	_, err = s3S.s3Service.DeleteObjectWithContext(ctx, &s3.DeleteObjectInput{
+		Bucket: aws.String(s3S.bucketName),
+		Key:    aws.String(oldname),
+	})
+	if err != nil {
+		logger.Error(ctx, "failed to delete old object: %v", err)
+		return fmt.Errorf("failed to delete old object: %v", err)
+	}
+	return nil
+}
+
+func (s *S3Store) GetFileStream(filename string) (io.ReadCloser, error) {
+	// Create a GetObjectInput instance
+	params := &s3.GetObjectInput{
+		Bucket: &s.bucketName,
+		Key:    &filename,
+	}
+
+	// Retrieve the object from Amazon S3
+	resp, err := s.s3Service.GetObject(params)
+	if err != nil {
+		return nil, err
+	}
+
+	// Return the response body as an io.ReadCloser
+	return resp.Body, nil
+}
+
+func (s *S3Store) DownloadFileToLocal(filename string, localPath string) error {
+	// Create a file to write the downloaded object to
+	file, err := os.Create(localPath)
+	if err != nil {
+		return fmt.Errorf("error creating file: %v", err)
+	}
+	defer file.Close()
+
+	// Create a new downloader with the S3 client
+	downloader := s3manager.NewDownloaderWithClient(s.s3Service)
+
+	// Download the object from S3 to the file
+	_, err = downloader.Download(file, &s3.GetObjectInput{
+		Bucket: aws.String(s.bucketName),
+		Key:    aws.String(filename),
+	})
+	if err != nil {
+		return fmt.Errorf("error downloading file: %v", err)
+	}
+	return nil
 }
