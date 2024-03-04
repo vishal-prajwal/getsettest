@@ -7,6 +7,7 @@ import (
 	"sync"
 	"time"
 
+	"bitbucket.org/junglee_games/getsetgo/eventqueue"
 	"github.com/google/uuid"
 
 	"github.com/segmentio/kafka-go"
@@ -122,4 +123,27 @@ func (evtPub *Publisher) startPublisher(wg *sync.WaitGroup) {
 		evtPub.responseCh <- evtPub.Publish(data.ctx, data.key, data.value)
 	}
 	wg.Done()
+}
+
+func (evtPub *Publisher) PublishMany(ctx context.Context, messages []eventqueue.Message) error {
+	retries := evtPub.maxRetries
+	var err error
+	kmessages := getKafkaMessages(messages)
+	for retries > 0 {
+		err = evtPub.writer.WriteMessages(ctx, kmessages...)
+		if err != nil {
+			time.Sleep(time.Second)
+			continue
+		}
+		break
+	}
+	return err
+}
+
+func getKafkaMessages(messages []eventqueue.Message) []kafka.Message {
+	var kafMessages []kafka.Message
+	for _, m := range messages {
+		kafMessages = append(kafMessages, kafka.Message{Key: m.Key, Value: m.Value})
+	}
+	return kafMessages
 }
