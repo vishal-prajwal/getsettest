@@ -1,37 +1,74 @@
 package rummykyc
 
+import "time"
+
 type Kyc struct {
-	UserID       int          `json:"userID"`
-	ProductID    string       `json:"productID"`
-	AddressProof AddressProof `json:"addressProof"`
-	PanProof     PanProof     `json:"panProof"`
-	Profile      Profile      `json:"profile"`
+	UserID         int          `json:"userID,omitempty"`
+	Medium         string       `json:"medium,omitempty"`
+	ProductID      string       `json:"productID,omitempty"`
+	CreatedAt      time.Time    `json:"createdAt,omitempty"`
+	UpdatedAt      time.Time    `json:"updatedAt,omitempty"`
+	IDProof        IDProof      `json:"idProof,omitempty"`
+	AddressProof   AddressProof `json:"addressProof,omitempty"`
+	PanProof       PanProof     `json:"panProof,omitempty"`
+	PlatformName   string       `json:"PlatformName,omitempty"`
+	DocumentType   string       `json:"DocumentType,omitempty"`
+	IsSoftApproved bool         `json:"isSoftApproved,omitempty"`
+}
+type StatusReason struct {
+	OcrIntegrity      string `json:"ocrIntegrity,omitempty"`
+	ProfileStatus     string `json:"profileStatus,omitempty"`
+	IsRestricted      bool   `json:"isRestricted,omitempty"`
+	RestrictionReason string `json:"restrictionReason,omitempty"`
+}
+type IDProof struct {
+	RecordID           string       `json:"recordID,omitempty"`
+	DocumentID         string       `json:"documentID,omitempty"`
+	DocType            string       `json:"docType,omitempty"`
+	Status             string       `json:"status,omitempty"`
+	StatusMessage      string       `json:"statusMessage,omitempty"`
+	StatusReason       StatusReason `json:"statusReason,omitempty"`
+	MismatchedFields   any          `json:"mismatchedFields,omitempty"`
+	DbValidation       string       `json:"dbValidation,omitempty"`
+	DbValidationReason string       `json:"dbValidationReason,omitempty"`
+	CreatedAt          time.Time    `json:"createdAt,omitempty"`
+	UpdatedAt          time.Time    `json:"updatedAt,omitempty"`
+	ModifiedBy         string       `json:"modifiedBy,omitempty"`
+	PlatformName       string       `json:"PlatformName,omitempty"`
+	DuplicateKycUsers  any          `json:"duplicateKycUsers,omitempty"`
+	ManualDeclineMsg   string       `json:"manualDeclineMsg,omitempty"`
 }
 type AddressProof struct {
-	DocumentID string `json:"documentID"`
-	DocType    string `json:"docType"`
-	Status     string `json:"status"`
-	CreatedAt  int    `json:"createdAt"`
-	UpdatedAt  int    `json:"updatedAt"`
-	ModifiedBy string `json:"modifiedBy"`
+	RecordID           string       `json:"recordID,omitempty"`
+	DocumentID         string       `json:"documentID,omitempty"`
+	DocType            string       `json:"docType,omitempty"`
+	Status             string       `json:"status,omitempty"`
+	StatusMessage      string       `json:"statusMessage,omitempty"`
+	StatusReason       StatusReason `json:"statusReason,omitempty"`
+	MismatchedFields   any          `json:"mismatchedFields,omitempty"`
+	DbValidation       string       `json:"dbValidation,omitempty"`
+	DbValidationReason string       `json:"dbValidationReason,omitempty"`
+	CreatedAt          time.Time    `json:"createdAt,omitempty"`
+	UpdatedAt          time.Time    `json:"updatedAt,omitempty"`
+	ModifiedBy         string       `json:"modifiedBy,omitempty"`
+	PlatformName       string       `json:"PlatformName,omitempty"`
+	DuplicateKycUsers  any          `json:"duplicateKycUsers,omitempty"`
+	ManualDeclineMsg   string       `json:"manualDeclineMsg,omitempty"`
 }
 type PanProof struct {
-	DocumentID string `json:"documentID"`
-	DocType    string `json:"docType"`
-	Status     string `json:"status"`
-	CreatedAt  int    `json:"createdAt"`
-	UpdatedAt  int    `json:"updatedAt"`
-	ModifiedBy string `json:"modifiedBy"`
-}
-type Profile struct {
-	FirstName   string `json:"firstName"`
-	MiddleName  string `json:"middleName"`
-	LastName    string `json:"lastName"`
-	DateOfBirth int64  `json:"dateOfBirth"`
-	Pin         string `json:"pin"`
-	Address     string `json:"address"`
-	Address2    string `json:"address2"`
-	City        string `json:"city"`
-	State       string `json:"state"`
-	Gender      string `json:"gender"`
+	RecordID           string       `json:"recordID,omitempty"`
+	DocumentID         string       `json:"documentID,omitempty"`
+	DocType            string       `json:"docType,omitempty"`
+	Status             string       `json:"status,omitempty"`
+	StatusMessage      string       `json:"statusMessage,omitempty"`
+	StatusReason       StatusReason `json:"statusReason,omitempty"`
+	MismatchedFields   any          `json:"mismatchedFields,omitempty"`
+	DbValidation       string       `json:"dbValidation,omitempty"`
+	DbValidationReason string       `json:"dbValidationReason,omitempty"`
+	CreatedAt          time.Time    `json:"createdAt,omitempty"`
+	UpdatedAt          time.Time    `json:"updatedAt,omitempty"`
+	ModifiedBy         string       `json:"modifiedBy,omitempty"`
+	PlatformName       string       `json:"PlatformName,omitempty"`
+	DuplicateKycUsers  any          `json:"duplicateKycUsers,omitempty"`
+	ManualDeclineMsg   string       `json:"manualDeclineMsg,omitempty"`
 }
