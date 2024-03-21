@@ -265,6 +265,7 @@ type DigilockerDocumentsRequetsPayload struct {
 	ReferenceID string `json:"referenceId"`
 	PAN         string `json:"pan"`
 	PANFile     string `json:"panFile"`
+	EnableRetry string `json:"enableRetry"`
 }
 
 type DocumentInfo struct {

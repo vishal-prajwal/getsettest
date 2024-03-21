@@ -231,6 +231,7 @@ func (dl *DigilockerImpl) GetPanDigilockerDoc(ctx context.Context, refId string)
 		ReferenceID: refId,
 		PAN:         "yes",
 		PANFile:     "yes",
+		EnableRetry: "yes",
 	}
 
 	// Convert payload to JSON
