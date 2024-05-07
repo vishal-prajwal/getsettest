@@ -320,7 +320,7 @@ func (hypervergeImpl *HypervergeImpl) addHeaders(req *http.Request, txnID string
 }
 
 func (hypervergeImpl *HypervergeImpl) FraudCheckPan(fraudCheckPanRequest FraudCheckPanRequest, txnID string) (*FraudCheckPanResponse, error) {
-	url := hypervergeImpl.config.GetHypervergeFraudCheckEndpoint() + "/api/verifyPAN"
+	url := hypervergeImpl.config.GetHypervergeFraudCheckEndpoint() + "/verifyPAN"
 	reqObj, err := json.Marshal(fraudCheckPanRequest)
 	if err != nil {
 		return nil, err
