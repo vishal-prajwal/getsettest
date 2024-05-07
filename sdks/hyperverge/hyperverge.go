@@ -320,7 +320,7 @@ func (hypervergeImpl *HypervergeImpl) addHeaders(req *http.Request, txnID string
 }
 
 func (hypervergeImpl *HypervergeImpl) FraudCheckPan(fraudCheckPanRequest FraudCheckPanRequest, txnID string) (*FraudCheckPanResponse, error) {
-	url := hypervergeImpl.config.GetHypervergeEndpoint() + "/api/verifyPAN"
+	url := hypervergeImpl.config.GetHypervergeFraudCheckEndpoint() + "/api/verifyPAN"
 	reqObj, err := json.Marshal(fraudCheckPanRequest)
 	if err != nil {
 		return nil, err
@@ -337,7 +337,7 @@ func (hypervergeImpl *HypervergeImpl) FraudCheckPan(fraudCheckPanRequest FraudCh
 	}
 	err = hypervergeImpl.handlFruadCheckErrorStatusCode(res)
 	if err != nil {
-		return nil,err
+		return nil, err
 	}
 	body := &bytes.Buffer{}
 	_, err = body.ReadFrom(res.Body)
@@ -350,19 +350,19 @@ func (hypervergeImpl *HypervergeImpl) FraudCheckPan(fraudCheckPanRequest FraudCh
 	return &fraudCheckPanResponse, err
 }
 
-func (hypervergeImpl HypervergeImpl) handlFruadCheckErrorStatusCode(res *http.Response)error {
+func (hypervergeImpl HypervergeImpl) handlFruadCheckErrorStatusCode(res *http.Response) error {
 	if res.StatusCode != 200 {
 		switch res.StatusCode {
 		case 422:
-			return  errors.Wrap(ErrInvalidDocID,fmt.Sprintf("%d  %v", res.StatusCode, res))
+			return errors.Wrap(ErrInvalidDocID, fmt.Sprintf("%d  %v", res.StatusCode, res))
 		case 400:
-			return errors.Wrap(ErrBadRequest,fmt.Sprintf("%d %v", res.StatusCode, res))
+			return errors.Wrap(ErrBadRequest, fmt.Sprintf("%d %v", res.StatusCode, res))
 		case 500:
-			return errors.Wrap(ErrSomethingWentWrong,fmt.Sprintf("%d %v", res.StatusCode, res))
+			return errors.Wrap(ErrSomethingWentWrong, fmt.Sprintf("%d %v", res.StatusCode, res))
 		case 401:
-			return errors.Wrap(ErrFruadCheckUnauthrised,fmt.Errorf("%d %v", res.StatusCode, res).Error())
+			return errors.Wrap(ErrFruadCheckUnauthrised, fmt.Errorf("%d %v", res.StatusCode, res).Error())
 		default:
-			return errors.Wrap(ErrSomethingWentWrong,fmt.Sprintf("%d %v", res.StatusCode, res))
+			return errors.Wrap(ErrSomethingWentWrong, fmt.Sprintf("%d %v", res.StatusCode, res))
 		}
 	}
 	return nil
@@ -383,7 +383,7 @@ func (hypervergeImpl *HypervergeImpl) FraudCheckDl(fraudCheckDlRequest FraudChec
 	}
 	err = hypervergeImpl.handlFruadCheckErrorStatusCode(res)
 	if err != nil {
-		return nil,err
+		return nil, err
 	}
 	body := &bytes.Buffer{}
 	_, err = body.ReadFrom(res.Body)
@@ -411,7 +411,7 @@ func (hypervergeImpl *HypervergeImpl) FraudCheckVoter(fraudCheckVoterRequest Fra
 	}
 	err = hypervergeImpl.handlFruadCheckErrorStatusCode(res)
 	if err != nil {
-		return nil,err
+		return nil, err
 	}
 	body := &bytes.Buffer{}
 	_, err = body.ReadFrom(res.Body)
@@ -439,7 +439,7 @@ func (hypervergeImpl *HypervergeImpl) FraudCheckPassport(fraudCheckPassportReque
 	}
 	err = hypervergeImpl.handlFruadCheckErrorStatusCode(res)
 	if err != nil {
-		return nil,err
+		return nil, err
 	}
 	body := &bytes.Buffer{}
 	_, err = body.ReadFrom(res.Body)
@@ -467,7 +467,7 @@ func (hypervergeImpl *HypervergeImpl) FraudCheckAadhar(fraudCheckAadharRequest F
 	}
 	err = hypervergeImpl.handlFruadCheckErrorStatusCode(res)
 	if err != nil {
-		return nil,err
+		return nil, err
 	}
 	body := &bytes.Buffer{}
 	_, err = body.ReadFrom(res.Body)
