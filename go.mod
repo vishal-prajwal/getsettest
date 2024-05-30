@@ -1,6 +1,8 @@
 module bitbucket.org/junglee_games/getsetgo
 
-go 1.18
+go 1.21
+
+toolchain go1.21.5
 
 require (
 	github.com/aws/aws-sdk-go v1.38.20
@@ -20,8 +22,10 @@ require (
 	github.com/pdfcpu/pdfcpu v0.6.0
 	github.com/pkg/errors v0.9.1
 	github.com/segmentio/kafka-go v0.4.25
+	github.com/sony/gobreaker v1.0.0
+	github.com/sony/gobreaker/v2 v2.0.0
 	github.com/spf13/viper v1.15.0
-	github.com/stretchr/testify v1.8.1
+	github.com/stretchr/testify v1.8.4
 	go.mongodb.org/mongo-driver v1.13.1
 	go.uber.org/zap v1.21.0
 )
