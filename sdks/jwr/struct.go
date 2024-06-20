@@ -3,6 +3,8 @@ package jwr
 import (
 	"strings"
 	"time"
+
+	"bitbucket.org/junglee_games/getsetgo/circuit_breaker/gobreaker"
 )
 
 type UserProfile struct {
@@ -20,9 +22,10 @@ type UserProfile struct {
 }
 
 type JWRSDKConfig struct {
-	BaseURL    string
-	Token      string
-	APITimeout int
+	BaseURL      string
+	Token        string
+	APITimeout   int
+	GobreakerCfg *gobreaker.GobreakerCfg
 }
 
 func (u UserProfile) GetFullName() string {

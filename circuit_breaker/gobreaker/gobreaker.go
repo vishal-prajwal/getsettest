@@ -15,6 +15,7 @@ type GobreakerCfg struct {
 	Requests      uint32
 	FailiureRatio float64
 	Timeout       int
+	Enabled       bool
 }
 
 func GetCircutBreaker(cfg *GobreakerCfg) (*gobreaker.CircuitBreaker[[]byte], error) {

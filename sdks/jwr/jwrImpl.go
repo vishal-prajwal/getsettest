@@ -17,6 +17,7 @@ type JWRImpl struct {
 	BaseURL           string
 	Token             string
 	DefaultAPITimeout int
+	cb                *gobreaker.CircuitBreaker[[]byte]
 }
 
 func (this *JWRImpl) GetUserProfile(ctx context.Context, userID int, apiTimeOut int) (*UserProfile, error) {
@@ -66,7 +67,7 @@ func (this *JWRImpl) GetUserProfile(ctx context.Context, userID int, apiTimeOut 
 	return &result, nil
 }
 
-func (this JWRImpl) FullUpdateProfileV2(ctx context.Context, userID int, userProfile UserProfile, apiTimeOut int, retries int, cb *gobreaker.CircuitBreaker[[]byte]) error {
+func (this JWRImpl) FullUpdateProfileV2(ctx context.Context, userID int, userProfile UserProfile, apiTimeOut int, retries int) error {
 	defer nrf.FromContext(ctx).StartSegment("FullUpdateProfile").End()
 	timeout := this.DefaultAPITimeout
 	if apiTimeOut > 0 {
@@ -111,7 +112,12 @@ func (this JWRImpl) FullUpdateProfileV2(ctx context.Context, userID int, userPro
 		return nil, nil
 	}
 
-	_, err = cb.Execute(request)
+	if this.cb != nil {
+		_, err = this.cb.Execute(request)
+	} else {
+		_, err = request()
+	}
+	
 	if err != nil {
 		return errors.Wrapf(err, "while making api call to PUT profile")
 	}
