@@ -23,6 +23,7 @@ type UserProfile struct {
 
 type JWRSDKConfig struct {
 	BaseURL      string
+	InternalURL  string
 	Token        string
 	APITimeout   int
 	GobreakerCfg *gobreaker.GobreakerCfg

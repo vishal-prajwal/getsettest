@@ -33,6 +33,7 @@ func New(config JWRSDKConfig) (JWR, error) {
 	return &JWRImpl{
 		BaseURL:           config.BaseURL,
 		Token:             config.Token,
+		InternalURL:       config.InternalURL,
 		DefaultAPITimeout: config.APITimeout,
 		cb:                cb,
 	}, nil
