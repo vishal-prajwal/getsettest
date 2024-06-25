@@ -15,6 +15,7 @@ import (
 
 type JWRImpl struct {
 	BaseURL           string
+	InternalURL       string
 	Token             string
 	DefaultAPITimeout int
 	cb                *gobreaker.CircuitBreaker[[]byte]
@@ -77,7 +78,7 @@ func (this JWRImpl) FullUpdateProfileV2(ctx context.Context, userID int, userPro
 	if err != nil {
 		return err
 	}
-	req, err := http.NewRequest(http.MethodPut, this.BaseURL+UpdateUserProfilePathV2+strconv.Itoa(userID), bytes.NewBuffer(json))
+	req, err := http.NewRequest(http.MethodPut, this.InternalURL+UpdateUserProfilePathV2+strconv.Itoa(userID), bytes.NewBuffer(json))
 	if err != nil {
 		return err
 	}

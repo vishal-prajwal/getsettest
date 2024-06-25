@@ -10,7 +10,7 @@ import (
 const (
 	GetUserProfilePath      = "/user"
 	UpdateUserProfilePath   = "/user"
-	UpdateUserProfilePathV2 = "/internal-api/user_profile/"
+	UpdateUserProfilePathV2 = "/user_profile/"
 )
 
 type JWR interface {
