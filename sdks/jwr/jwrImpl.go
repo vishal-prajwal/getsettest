@@ -71,6 +71,9 @@ func (this *JWRImpl) GetUserProfile(ctx context.Context, userID int, apiTimeOut 
 func (this JWRImpl) FullUpdateProfileV2(ctx context.Context, userID int, userProfile UserProfile, apiTimeOut int, retries int) error {
 	defer nrf.FromContext(ctx).StartSegment("FullUpdateProfile").End()
 	timeout := this.DefaultAPITimeout
+	if userProfile.Gender == "" {
+		userProfile.Gender = "UNDEFINED"
+	}
 	if apiTimeOut > 0 {
 		timeout = apiTimeOut
 	}
@@ -118,7 +121,7 @@ func (this JWRImpl) FullUpdateProfileV2(ctx context.Context, userID int, userPro
 	} else {
 		_, err = request()
 	}
-	
+
 	if err != nil {
 		return errors.Wrapf(err, "while making api call to PUT profile")
 	}
@@ -129,6 +132,9 @@ func (this JWRImpl) FullUpdateProfile(ctx context.Context, userID int, userProfi
 
 	defer nrf.FromContext(ctx).StartSegment("FullUpdateProfile").End()
 	timeout := this.DefaultAPITimeout
+	if userProfile.Gender == "" {
+		userProfile.Gender = "UNDEFINED"
+	}
 	if apiTimeOut > 0 {
 		timeout = apiTimeOut
 	}
