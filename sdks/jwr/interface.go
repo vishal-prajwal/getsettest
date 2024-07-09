@@ -23,7 +23,8 @@ func New(config JWRSDKConfig) (JWR, error) {
 
 	var cb *gobreaker.CircuitBreaker[[]byte]
 	var err error
-	if config.GobreakerCfg.Enabled {
+	if config.GobreakerCfg != nil &&
+		config.GobreakerCfg.Enabled {
 		cb, err = gb.GetCircutBreaker(config.GobreakerCfg)
 		if err != nil {
 			return nil, err
