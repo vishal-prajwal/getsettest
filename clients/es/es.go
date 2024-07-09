@@ -157,3 +157,24 @@ func (es ES) SearchQuery(ctx context.Context, index string, query map[string]int
 	}
 	return resGenerator(res.Body)
 }
+
+func (es ES) DELETE(ctx context.Context, docID string, index string) error {
+	req := esapi.DeleteRequest{
+		Index:      index,
+		DocumentID: docID,
+		Refresh:    "true",
+		Pretty:     true,
+		Human:      true,
+	}
+	res, err := req.Do(context.Background(), es.es)
+	if err != nil {
+		log.Printf("Error getting response from elasticsearch DELETE: %s\n", err)
+	}
+	defer res.Body.Close()
+
+	if res.IsError() {
+		log.Printf("[%s] Error deleting document ID=%s", res.String(), req.DocumentID)
+		return fmt.Errorf("[%s] Error deleting document ID=%s", res.Status(), req.DocumentID)
+	}
+	return nil
+}
