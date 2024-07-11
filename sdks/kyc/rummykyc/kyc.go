@@ -63,7 +63,7 @@ func (kyc *KYCImpl) FetchUserByPan(userByPanRequest domain.UserByPanRequest) (*d
 	return &response, nil
 }
 
-func (kyc *KYCImpl) FetchPanByUserID(userID int) (*domain.PanByUserResponse, error) {
+func (kyc *KYCImpl) FetchPanByUserID(userID int, productID string) (*domain.PanByUserResponse, error) {
 	kyc.monitoringAgent.StartTransaction(KYC_INITIATE_CALL)
 
 	url := kyc.endpoint + fmt.Sprintf(GET_PAN_BY_USER, userID)
@@ -74,7 +74,7 @@ func (kyc *KYCImpl) FetchPanByUserID(userID int) (*domain.PanByUserResponse, err
 	}
 
 	request.Header.Set("accept", "application/json")
-	request.Header.Set(X_PRODUCT_ID, "RUMMY")
+	request.Header.Set(X_PRODUCT_ID, productID)
 
 	res, err := kyc.httpClient.Do(request)
 	if err != nil {
