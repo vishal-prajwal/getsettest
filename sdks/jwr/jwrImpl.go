@@ -68,11 +68,11 @@ func (this *JWRImpl) GetUserProfile(ctx context.Context, userID int, apiTimeOut 
 	return &result, nil
 }
 
-func (this JWRImpl) FullUpdateProfileV2(ctx context.Context, userID int, userProfile UserProfile, apiTimeOut int, retries int) error {
+func (this JWRImpl) FullUpdateProfileV2(ctx context.Context, userID int, userProfile UpdateUserProfileRequest, apiTimeOut int, retries int) error {
 	defer nrf.FromContext(ctx).StartSegment("FullUpdateProfile").End()
 	timeout := this.DefaultAPITimeout
-	if userProfile.Gender == "" {
-		userProfile.Gender = "UNDEFINED"
+	if userProfile.Gender != nil && *userProfile.Gender == "" {
+		*userProfile.Gender = "UNDEFINED"
 	}
 	if apiTimeOut > 0 {
 		timeout = apiTimeOut
