@@ -1,0 +1,76 @@
+sample:compile:
+  extends: .go_setup
+  stage: build
+  script:
+    - GOOS=linux GOARCH=arm64 CGO_ENABLED=0 go build -o ${CI_PROJECT_DIR}/src/sample/server ./src/sample/main.go
+
+  artifacts:
+    expire_in: 1h
+    paths:
+      - ./src/sample/server
+
+  
+
+  needs: [ "go:test" ]
+  rules:
+    - if: $CI_COMMIT_BRANCH != "develop" && $CI_COMMIT_BRANCH != "master"
+      when: never
+      
+    - changes:
+        # Changes to service
+        - src/sample/**/*
+
+        # Any public clients have changed
+        - src/*/pkg/**/*
+
+        # Protobuf has changed
+        - api/*.{proto}
+
+        # Library changes
+        - src/pandora/**/*
+
+sample:deploy:production:
+  extends: .deploy_production
+  variables:
+    TARGET_ENV: 'prod'
+    DEPLOY_PROJECT: sample
+
+  needs: [ "go:test", "sample:compile" ]
+  rules:
+    - if: $CI_COMMIT_BRANCH == "master"
+      changes:
+        # Changes to service
+        - src/sample/**/*
+
+        # Any public clients have changed
+        - src/*/pkg/**/*
+
+        # Protobuf has changed
+        - api/*.{proto}
+
+        # Library changes
+        - src/pandora/**/*
+
+
+sample:deploy:staging:
+  extends: .deploy_staging
+  variables:
+    DEPLOY_PROJECT: sample
+    TARGET_ENV: 'staging'
+
+  needs: [ "go:test", "sample:compile" ]
+  rules:
+    - if: $CI_COMMIT_BRANCH == "develop"
+      changes:
+        # Changes to service
+        - src/sample/**/*
+
+        # Any public clients have changed
+        - src/*/pkg/**/*
+
+        # Protobuf has changed
+        - api/*.{proto}
+
+        # Library changes
+        - src/pandora/**/*
+
