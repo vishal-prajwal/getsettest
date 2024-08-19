@@ -2,6 +2,7 @@ package jungleegames
 
 import (
 	"fmt"
+	"os"
 	"sync"
 	"time"
 
@@ -49,7 +50,7 @@ func InstrumentApplication(appName string) error {
 
 		nr, initErr = newrelic.NewApplication(
 			newrelic.ConfigAppName(fmt.Sprintf("%s; %s (%s)", appName, appName, AppEnv)),
-			newrelic.ConfigLicense("eu01xxae2f28117db345226d7663c84b439dNRAL"),
+			newrelic.ConfigLicense(os.Getenv("NEWRELIC_KEY")),
 			newrelic.ConfigDistributedTracerEnabled(true),
 		)
 
