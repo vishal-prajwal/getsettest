@@ -36,7 +36,7 @@ func (c *Coordinator) Start(ctx context.Context, root string, opts ...Opt) error
 		opt(c)
 	}
 
-	consul, err := consulClient.NewClient()
+	consul, err := consulClient.NewClient(consulClient.ConsulConfig{})
 	if err != nil {
 		return err
 	}

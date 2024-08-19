@@ -57,8 +57,16 @@ type Client interface {
 	StartLeaderElection(ctx context.Context, serviceName string, callback func(ctx context.Context) error) error
 }
 
-func NewClient() (Client, error) {
-	std, err := api.NewClient(api.DefaultConfig())
+type ConsulConfig struct {
+	Address string
+	Token   string
+}
+
+func NewClient(cfg ConsulConfig) (Client, error) {
+	defaultCfg := api.DefaultConfig()
+	defaultCfg.Token = cfg.Token
+	defaultCfg.Address = cfg.Address
+	std, err := api.NewClient(defaultCfg)
 	if err != nil {
 		return nil, errors.Wrapf(err, "failed to initiate client")
 	}

@@ -18,7 +18,7 @@ var errCallbackDone = errors.New("the callback was terminated as expected")
 
 func TestSingleStartLeaderElection(t *testing.T) {
 	ctx := context.Background()
-	client, err := consul.NewClient()
+	client, err := consul.NewClient(consul.ConsulConfig{})
 	require.NoError(t, err)
 
 	err = client.StartLeaderElection(ctx, "StartLeaderElection", func(ctx context.Context) error {
@@ -30,7 +30,7 @@ func TestSingleStartLeaderElection(t *testing.T) {
 
 func TestMultiStartLeaderElection(t *testing.T) {
 	ctx := context.Background()
-	client, err := consul.NewClient()
+	client, err := consul.NewClient(consul.ConsulConfig{})
 	require.NoError(t, err)
 
 	// using wg gives `panic: sync: negative WaitGroup counter`. Even though there's wg.Add(1) and wg.Done() once?
@@ -186,7 +186,7 @@ func TestMultiStartLeaderElection(t *testing.T) {
 
 func TestSingleStartLeaderElectionPrometheus(t *testing.T) {
 	ctx := context.Background()
-	client, err := consul.NewClient()
+	client, err := consul.NewClient(consul.ConsulConfig{})
 	require.NoError(t, err)
 
 	serviceName := "StartLeaderElectionPrometheus"

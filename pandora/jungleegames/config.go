@@ -12,7 +12,6 @@ import (
 	"github.com/pkg/errors"
 	"github.com/sirupsen/logrus"
 
-	"bitbucket.org/junglee_games/getsetgo/pandora/consul"
 	"bitbucket.org/junglee_games/getsetgo/pandora/log"
 )
 
@@ -47,12 +46,12 @@ func PopulateConfig(ctx context.Context, cfg interface{}) error {
 		return err
 	}
 
-	consulClient, err := consul.NewClient()
-	if err != nil {
-		return err
-	}
-
 	svc := ssm.NewFromConfig(awsCfg)
+
+	// consulClient, err := consul.NewClient(consul.ConsulConfig{})
+	// if err != nil {
+	// 	return err
+	// }
 
 	t := reflect.TypeOf(cfg)
 
@@ -97,16 +96,16 @@ func PopulateConfig(ctx context.Context, cfg interface{}) error {
 			continue
 		}
 
-		if consulKey, ok := tags.Lookup("consul"); ok {
-			if val, err := consulClient.GetKVString(ctx, consulKey, ""); err != nil {
-				return err
-			} else if val != "" {
-				vf.SetString(val)
-				continue
-			}
-		} else {
-			l.Info("Missing consul struct tag for field, skipping")
-		}
+		// if consulKey, ok := tags.Lookup("consul"); ok {
+		// 	if val, err := consulClient.GetKVString(ctx, consulKey, ""); err != nil {
+		// 		return err
+		// 	} else if val != "" {
+		// 		vf.SetString(val)
+		// 		continue
+		// 	}
+		// } else {
+		// 	l.Info("Missing consul struct tag for field, skipping")
+		// }
 
 		ssmKey, ok := tags.Lookup("ssm")
 

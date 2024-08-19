@@ -54,7 +54,7 @@ func bootstrap() (*internal.Application, error) {
 		DB: db,
 	}
 
-	consulClient, err := consul.NewClient()
+	consulClient, err := consul.NewClient(consul.ConsulConfig{})
 	if err != nil {
 		return nil, errors.Wrap(err, "failed to connect to consul")
 	}

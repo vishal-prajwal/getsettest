@@ -69,7 +69,7 @@ func GetEc2InstanceData() imds.InstanceIdentityDocument {
 }
 
 func GetAwsConfig(ctx context.Context) (aws.Config, error) {
-	cfg, err := config.LoadDefaultConfig(ctx, config.WithDefaultRegion("eu-west-1"))
+	cfg, err := config.LoadDefaultConfig(ctx, config.WithDefaultRegion("ap-south-1"))
 	if err != nil {
 		return aws.Config{}, errors.Wrap(err, "failed to load default config")
 	}
