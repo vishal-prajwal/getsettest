@@ -30,6 +30,7 @@ require (
 	github.com/h2non/bimg v1.1.9
 	github.com/hashicorp/consul/api v1.20.0
 	github.com/hashicorp/go-retryablehttp v0.5.3
+	github.com/interactive-solutions/govalidator v0.0.0-20200930093759-d4bb53ede080
 	github.com/joho/godotenv v1.5.1
 	github.com/kataras/iris/v12 v12.2.0
 	github.com/klauspost/shutdown2 v1.1.0
@@ -57,6 +58,7 @@ require (
 	github.com/uptrace/bun/dialect/pgdialect v1.2.1
 	github.com/uptrace/bun/driver/pgdriver v1.2.1
 	github.com/urfave/cli/v2 v2.27.4
+	github.com/vektah/gqlparser/v2 v2.5.16
 	go.mongodb.org/mongo-driver v1.13.1
 	go.uber.org/zap v1.21.0
 	golang.org/x/sync v0.7.0
@@ -109,7 +111,6 @@ require (
 	github.com/subosito/gotenv v1.4.2 // indirect
 	github.com/tmthrgd/go-hex v0.0.0-20190904060850-447a3041c3bc // indirect
 	github.com/twmb/murmur3 v1.1.5 // indirect
-	github.com/vektah/gqlparser/v2 v2.5.16 // indirect
 	github.com/xdg-go/pbkdf2 v1.0.0 // indirect
 	github.com/xdg-go/scram v1.1.2 // indirect
 	github.com/xdg-go/stringprep v1.0.4 // indirect
@@ -180,7 +181,7 @@ require (
 	github.com/vmihailenco/msgpack/v5 v5.4.1 // indirect
 	github.com/vmihailenco/tagparser/v2 v2.0.0 // indirect
 	github.com/yosssi/ace v0.0.5 // indirect
-	golang.org/x/crypto v0.24.0 // indirect
+	golang.org/x/crypto v0.24.0
 	golang.org/x/net v0.26.0 // indirect
 	golang.org/x/sys v0.21.0 // indirect
 	golang.org/x/text v0.16.0 // indirect
