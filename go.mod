@@ -20,6 +20,7 @@ require (
 	github.com/go-playground/validator/v10 v10.11.1
 	github.com/go-redis/redis v6.15.9+incompatible
 	github.com/go-redis/redis/v8 v8.11.5
+	github.com/go-sql-driver/mysql v1.6.0
 	github.com/golang-migrate/migrate/v4 v4.17.1
 	github.com/google/uuid v1.6.0
 	github.com/gorilla/handlers v1.5.2
@@ -38,17 +39,18 @@ require (
 	github.com/mailgun/groupcache/v2 v2.5.0
 	github.com/makasim/sentryhook v0.5.0
 	github.com/mbobakov/grpc-consul-resolver v1.5.3
-	github.com/newrelic/go-agent/v3 v3.33.1
+	github.com/newrelic/go-agent/v3 v3.34.0
 	github.com/newrelic/go-agent/v3/integrations/nrawssdk-v2 v1.2.2
 	github.com/newrelic/go-agent/v3/integrations/nrgorilla v1.2.1
 	github.com/newrelic/go-agent/v3/integrations/nrgrpc v1.4.4
-	github.com/newrelic/go-agent/v3/integrations/nrmongo v1.1.2
+	github.com/newrelic/go-agent/v3/integrations/nrmongo v1.1.3
 	github.com/newrelic/go-agent/v3/integrations/nrredis-v8 v1.0.1
 	github.com/nfnt/resize v0.0.0-20180221191011-83c6a9932646
 	github.com/pdfcpu/pdfcpu v0.6.0
 	github.com/pkg/errors v0.9.1
 	github.com/prometheus/client_golang v1.4.0
 	github.com/prometheus/client_model v0.2.0
+	github.com/redis/go-redis/v9 v9.6.1
 	github.com/segmentio/kafka-go v0.4.25
 	github.com/slack-go/slack v0.13.1
 	github.com/sony/gobreaker/v2 v2.0.0
@@ -63,6 +65,7 @@ require (
 	go.uber.org/zap v1.21.0
 	golang.org/x/sync v0.7.0
 	golang.org/x/tools v0.22.0
+	gopkg.in/mgo.v2 v2.0.0-20190816093944-a6b53ec6cb22
 )
 
 require (
