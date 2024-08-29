@@ -305,3 +305,14 @@ func (s *S3Store) DownloadFileToLocal(filename string, localPath string) error {
 	}
 	return nil
 }
+
+func (s *S3Store) DeleteFile(filename string) error {
+	_, err := s.s3Service.DeleteObject(&s3.DeleteObjectInput{
+		Bucket: aws.String(s.bucketName),
+		Key:    aws.String(filename),
+	})
+	if err != nil {
+		return fmt.Errorf("error deleting file: %v", err)
+	}
+	return nil
+}
