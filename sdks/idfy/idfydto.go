@@ -419,3 +419,37 @@ type HealthCheckReq struct {
 type HealthCheckReqData struct {
 	TaskType string `json:"task_type"`
 }
+
+type MaskAadharDocRequest struct {
+	GroupID string `json:"group_id"`
+	TaskID  string `json:"task_id"`
+	Data    struct {
+		Consent        string `json:"consent"`
+		Document1      string `json:"document1"`
+		LastFourDigits bool   `json:"last_four_digits"`
+		MaskAllDigits  bool   `json:"mask_all_digits"`
+		MaskQr         bool   `json:"mask_qr"`
+	} `json:"data"`
+}
+
+type MaskAadharRequestID struct {
+	RequestID string `json:"request_id"`
+}
+
+type MaskAadharDocResponse struct {
+	Action      string `json:"action"`
+	CompletedAt string `json:"completed_at"`
+	CreatedAt   string `json:"created_at"`
+	GroupID     string `json:"group_id"`
+	RequestID   string `json:"request_id"`
+	Result      struct {
+		DocumentURL         string `json:"document_url"`
+		IDNumber            string `json:"id_number"`
+		IDNumberFound       bool   `json:"id_number_found"`
+		OriginalDocumentURL string `json:"original_document_url"`
+		SelfLink            string `json:"self_link"`
+	} `json:"result"`
+	Status string `json:"status"`
+	TaskID string `json:"task_id"`
+	Type   string `json:"type"`
+}

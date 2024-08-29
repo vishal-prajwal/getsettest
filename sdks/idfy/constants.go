@@ -9,6 +9,7 @@ const (
 	FraudCheckAadhar   = "/v3/tasks/async/verify_with_source/aadhaar_lite"
 	GetTaskStatus      = "/v3/tasks"
 	HealthCheckTimeout = 5
-	TemperedImage = "/v3/tasks/sync/check_tampering/document"
-	HealthCheck = "/retrieve/status"
+	TemperedImage      = "/v3/tasks/sync/check_tampering/document"
+	HealthCheck        = "/retrieve/status"
+	MASK_AADHAR_DOC      = "/v3/tasks/async/mask/ind_aadhaar"
 )
