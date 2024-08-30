@@ -12,7 +12,7 @@ import (
 const (
 	sampleService    = "sample"
 	sampleImportPath = "bitbucket.org/junglee_games/getsetgo/pandora/boilerplate/service_skeleton"
-	newImportPath    = "gitlab.com/jungleegames/backend/src"
+	newImportPath    = "bitbucket.org/junglee_games"
 )
 
 func GenerateServiceSkeleton(serviceName string) {
@@ -21,8 +21,12 @@ func GenerateServiceSkeleton(serviceName string) {
 	dir, _ := os.Getwd()
 
 	serviceFolder := filepath.Join(dir, serviceName)
-	sample := filepath.Join(dir, "boilerplate/service_skeleton/sample")
+	getsetgoPath := os.Getenv("GETSETGO_PATH")
 
+	if getsetgoPath == "" {
+		panic("GETSETGO_PATH env variable not set")
+	}
+	sample := getsetgoPath + "pandora/boilerplate/service_skeleton/sample"
 	// copy the skeleton of new service from the sample service
 	fmt.Println(sample)
 	fmt.Println(serviceFolder)
