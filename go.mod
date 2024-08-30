@@ -32,6 +32,7 @@ require (
 	github.com/hashicorp/consul/api v1.20.0
 	github.com/hashicorp/go-retryablehttp v0.5.3
 	github.com/interactive-solutions/govalidator v0.0.0-20200930093759-d4bb53ede080
+	github.com/joaojeronimo/go-crc16 v0.0.0-20140729130949-59bd0194935e
 	github.com/joho/godotenv v1.5.1
 	github.com/kataras/iris/v12 v12.2.0
 	github.com/klauspost/shutdown2 v1.1.0
@@ -46,11 +47,13 @@ require (
 	github.com/newrelic/go-agent/v3/integrations/nrmongo v1.1.3
 	github.com/newrelic/go-agent/v3/integrations/nrredis-v8 v1.0.1
 	github.com/nfnt/resize v0.0.0-20180221191011-83c6a9932646
+	github.com/onsi/ginkgo v1.16.5
+	github.com/onsi/gomega v1.27.1
+	github.com/patrickmn/go-cache v2.1.0+incompatible
 	github.com/pdfcpu/pdfcpu v0.6.0
 	github.com/pkg/errors v0.9.1
 	github.com/prometheus/client_golang v1.4.0
 	github.com/prometheus/client_model v0.2.0
-	github.com/redis/go-redis/v9 v9.6.1
 	github.com/segmentio/kafka-go v0.4.25
 	github.com/slack-go/slack v0.13.1
 	github.com/sony/gobreaker/v2 v2.0.0
@@ -86,6 +89,7 @@ require (
 	github.com/elastic/elastic-transport-go/v8 v8.0.0-20211216131617-bbee439d559c // indirect
 	github.com/felixge/httpsnoop v1.0.3 // indirect
 	github.com/go-playground/form v3.1.4+incompatible // indirect
+	github.com/google/go-cmp v0.6.0 // indirect
 	github.com/gorilla/websocket v1.5.0 // indirect
 	github.com/gosimple/unidecode v1.0.1 // indirect
 	github.com/hashicorp/errwrap v1.1.0 // indirect
@@ -100,6 +104,7 @@ require (
 	github.com/matttproud/golang_protobuf_extensions v1.0.1 // indirect
 	github.com/montanaflynn/stats v0.0.0-20171201202039-1bf9dbcd8cbe // indirect
 	github.com/newrelic/csec-go-agent v1.3.0 // indirect
+	github.com/nxadm/tail v1.4.8 // indirect
 	github.com/pelletier/go-toml/v2 v2.0.6 // indirect
 	github.com/pierrec/lz4 v2.6.0+incompatible // indirect
 	github.com/prometheus/common v0.9.1 // indirect
@@ -125,6 +130,7 @@ require (
 	golang.org/x/image v0.14.0 // indirect
 	golang.org/x/mod v0.18.0 // indirect
 	google.golang.org/genproto/googleapis/rpc v0.0.0-20240213162025-012b6fc9bca9 // indirect
+	gopkg.in/tomb.v1 v1.0.0-20141024135613-dd632973f1e7 // indirect
 	gopkg.in/yaml.v2 v2.4.0 // indirect
 	mellium.im/sasl v0.3.1 // indirect
 )

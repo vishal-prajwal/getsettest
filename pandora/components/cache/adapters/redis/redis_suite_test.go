@@ -6,7 +6,7 @@ import (
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
 
-	. "bitbucket.org/junglee_games/getsetgo/pandora/cache/adapters/redis"
+	. "bitbucket.org/junglee_games/getsetgo/pandora/components/cache/adapters/redis"
 )
 
 var Adapter *RedisSimple

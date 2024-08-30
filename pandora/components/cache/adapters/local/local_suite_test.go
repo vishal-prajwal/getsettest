@@ -6,7 +6,7 @@ import (
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
 
-	. "bitbucket.org/junglee_games/getsetgo/pandora/cache/adapters/local"
+	. "bitbucket.org/junglee_games/getsetgo/pandora/components/cache/adapters/local"
 )
 
 var Adapter *Local

@@ -4,9 +4,9 @@ import (
 	"fmt"
 	"log"
 
-	"bitbucket.org/junglee_games/getsetgo/pandora/cache/common/entity"
+	"bitbucket.org/junglee_games/getsetgo/pandora/components/cache/common/entity"
 
-	"bitbucket.org/junglee_games/getsetgo/pandora/cache/adapters/redis"
+	"bitbucket.org/junglee_games/getsetgo/pandora/components/cache/adapters/redis"
 )
 
 const CACHING_ENGINE = "redis-simple"

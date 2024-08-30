@@ -4,9 +4,9 @@ import (
 	"fmt"
 	"time"
 
-	"bitbucket.org/junglee_games/getsetgo/pandora/cache/adapters/local"
-	"bitbucket.org/junglee_games/getsetgo/pandora/cache/adapters/redis"
-	"bitbucket.org/junglee_games/getsetgo/pandora/cache/common/entity"
+	"bitbucket.org/junglee_games/getsetgo/pandora/components/cache/adapters/local"
+	"bitbucket.org/junglee_games/getsetgo/pandora/components/cache/adapters/redis"
+	"bitbucket.org/junglee_games/getsetgo/pandora/components/cache/common/entity"
 )
 
 const ADAPTER_TYPE_LOCAL = "local"

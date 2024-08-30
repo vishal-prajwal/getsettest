@@ -4,8 +4,8 @@ import (
 	"fmt"
 	"time"
 
-	"bitbucket.org/junglee_games/getsetgo/pandora/cache/common/entity"
-	"bitbucket.org/junglee_games/getsetgo/pandora/cache/common/errors"
+	"bitbucket.org/junglee_games/getsetgo/pandora/components/cache/common/entity"
+	"bitbucket.org/junglee_games/getsetgo/pandora/components/cache/common/errors"
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
 )

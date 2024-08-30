@@ -8,16 +8,9 @@ Supports following Caching engines:
 - Redis Cluster
 - AWS Elasticache
 
-## How to Install:
-
-Simple run, below command.
-
-```bash
-go get -u github.com/sanksons/tavern
-```
 ## How to use:
 
-Detailed examples are kept in ![examples](https://bitbucket.org/junglee_games/getsetgo/pandora/cache/tree/master/examples) directory. But for a quick view: 
+Detailed examples are kept in ![examples](https://bitbucket.org/junglee_games/getsetgo/pandora/components/cache/tree/master/examples) directory. But for a quick view: 
 
 #### Initialization
 

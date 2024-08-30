@@ -3,7 +3,7 @@ package redis
 import (
 	"fmt"
 
-	"bitbucket.org/junglee_games/getsetgo/pandora/cache/common/entity"
+	"bitbucket.org/junglee_games/getsetgo/pandora/components/cache/common/entity"
 	"bitbucket.org/junglee_games/getsetgo/pandora/components/cache/utils"
 	"github.com/go-redis/redis"
 	"github.com/joaojeronimo/go-crc16"
