@@ -1,3 +1,53 @@
+# GetSetGo Framework Setup Guide
+
+This guide will help you set up and create a boilerplate for your project using the GetSetGo framework.
+
+## Prerequisites
+- Go: Ensure that Go is installed on your system. You can download it from [golang.org](https://golang.org).
+- Git: Ensure that Git is installed and configured on your system.
+
+## Steps to Set Up
+1. Clone the GetSetGo Repository
+
+	First, checkout the GetSetGo repository into your local machine:
+	```bash
+	git clone https://bitbucket.org/junglee_games/getsetgo.git
+	```
+	Alternatively, you can browse the repository directly [here](https://bitbucket.org/junglee_games/getsetgo).
+
+2. Install GetSetGo
+
+	Navigate to your terminal and run the following command to install GetSetGo:
+	```bash
+	go install bitbucket.org/junglee_games/getsetgo@master
+	```
+
+3. Navigate to Your Desired Project Directory
+
+	Navigate to the directory where you want to create your boilerplate:
+	```bash
+	cd /path/to/your/project/directory
+	```
+
+4. Set Environment Variable
+
+	Set the environment variable GETSETGO_PATH to the location where the GetSetGo repository resides:
+	```bash
+	export GETSETGO_PATH=/path/to/getsetgo/repo
+	```
+
+5. Generate the Boilerplate
+
+	Now, run the following command to create your project boilerplate:
+	```bash
+	getsetgo skeleton-creator --serviceName blahblah
+	```
+	Replace `blahblah` with your desired service name.
+
+6. Boilerplate Created
+
+	Your boilerplate has been successfully created. You can now start building your service.
+
 Pandora
 =======
 
