@@ -5,7 +5,7 @@ import (
 
 	"github.com/urfave/cli/v2"
 
-	skeleton "bitbucket.org/junglee_games/getsetgo/pandora/internal/service_skeleton"
+	skeleton "bitbucket.org/junglee_games/getsetgo/pandora/boilerplate/service_skeleton"
 )
 
 var cmdSkeleton = &cli.Command{

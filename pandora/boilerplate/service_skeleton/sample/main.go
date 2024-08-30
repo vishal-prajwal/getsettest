@@ -3,7 +3,7 @@ package main
 import (
 	"github.com/joho/godotenv"
 
-	"bitbucket.org/junglee_games/getsetgo/pandora/internal/cmd"
+	"bitbucket.org/junglee_games/getsetgo/pandora/boilerplate/service_skeleton/sample/cmd"
 )
 
 func main() {

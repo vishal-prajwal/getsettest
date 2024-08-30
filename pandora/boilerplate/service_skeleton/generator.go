@@ -11,7 +11,7 @@ import (
 
 const (
 	sampleService    = "sample"
-	sampleImportPath = "bitbucket.org/junglee_games/getsetgo/pandora/internal/service_skeleton"
+	sampleImportPath = "bitbucket.org/junglee_games/getsetgo/pandora/boilerplate/service_skeleton"
 	newImportPath    = "gitlab.com/jungleegames/backend/src"
 )
 
@@ -21,7 +21,7 @@ func GenerateServiceSkeleton(serviceName string) {
 	dir, _ := os.Getwd()
 
 	serviceFolder := filepath.Join(dir, serviceName)
-	sample := filepath.Join(dir, "internal/service_skeleton/sample")
+	sample := filepath.Join(dir, "boilerplate/service_skeleton/sample")
 
 	// copy the skeleton of new service from the sample service
 	fmt.Println(sample)

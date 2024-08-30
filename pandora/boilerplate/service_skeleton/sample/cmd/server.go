@@ -6,11 +6,11 @@ import (
 	"github.com/pkg/errors"
 	"github.com/urfave/cli/v2"
 
+	"bitbucket.org/junglee_games/getsetgo/pandora/boilerplate/service_skeleton/sample/internal"
+	"bitbucket.org/junglee_games/getsetgo/pandora/boilerplate/service_skeleton/sample/internal/grpc"
+	"bitbucket.org/junglee_games/getsetgo/pandora/boilerplate/service_skeleton/sample/internal/http"
 	"bitbucket.org/junglee_games/getsetgo/pandora/consul"
 	"bitbucket.org/junglee_games/getsetgo/pandora/database"
-	"bitbucket.org/junglee_games/getsetgo/pandora/internal/service_skeleton/sample/internal"
-	"bitbucket.org/junglee_games/getsetgo/pandora/internal/service_skeleton/sample/internal/grpc"
-	"bitbucket.org/junglee_games/getsetgo/pandora/internal/service_skeleton/sample/internal/http"
 	jungleegames "bitbucket.org/junglee_games/getsetgo/pandora/jungleegames"
 	"bitbucket.org/junglee_games/getsetgo/pandora/log"
 )

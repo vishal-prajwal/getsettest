@@ -6,7 +6,7 @@ import (
 
 	"google.golang.org/grpc"
 
-	"bitbucket.org/junglee_games/getsetgo/pandora/internal/service_skeleton/sample/internal"
+	"bitbucket.org/junglee_games/getsetgo/pandora/boilerplate/service_skeleton/sample/internal"
 	jungleegames "bitbucket.org/junglee_games/getsetgo/pandora/jungleegames"
 )
 

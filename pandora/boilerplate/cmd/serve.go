@@ -5,7 +5,7 @@ import (
 
 	"github.com/urfave/cli/v2"
 
-	"bitbucket.org/junglee_games/getsetgo/pandora/internal/serve"
+	"bitbucket.org/junglee_games/getsetgo/pandora/boilerplate/serve"
 	jungleegames "bitbucket.org/junglee_games/getsetgo/pandora/jungleegames"
 	"bitbucket.org/junglee_games/getsetgo/pandora/log"
 )
