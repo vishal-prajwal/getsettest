@@ -7,6 +7,7 @@ toolchain go1.21.5
 require (
 	github.com/99designs/gqlgen v0.17.49
 	github.com/Unleash/unleash-client-go/v3 v3.9.2
+	github.com/allegro/bigcache v1.2.1
 	github.com/aws/aws-sdk-go v1.49.6
 	github.com/aws/aws-sdk-go-v2 v1.30.3
 	github.com/aws/aws-sdk-go-v2/config v1.27.27
