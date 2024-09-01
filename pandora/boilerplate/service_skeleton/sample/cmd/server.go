@@ -11,7 +11,6 @@ import (
 	"bitbucket.org/junglee_games/getsetgo/pandora/boilerplate/service_skeleton/sample/internal/http"
 	"bitbucket.org/junglee_games/getsetgo/pandora/boilerplate/service_skeleton/sample/pkg/cache"
 	"bitbucket.org/junglee_games/getsetgo/pandora/consul"
-	"bitbucket.org/junglee_games/getsetgo/pandora/database"
 	jungleegames "bitbucket.org/junglee_games/getsetgo/pandora/jungleegames"
 	"bitbucket.org/junglee_games/getsetgo/pandora/log"
 )
@@ -46,17 +45,17 @@ var cmdServer = &cli.Command{
 func bootstrap() (*internal.Application, error) {
 	log.Infof("Initiate sample bootstrapping sequence")
 
-	db, err := database.Connect()
-	if err != nil {
-		return nil, err
-	}
+	// db, err := database.Connect()
+	// if err != nil {
+	// 	return nil, err
+	// }
 	cacheAdapter, err := cache.GetPool(cache.DEFAULT_POOL)
 	if err != nil {
 		return nil, errors.Wrap(err, "failed to connect to cache")
 	}
 
 	app := &internal.Application{
-		DB:           db,
+		//	DB:           db,
 		CacheAdapter: cacheAdapter,
 	}
 
