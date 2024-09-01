@@ -1,8 +1,13 @@
 package cache
 
 import (
+	"fmt"
+	"strings"
+
+	"bitbucket.org/junglee_games/getsetgo/pandora/boilerplate/service_skeleton/sample/config"
 	"bitbucket.org/junglee_games/getsetgo/pandora/collections/maps/concurrentmap/concurrenthashmap"
 	"bitbucket.org/junglee_games/getsetgo/pandora/components/cache"
+	"bitbucket.org/junglee_games/getsetgo/pandora/components/cache/adapters/local"
 	"bitbucket.org/junglee_games/getsetgo/pandora/components/cache/adapters/redis"
 )
 
@@ -29,23 +34,23 @@ func GetPool(key string) (cache.CacheAdapter, error) {
 }
 
 func getAdapter() (cache.CacheAdapter, error) {
-	//	config, _ := config.GetConfig()
-	// if config.Cache.Use == cache.ADAPTER_TYPE_LOCAL {
-	// 	return local.Initialize(local.LocalAdapterConfig{}), nil
-	// }
-	//if config.Cache.Use == cache.ADAPTER_TYPE_REDIS_CLUSTER {
-	//addrs := strings.Split(config.Cache.RedisCluster.Addrs, ",")
-	return redis.InitializeRedisCluster(redis.RedisClusterConfig{
-		//Addrs: addrs,
-		//PoolSize: config.Cache.RedisCluster.PoolSize,
-	}), nil
-	//}
+	config, _ := config.GetConfig()
+	if config.Cache.Use == cache.ADAPTER_TYPE_LOCAL {
+		return local.Initialize(local.LocalAdapterConfig{}), nil
+	}
+	if config.Cache.Use == cache.ADAPTER_TYPE_REDIS_CLUSTER {
+		addrs := strings.Split(config.Cache.RedisCluster.Addrs, ",")
+		return redis.InitializeRedisCluster(redis.RedisClusterConfig{
+			Addrs:    addrs,
+			PoolSize: config.Cache.RedisCluster.PoolSize,
+		}), nil
+	}
 
-	// if config.Cache.Use == cache.ADAPTER_TYPE_REDIS_SIMPLE {
-	// 	return redis.InitializeRedisSimple(redis.RedisSimpleConfig{
-	// 		Addr: config.Cache.RedisSimple.Addrs,
-	// 	}), nil
-	// }
+	if config.Cache.Use == cache.ADAPTER_TYPE_REDIS_SIMPLE {
+		return redis.InitializeRedisSimple(redis.RedisSimpleConfig{
+			Addr: config.Cache.RedisSimple.Addrs,
+		}), nil
+	}
 
-	// return nil, fmt.Errorf("Not a valid adapter supplied")
+	return nil, fmt.Errorf("Not a valid adapter supplied")
 }
