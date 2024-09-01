@@ -134,7 +134,7 @@ func GenerateServiceSkeleton(serviceName string) {
 	}
 
 	fmt.Println(" ************ TODO's ****************")
-	fmt.Println(" 1) Update the go.mod file with the required dependencies")
+	fmt.Println(" 1) Update dev.yaml according to your application")
 	fmt.Println(" 2) After generating required proto for your service, uncomment the code related to setting up grpc server and client")
 	fmt.Println(" 3) Enough of generated code, go enjoy writing some code of your own now 😛")
 	fmt.Println(" ************ END ****************")
