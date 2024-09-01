@@ -96,6 +96,12 @@ func GenerateServiceSkeleton(serviceName string) {
 	// replacing in http folder
 	http := filepath.Join(internal, "http")
 
+	httpRoutesFile := filepath.Join(http, "routes/routes.go")
+	replaceFileContent(httpRoutesFile, serviceName)
+
+	httpHandlersFile := filepath.Join(http, "handlers/handlers.go")
+	replaceFileContent(httpHandlersFile, serviceName)
+
 	httpServerFile := filepath.Join(http, "server.go")
 	replaceFileContent(httpServerFile, serviceName)
 
