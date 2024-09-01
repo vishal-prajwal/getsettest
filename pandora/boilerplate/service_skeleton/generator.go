@@ -5,6 +5,7 @@ import (
 	"io"
 	"io/ioutil"
 	"os"
+	"os/exec"
 	"path/filepath"
 	"strings"
 )
@@ -111,11 +112,25 @@ func GenerateServiceSkeleton(serviceName string) {
 
 	replaceFileContent(newFile, serviceName)
 
+	// Run `go mod init` and `go mod tidy` in the new service folder
+	modInitCmd := exec.Command("go", "mod", "init", serviceName)
+	modInitCmd.Dir = serviceFolder
+	err = modInitCmd.Run()
+	if err != nil {
+		panic(fmt.Sprintf("Failed to run go mod init: %v", err))
+	}
+
+	// modTidyCmd := exec.Command("go", "mod", "tidy")
+	// modTidyCmd.Dir = serviceFolder
+	// err = modTidyCmd.Run()
+	// if err != nil {
+	// 	panic(fmt.Sprintf("Failed to run go mod tidy: %v", err))
+	// }
+
 	fmt.Println(" ************ TODO's ****************")
-	fmt.Println(" 1) Add your new db info in create_databases.sh file")
-	fmt.Println(" 2) Create a new project on sentry.io and replace SENTRY_DSN value in both staging/production deployment files")
-	fmt.Println(" 3) After generating required proto for your service, uncomment the code related to setting up grpc server and client")
-	fmt.Println(" 4) Enough of generated code, go enjoy writing some code of your own now 😛")
+	fmt.Println(" 1) Update the go.mod file with the required dependencies")
+	fmt.Println(" 2) After generating required proto for your service, uncomment the code related to setting up grpc server and client")
+	fmt.Println(" 3) Enough of generated code, go enjoy writing some code of your own now 😛")
 	fmt.Println(" ************ END ****************")
 }
 
