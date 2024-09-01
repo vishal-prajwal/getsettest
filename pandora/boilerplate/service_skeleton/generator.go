@@ -113,19 +113,19 @@ func GenerateServiceSkeleton(serviceName string) {
 	replaceFileContent(newFile, serviceName)
 
 	// Run `go mod init` and `go mod tidy` in the new service folder
-	modInitCmd := exec.Command("go", "mod", "init", serviceName)
+	modInitCmd := exec.Command("go", "mod", "init", newImportPath+"/"+serviceName)
 	modInitCmd.Dir = serviceFolder
 	err = modInitCmd.Run()
 	if err != nil {
 		panic(fmt.Sprintf("Failed to run go mod init: %v", err))
 	}
 
-	// modTidyCmd := exec.Command("go", "mod", "tidy")
-	// modTidyCmd.Dir = serviceFolder
-	// err = modTidyCmd.Run()
-	// if err != nil {
-	// 	panic(fmt.Sprintf("Failed to run go mod tidy: %v", err))
-	// }
+	modTidyCmd := exec.Command("go", "mod", "tidy")
+	modTidyCmd.Dir = serviceFolder
+	err = modTidyCmd.Run()
+	if err != nil {
+		panic(fmt.Sprintf("Failed to run go mod tidy: %v", err))
+	}
 
 	fmt.Println(" ************ TODO's ****************")
 	fmt.Println(" 1) Update the go.mod file with the required dependencies")
