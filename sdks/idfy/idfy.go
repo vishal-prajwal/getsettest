@@ -443,8 +443,6 @@ func (idfyImpl *IdfyImpl) MaskAadharDoc(maskAadharDocRequest MaskAadharDocReques
 	if err != nil {
 		return nil, err
 	}
-	fmt.Println("Adding delay for mask aadhar")
-	time.Sleep(2000 * time.Millisecond)
 	return idfyImpl.FetchMaskDoc(*requestID)
 }
 
