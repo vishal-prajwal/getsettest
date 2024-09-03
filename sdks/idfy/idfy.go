@@ -152,7 +152,7 @@ func (this *IdfyImpl) PostFruadValidationReq(documentType string, fraudCheckRequ
 		return nil, err
 	}
 	defer res.Body.Close()
-	fmt.Printf("@@@@ debug %s",body.Bytes())
+	fmt.Printf("@@@@ debug %s", body.Bytes())
 	var fraudCheckResponse FraudCheckResponse
 	err = json.Unmarshal(body.Bytes(), &fraudCheckResponse)
 	if err != nil {
@@ -179,8 +179,11 @@ func (this *IdfyImpl) FetchPostedReq(requestID string) (*FraudCheckAadharRespons
 	if err != nil {
 		return nil, err
 	}
+	if res.StatusCode == 422 || res.StatusCode == 403 || res.StatusCode == 401 {
+		return nil, ErrAddharLiteFetchError
+	}
 	if res.StatusCode != 200 {
-		return nil, fmt.Errorf("statusCode %d body %s",res.StatusCode,res.Body)
+		return nil, fmt.Errorf("statusCode %d body %s", res.StatusCode, res.Body)
 	}
 	byteResp := &bytes.Buffer{}
 	_, err = byteResp.ReadFrom(res.Body)
@@ -190,7 +193,7 @@ func (this *IdfyImpl) FetchPostedReq(requestID string) (*FraudCheckAadharRespons
 	defer res.Body.Close()
 	err = json.Unmarshal(byteResp.Bytes(), &fraudCheckAadharResponse)
 	if err != nil {
-		return nil, fmt.Errorf("res %s error %v",byteResp.Bytes(),err)
+		return nil, fmt.Errorf("res %s error %v", byteResp.Bytes(), err)
 	}
 	if len(fraudCheckAadharResponse) == 0 {
 		return nil, fmt.Errorf("unable to validate aadhar")
