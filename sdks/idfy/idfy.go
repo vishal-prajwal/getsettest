@@ -186,6 +186,9 @@ func (this *IdfyImpl) FetchPostedReq(requestID string) (*FraudCheckAadharRespons
 	if err != nil {
 		return nil, err
 	}
+	if res.StatusCode == 422 || res.StatusCode == 403 || res.StatusCode == 401 {
+		return nil, ErrAddharLiteFetchError
+	}
 	if res.StatusCode != 200 {
 		return nil, fmt.Errorf("statusCode %d body %s", res.StatusCode, res.Body)
 	}
