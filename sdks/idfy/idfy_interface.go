@@ -15,6 +15,7 @@ type Idfy interface {
 	PostFruadValidationReq(documentType string, fraudCheckRequest FraudCheckRequest) (*string, error)
 	FetchPostedReq(requestID string) (*FraudCheckAadharResponse, error)
 	Healthcheck() (*HealthCheckRes, error)
+	MaskAadharDoc(maskAadharDocRequest MaskAadharDocRequest) (*MaskAadharDocResponse, error)
 }
 
 type IdfyConfig interface {

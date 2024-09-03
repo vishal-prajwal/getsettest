@@ -430,3 +430,81 @@ func (idfyImpl *IdfyImpl) Healthcheck() (*HealthCheckRes, error) {
 	}
 	return &healthCheckRes, nil
 }
+
+func (idfyImpl *IdfyImpl) MaskAadharDoc(maskAadharDocRequest MaskAadharDocRequest) (*MaskAadharDocResponse, error) {
+	requestID, err := idfyImpl.getMaskAadharRequestId(maskAadharDocRequest)
+	if err != nil {
+		return nil, err
+	}
+	return idfyImpl.FetchMaskDoc(*requestID)
+}
+
+func (idfyImpl *IdfyImpl) getMaskAadharRequestId(maskAadharDocRequest MaskAadharDocRequest) (*string, error) {
+	postUrl := idfyImpl.config.GetIdfyEndpoint() + MASK_AADHAR_DOC
+	reqObj, err := json.Marshal(maskAadharDocRequest)
+	if err != nil {
+		return nil, err
+	}
+	payload := strings.NewReader(string(reqObj))
+	req, err := http.NewRequest(http.MethodPost, postUrl, payload)
+	if err != nil {
+		return nil, err
+	}
+	idfyImpl.addHeaders(req)
+
+	res, err := idfyImpl.httpClient.Do(req)
+	if err != nil {
+		return nil, err
+	}
+
+	body := &bytes.Buffer{}
+	_, err = body.ReadFrom(res.Body)
+	if err != nil {
+		return nil, err
+	}
+	defer res.Body.Close()
+	var maskAadharRequestID MaskAadharRequestID
+	err = json.Unmarshal(body.Bytes(), &maskAadharRequestID)
+	if err != nil {
+		return nil, err
+	}
+	if maskAadharRequestID.RequestID == "" {
+		return nil, fmt.Errorf("empty_requestid")
+	}
+	return &maskAadharRequestID.RequestID, nil
+}
+
+func (idfyImpl *IdfyImpl) FetchMaskDoc(requestID string) (*MaskAadharDocResponse, error) {
+	var maskAadharDocResponse []MaskAadharDocResponse
+	getUrl := idfyImpl.config.GetIdfyEndpoint() + GetTaskStatus
+	params := url.Values{}
+	params.Add("request_id", requestID)
+	fullURL := fmt.Sprintf("%v?%v", getUrl, params.Encode())
+	request, err := http.NewRequest("GET", fullURL, nil)
+	if err != nil {
+		return nil, err
+	}
+	idfyImpl.addHeaders(request)
+	res, err := idfyImpl.httpClient.Do(request)
+	if err != nil {
+		return nil, err
+	}
+	if res.StatusCode != 200 {
+		return nil, fmt.Errorf("statusCode %d body %s", res.StatusCode, res.Body)
+	}
+	byteResp := &bytes.Buffer{}
+	_, err = byteResp.ReadFrom(res.Body)
+	if err != nil {
+		return nil, err
+	}
+	defer res.Body.Close()
+	err = json.Unmarshal(byteResp.Bytes(), &maskAadharDocResponse)
+	if err != nil {
+		return nil, fmt.Errorf("res %s error %v", byteResp.Bytes(), err)
+	}
+	if len(maskAadharDocResponse) == 0 {
+		return nil, fmt.Errorf("unable to validate aadhar")
+	}
+	frRes := maskAadharDocResponse[0]
+	return &frRes, err
+}
