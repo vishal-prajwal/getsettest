@@ -5,9 +5,12 @@ import (
 	"encoding/json"
 	"fmt"
 	"io/ioutil"
+	"math"
+	"math/rand"
 	"net/http"
 	"net/url"
 	"strings"
+	"time"
 
 	"bitbucket.org/junglee_games/getsetgo/httpclient"
 	"bitbucket.org/junglee_games/getsetgo/instrumenting/newrelic"
@@ -19,6 +22,10 @@ type IdfyImpl struct {
 	nr         newrelic.Agent
 	httpClient httpclient.HTTPClient
 }
+
+const (
+	BaseDelay = 1 * time.Second
+)
 
 // New creates a new Idfy client
 func New(config IdfyConfig, nr newrelic.Agent, client httpclient.HTTPClient) *IdfyImpl {
@@ -433,6 +440,8 @@ func (idfyImpl *IdfyImpl) MaskAadharDoc(maskAadharDocRequest MaskAadharDocReques
 	if err != nil {
 		return nil, err
 	}
+	fmt.Println("Adding delay for mask aadhar")
+	time.Sleep(2000 * time.Millisecond)
 	return idfyImpl.FetchMaskDoc(*requestID)
 }
 
@@ -472,6 +481,26 @@ func (idfyImpl *IdfyImpl) getMaskAadharRequestId(maskAadharDocRequest MaskAadhar
 }
 
 func (idfyImpl *IdfyImpl) FetchMaskDoc(requestID string) (*MaskAadharDocResponse, error) {
+	var err error
+	var res *MaskAadharDocResponse
+	for attempt := 1; attempt <= idfyImpl.config.GetIdfyRetryAttemps(); attempt++ {
+
+		// Calculate the delay with exponential backoff and jitter
+		delay := BaseDelay * time.Duration(math.Pow(2, float64(attempt)))
+		jitter := time.Duration(rand.Int63n(int64(delay / 2)))
+		delay += jitter
+
+		time.Sleep(delay)
+
+		res, err = idfyImpl.callMaskingApi(requestID)
+		if err == nil {
+			return res, nil
+		}
+	}
+	return nil, err
+}
+
+func (idfyImpl *IdfyImpl) callMaskingApi(requestID string) (*MaskAadharDocResponse, error) {
 	var maskAadharDocResponse []MaskAadharDocResponse
 	getUrl := idfyImpl.config.GetIdfyEndpoint() + GetTaskStatus
 	params := url.Values{}

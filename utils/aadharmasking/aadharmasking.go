@@ -11,7 +11,7 @@ func HashAadhar(aadhar string) string {
 	if !verifyAadharNumberToMask(aadhar) {
 		return aadhar
 	}
-	return hashFunc(aadhar) + "_" + aadhar[len(aadhar)-4:]
+	return hashFunc(aadhar)
 }
 
 // HashFunc returns the SHA-256 hash of the input string.

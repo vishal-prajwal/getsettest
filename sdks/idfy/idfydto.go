@@ -444,6 +444,7 @@ type MaskAadharDocResponse struct {
 	RequestID   string `json:"request_id"`
 	Result      struct {
 		DocumentURL         string `json:"document_url"`
+		BaseImage           string `json:"base64_image"`
 		IDNumber            string `json:"id_number"`
 		IDNumberFound       bool   `json:"id_number_found"`
 		OriginalDocumentURL string `json:"original_document_url"`

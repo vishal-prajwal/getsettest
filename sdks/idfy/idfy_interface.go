@@ -23,4 +23,5 @@ type IdfyConfig interface {
 	GetIdfyApiKey() string
 	GetIdfyEndpoint() string
 	GetIdfyHealthCheckEndpoint() string
+	GetIdfyRetryAttemps() int
 }
