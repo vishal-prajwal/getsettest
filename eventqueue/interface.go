@@ -23,6 +23,12 @@ type Consumer interface {
 	// it will fetch and return a batch without commiting it , and commits the previously fetched batch
 	ReadBatch(ctx context.Context) ([]Message, error)
 
+	// it will return a message without commiting it
+	ReadMessageWithUnCommit(ctx context.Context) (*Message, error)
+
+	// it will commit the message
+	Commit(ctx context.Context) error
+
 	// it will close the reader
 	Close() error
 }

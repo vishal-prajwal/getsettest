@@ -80,6 +80,19 @@ func (c *Consumer) ReadBatch(ctx context.Context) ([]eventqueue.Message, error) 
 	return messages, nil
 }
 
+func (c *Consumer) ReadMessageWithUnCommit(ctx context.Context) (*eventqueue.Message, error) {
+	msg, err := c.reader.FetchMessage(ctx)
+	if err != nil {
+		return nil, err
+	}
+	c.batch = []kafka.Message{msg}
+	return &eventqueue.Message{Key: msg.Key, Value: msg.Value}, nil
+}
+
+func (c *Consumer) Commit(ctx context.Context) error {
+	return c.commit(ctx)
+}
+
 func (c *Consumer) Close() error {
 	return c.reader.Close()
 }

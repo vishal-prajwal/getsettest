@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"fmt"
 	"log"
 
 	"bitbucket.org/junglee_games/getsetgo/configs"
@@ -12,16 +13,17 @@ func main() {
 
 	c, err := eventqueuefactory.GetConsumer(&configs.DefaultConsumerConfig{
 		Kafka: configs.DefaultKafkaConfig{
-			Brokers:        "localhost:29092;localhost:39092",
-			Topic:          "invoices_to_pdf",
+			Brokers:        "localhost:9092",
+			Topic:          "jwr-image-masking-qa10",
 			GroupId:        "group4",
 			AsyncQueueSize: 1000,
-			BatchSize:      50000,
+			BatchSize:      2,
 			MaxWaitSeconds: 10,
 		},
+		Name: "KAFKA",
 	})
 	if err != nil {
-		log.Panic(err)
+		log.Panic("Error in Making consumer ", err)
 	}
 	// for i := 0; i < 10; i++ {
 	// 	log.Print("reading message")
@@ -33,14 +35,17 @@ func main() {
 	// }
 	for {
 		log.Print("reading batch")
-		msgs, err := c.ReadBatch(context.Background())
+		msgs, err := c.ReadMessageWithUnCommit(context.Background())
 		if err != nil {
 			log.Panic(err)
 		}
 		// for _, m := range msgs {
 		// 	log.Print(string(m.Key), string(m.Value))
 		// }
-		log.Printf("%d messages fetched", len(msgs))
+		log.Printf("messages fetched %v", string(msgs.Key))
+
+		err = c.Commit(context.Background())
+		fmt.Println("Committing ", err)
 		// time.Sleep(time.Second * 5)
 	}
 }
