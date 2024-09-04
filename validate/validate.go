@@ -1,12 +1,18 @@
 package validate
 
 import (
+	"errors"
 	"fmt"
 	"reflect"
+	"regexp"
 	"strings"
 	"time"
 
 	"github.com/go-playground/validator/v10"
+)
+
+var (
+	panPattern = regexp.MustCompile(`^[A-Z]{5}[0-9]{4}[A-Z]{1}$`)
 )
 
 // validate holds the settings and caches for validating request struct values.
@@ -62,4 +68,19 @@ func GetValidDOB(val string) (string, error) {
 		return "", fmt.Errorf("yob is invalid")
 	}
 	return dob, nil
+}
+
+/*
+If the pan is not personal then we should return an error.
+Valid Pans are whose 4th character is 'P' and length is 10.
+*/
+func ValidatePanNumber(panNumber string) error {
+	panNumber = strings.ToUpper(panNumber)
+	if !panPattern.MatchString(panNumber) {
+		return errors.New("PAN number is invalid")
+	}
+	if panNumber[3] != 'P' {
+		return errors.New("PAN number should be of Individual Type")
+	}
+	return nil
 }
