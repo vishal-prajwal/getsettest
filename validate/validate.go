@@ -1,13 +1,13 @@
 package validate
 
 import (
-	"errors"
 	"fmt"
 	"reflect"
 	"regexp"
 	"strings"
 	"time"
 
+	"bitbucket.org/junglee_games/getsetgo/common_errors"
 	"github.com/go-playground/validator/v10"
 )
 
@@ -77,10 +77,10 @@ Valid Pans are whose 4th character is 'P' and length is 10.
 func ValidatePanNumber(panNumber string) error {
 	panNumber = strings.ToUpper(panNumber)
 	if !panPattern.MatchString(panNumber) {
-		return errors.New("PAN number is invalid")
+		return common_errors.ErrorInvalidPanNumber
 	}
 	if panNumber[3] != 'P' {
-		return errors.New("PAN number should be of Individual Type")
+		return common_errors.ErrNotIndividualPan
 	}
 	return nil
 }
