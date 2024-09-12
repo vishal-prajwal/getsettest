@@ -26,6 +26,16 @@ func TestValidatePanNumber(t *testing.T) {
 			args:    args{panNumber: "ABCDE1892J"},
 			wantErr: true,
 		},
+		{
+			name:    "Not a valid pan number",
+			args:    args{panNumber: "ABCDE1892"},
+			wantErr: true,
+		},
+		{
+			name:    "Not a valid pan number",
+			args:    args{panNumber: " ABCDE1892"},
+			wantErr: true,
+		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
