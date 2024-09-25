@@ -11,24 +11,34 @@ import (
 	"go.mongodb.org/mongo-driver/mongo/options"
 )
 
-func GetMongoClient(host, username, password, appname string, build string) (*mongo.Client, error) {
-	clientOptions := options.Client().SetAppName(appname)
+type Config struct {
+	Host     string
+	Username string
+	Password string
+	AppName  string
+	Build    string
+	SetDirect bool
+}
+
+func GetMongoClient(cfg *Config) (*mongo.Client, error) {
+	clientOptions := options.Client().SetAppName(cfg.AppName)
+	clientOptions.SetDirect(cfg.SetDirect)
 	clientOptions.SetMaxConnIdleTime(time.Minute * 10)
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	defer cancel()
-	hosts := strings.Split(host, ",")
+	hosts := strings.Split(cfg.Host, ",")
 	if len(hosts) == 0 {
 		return &mongo.Client{}, errors.New("missing db host")
 	}
 
 	clientOptions.SetHosts(hosts)
 
-	if build != "local" {
+	if cfg.Build != "local" {
 		clientOptions.SetAuth(options.Credential{
 			AuthSource:    "admin",
 			AuthMechanism: "SCRAM-SHA-256",
-			Username:      username,
-			Password:      password,
+			Username:      cfg.Username,
+			Password:      cfg.Password,
 		})
 	}
 
