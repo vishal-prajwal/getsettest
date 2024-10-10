@@ -68,3 +68,37 @@ func (sm *SecreteManager) GetFromSM(ctx context.Context, key string) (Secrets, e
 	}
 	return secretsVals, nil
 }
+
+func (sm *SecreteManager) PutToSM(ctx context.Context, key string, value Secrets) error {
+	b, err := json.Marshal(value)
+	if err != nil {
+		return errors.Wrap(err, "marshalling secrets")
+	}
+	_, err = sm.sm.PutSecretValue(&secretsmanager.PutSecretValueInput{
+		SecretId:     &key,
+		SecretString: aws.String(string(b)),
+	})
+	if err != nil {
+		logger.Error(ctx, err.Error())
+		if aerr, ok := err.(awserr.Error); ok {
+			switch aerr.Code() {
+			case secretsmanager.ErrCodeDecryptionFailure:
+				logger.Error(ctx, aerr.Error())
+				logger.Error(ctx, "Secrets Manager could not decrypt the secret.")
+			case secretsmanager.ErrCodeInternalServiceError:
+				logger.Error(ctx, aerr.Error())
+				logger.Error(ctx, "Server side error.")
+			case secretsmanager.ErrCodeInvalidParameterException:
+				logger.Error(ctx, aerr.Error())
+				logger.Error(ctx, "Invalid parameter. Check inputs.")
+			case secretsmanager.ErrCodeInvalidRequestException:
+				logger.Error(ctx, aerr.Error())
+			case secretsmanager.ErrCodeResourceNotFoundException:
+				logger.Error(ctx, aerr.Error())
+				logger.Error(ctx, "Is your secret name correct?")
+			}
+		}
+		return err
+	}
+	return nil
+}
