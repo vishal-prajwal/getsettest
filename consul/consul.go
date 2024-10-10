@@ -104,3 +104,9 @@ func subscribeToChanges(kv *api.KV, path string, log *log.Logger, pairs api.KVPa
 		time.Sleep(30 * time.Second)
 	}
 }
+
+func (a Agent) SetKey(key, value string) error {
+	p := &api.KVPair{Key: a.path + "/" + key, Value: []byte(value)}
+	_, err := a.kv.Put(p, nil)
+	return err
+}
