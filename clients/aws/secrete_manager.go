@@ -69,12 +69,8 @@ func (sm *SecreteManager) GetFromSM(ctx context.Context, key string) (Secrets, e
 	return secretsVals, nil
 }
 
-func (sm *SecreteManager) PutToSM(ctx context.Context, key string, value Secrets) error {
-	b, err := json.Marshal(value)
-	if err != nil {
-		return errors.Wrap(err, "marshalling secrets")
-	}
-	_, err = sm.sm.PutSecretValue(&secretsmanager.PutSecretValueInput{
+func (sm *SecreteManager) PutToSM(ctx context.Context, key string, b []byte) error {
+	_, err := sm.sm.PutSecretValue(&secretsmanager.PutSecretValueInput{
 		SecretId:     &key,
 		SecretString: aws.String(string(b)),
 	})
