@@ -9,7 +9,9 @@ import (
 	"io/ioutil"
 	"log"
 	"net/http"
+	"time"
 
+	"bitbucket.org/junglee_games/getsetgo/logger"
 	"github.com/elastic/go-elasticsearch/v8"
 	"github.com/elastic/go-elasticsearch/v8/esapi"
 )
@@ -175,6 +177,77 @@ func (es ES) DELETE(ctx context.Context, docID string, index string) error {
 	if res.IsError() {
 		log.Printf("[%s] Error deleting document ID=%s", res.String(), req.DocumentID)
 		return fmt.Errorf("[%s] Error deleting document ID=%s", res.Status(), req.DocumentID)
+	}
+	return nil
+}
+
+func (es ES) GetBatch(index string, batchSize int, scrollDuration time.Duration) (*esapi.Response, error) {
+	var buf bytes.Buffer
+	query := map[string]interface{}{
+		"size": batchSize,
+		"query": map[string]interface{}{
+			"match_all": map[string]interface{}{},
+		},
+	}
+	if err := json.NewEncoder(&buf).Encode(query); err != nil {
+		logger.Error(context.Background(), "Error encoding search query: %v", err)
+	}
+	res, err := es.es.Search(
+		es.es.Search.WithContext(context.Background()),
+		es.es.Search.WithIndex(index),
+		es.es.Search.WithBody(&buf),
+		es.es.Search.WithScroll(scrollDuration),
+		es.es.Search.WithTrackTotalHits(true),
+		es.es.Search.WithPretty(),
+	)
+	if err != nil {
+		logger.Error(context.Background(), "Error getting response from elasticsearch GET: %v\n", err)
+	}
+
+	// Return scrollID and first batch of documents
+	return res, nil
+}
+
+func (es ES) Scroll(scrollID string, scrollDuration time.Duration) (*esapi.Response, error) {
+	res, err := es.es.Scroll(
+		es.es.Scroll.WithContext(context.Background()),
+		es.es.Scroll.WithScrollID(scrollID),
+		es.es.Scroll.WithScroll(scrollDuration),
+	)
+	if err != nil {
+		logger.Error(context.Background(), "Error during scrolling: %v", err)
+		return nil, err
+	}
+
+	return res, nil
+}
+
+func (es ES) ClearScroll(scrollID string) error {
+	res, err := es.es.ClearScroll(
+		es.es.ClearScroll.WithScrollID(scrollID),
+	)
+	if err != nil {
+		logger.Error(context.Background(), "Error clearing scroll: %v", err)
+		return err
+	}
+	defer res.Body.Close()
+	return nil
+}
+
+func (es ES) BulkUpdate(index string, updatedDoc bytes.Buffer) error {
+	// Perform the bulk update
+	res, err := es.es.Bulk(bytes.NewReader(updatedDoc.Bytes()), es.es.Bulk.WithIndex("your-index"))
+	if err != nil {
+		logger.Error(context.Background(), "Error during bulk update: %v", err)
+		return err
+	}
+	defer res.Body.Close()
+
+	if res.IsError() {
+		logger.Error(context.Background(), "Error during bulk update: %s", res.String())
+		return fmt.Errorf("Error during bulk update: %s", res.String())
+	} else {
+		fmt.Println("Bulk update successful")
 	}
 	return nil
 }
