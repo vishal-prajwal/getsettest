@@ -208,6 +208,31 @@ func (es ES) GetBatch(index string, batchSize int, scrollDuration time.Duration)
 	return res, nil
 }
 
+func (es ES) GetBatchWithQuery(index string, batchSize int, scrollDuration time.Duration, query interface{}) (*esapi.Response, error) {
+	var buf bytes.Buffer
+	qu := map[string]interface{}{
+		"size": batchSize,
+		"query": query,
+	}
+	if err := json.NewEncoder(&buf).Encode(qu); err != nil {
+		logger.Error(context.Background(), "Error encoding search query: %v", err)
+	}
+	res, err := es.es.Search(
+		es.es.Search.WithContext(context.Background()),
+		es.es.Search.WithIndex(index),
+		es.es.Search.WithBody(&buf),
+		es.es.Search.WithScroll(scrollDuration),
+		es.es.Search.WithTrackTotalHits(true),
+		es.es.Search.WithPretty(),
+	)
+	if err != nil {
+		logger.Error(context.Background(), "Error getting response from elasticsearch GET: %v\n", err)
+	}
+
+	// Return scrollID and first batch of documents
+	return res, nil
+}
+
 func (es ES) Scroll(scrollID string, scrollDuration time.Duration) (*esapi.Response, error) {
 	res, err := es.es.Scroll(
 		es.es.Scroll.WithContext(context.Background()),
