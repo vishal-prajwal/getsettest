@@ -9,6 +9,7 @@ import (
 	"io/ioutil"
 	"log"
 	"net/http"
+	"strings"
 	"time"
 
 	"bitbucket.org/junglee_games/getsetgo/logger"
@@ -211,7 +212,7 @@ func (es ES) GetBatch(index string, batchSize int, scrollDuration time.Duration)
 func (es ES) GetBatchWithQuery(index string, batchSize int, scrollDuration time.Duration, query interface{}) (*esapi.Response, error) {
 	var buf bytes.Buffer
 	qu := map[string]interface{}{
-		"size": batchSize,
+		"size":  batchSize,
 		"query": query,
 	}
 	if err := json.NewEncoder(&buf).Encode(qu); err != nil {
@@ -231,6 +232,83 @@ func (es ES) GetBatchWithQuery(index string, batchSize int, scrollDuration time.
 
 	// Return scrollID and first batch of documents
 	return res, nil
+}
+
+func (es ES) CreatePIT(index string, keepAlive string) (string, error) {
+	res, err := es.es.OpenPointInTime(
+		[]string{index},
+		keepAlive, // Pass keepAlive dynamically
+	)
+	if err != nil {
+		logger.Error(context.Background(), "Error creating PIT: %v", err)
+		return "", err
+	}
+	defer res.Body.Close()
+
+	var result map[string]interface{}
+	if err := json.NewDecoder(res.Body).Decode(&result); err != nil {
+		return "", err
+	}
+
+	pitID, ok := result["id"].(string)
+	if !ok {
+		return "", fmt.Errorf("failed to get PIT ID")
+	}
+	return pitID, nil
+}
+
+func (es ES) GetBatchWithPITQuery(index string, pitID string, batchSize int, query interface{}, searchAfter []interface{}, keepAlive string) (*esapi.Response, error) {
+	var buf bytes.Buffer
+
+	qu := map[string]interface{}{
+		"size":  batchSize,
+		"query": query,
+		"sort": []map[string]interface{}{
+			{
+				"_id": map[string]string{"order": "asc"},
+			},
+		},
+		"pit": map[string]interface{}{
+			"id":         pitID,
+			"keep_alive": keepAlive, // Keep the PIT alive for 1 minute give 1m
+		},
+	}
+
+	// Add `search_after` if it’s not the first request
+	if searchAfter != nil {
+		qu["search_after"] = searchAfter
+	}
+
+	if err := json.NewEncoder(&buf).Encode(qu); err != nil {
+		logger.Error(context.Background(), "Error encoding search query: %v", err)
+		return nil, err
+	}
+
+	res, err := es.es.Search(
+		es.es.Search.WithContext(context.Background()),
+		es.es.Search.WithBody(&buf),
+		es.es.Search.WithTrackTotalHits(true),
+		es.es.Search.WithPretty(),
+	)
+	if err != nil {
+		logger.Error(context.Background(), "Error executing PIT search: %v", err)
+		return nil, err
+	}
+
+	return res, nil
+}
+
+func (es ES) ClosePIT(pitID string) error {
+	res, err := es.es.ClosePointInTime(
+		es.es.ClosePointInTime.WithBody(strings.NewReader(fmt.Sprintf(`{"id":"%s"}`, pitID))),
+	)
+	if err != nil {
+		logger.Error(context.Background(), "Error closing PIT: %v", err)
+		return err
+	}
+	defer res.Body.Close()
+
+	return nil
 }
 
 func (es ES) Scroll(scrollID string, scrollDuration time.Duration) (*esapi.Response, error) {
