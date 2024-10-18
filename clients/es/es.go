@@ -265,7 +265,7 @@ func (es ES) GetBatchWithPITQuery(index string, pitID string, batchSize int, que
 		"query": query,
 		"sort": []map[string]interface{}{
 			{
-				"_id": map[string]string{"order": "asc"},
+				"userID": map[string]string{"order": "asc"},
 			},
 		},
 		"pit": map[string]interface{}{
