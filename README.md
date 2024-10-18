@@ -40,9 +40,9 @@ This guide will help you set up and create a boilerplate for your project using 
 
 	Now, run the following command to create your project boilerplate:
 	```bash
-	getsetgo skeleton-creator --serviceName blahblah
+	getsetgo skeleton-creator --serviceName testservice
 	```
-	Replace `blahblah` with your desired service name.
+	Replace `testservice` with your desired service name.
 
 6. Boilerplate Created
 

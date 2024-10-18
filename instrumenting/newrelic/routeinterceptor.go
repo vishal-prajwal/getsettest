@@ -20,18 +20,14 @@ func MiddleLayer(app *newrelic.Application) context.Handler {
 
 	return func(ctx *context.Context) {
 
-		name := ctx.Path()
-
-		txn := app.StartTransaction(name)
+		txn := app.StartTransaction(fmt.Sprintf("%s %s", ctx.Path(), ctx.Method()))
 
 		defer txn.End()
 
 		ctx.Values().Set(transactionContextKey, txn)
 
 		ctx.Next()
-
 	}
-
 }
 
 func GetNewrelicTxn(ctx *context.Context) (*newrelic.Transaction, error) {
