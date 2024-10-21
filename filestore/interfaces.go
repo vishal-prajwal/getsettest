@@ -8,10 +8,11 @@ import (
 )
 
 type FileData struct {
-	Name       string
-	Data       string
-	UserId     string
-	UploadInfo struct {
+	Name        string
+	Data        string
+	UserId      string
+	ContentType string
+	UploadInfo  struct {
 		Path  string
 		Error error
 	}

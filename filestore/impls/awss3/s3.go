@@ -86,7 +86,8 @@ func (s3S *S3Store) Save(filesData *filestore.FileData) (string, error) {
 
 	// Upload the file's body to S3 bucket as an object with the key being the
 	// same as the filename.
-	op, err := s3S.uploader.Upload(&s3manager.UploadInput{
+
+	uploadInput := s3manager.UploadInput{
 		Bucket: aws.String(s3S.bucketName),
 
 		// Can also use the `filepath` standard library package to modify the
@@ -99,7 +100,16 @@ func (s3S *S3Store) Save(filesData *filestore.FileData) (string, error) {
 		// is supported, but will require buffering of the reader's bytes for
 		// each part.
 		Body: ptr,
-	})
+	}
+
+	if filesData.ContentType != "" {
+		uploadInput.ContentType = aws.String(filesData.ContentType)
+	}
+
+	op, err := s3S.uploader.Upload(
+		&uploadInput,
+	)
+	
 	if err != nil {
 		err = errors.Wrap(err, "uploading to s3")
 		return "", err
