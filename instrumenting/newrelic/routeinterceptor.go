@@ -19,8 +19,7 @@ func MiddleLayer(app *newrelic.Application) context.Handler {
 	// See `GetTransaction` to retrieve the transaction created.
 
 	return func(ctx *context.Context) {
-
-		txn := app.StartTransaction(fmt.Sprintf("%s %s", ctx.Path(), ctx.Method()))
+		txn := app.StartTransaction(fmt.Sprintf("%s %s", ctx.RouteName(), ctx.Method()))
 
 		defer txn.End()
 
