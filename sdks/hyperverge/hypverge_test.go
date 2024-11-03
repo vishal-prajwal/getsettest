@@ -28,6 +28,10 @@ func (this HypvergeTest) GetHypervergeFraudCheckEndpoint() string {
 func (this HypvergeTest) GetHypervergeFraudCheckAadharEndpoint() string {
 	return ""
 }
+
+func (this HypvergeTest) GetHypervergeNSDLUrl() string {
+	return ""
+}
 func TestHypverge(t *testing.T) {
 	var hvConfig HypvergeTest
 	hvClient := New(hvConfig, newrelic.Agent{}, httpclient.NewHttpClient(10))

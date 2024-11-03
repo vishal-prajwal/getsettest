@@ -20,4 +20,5 @@ type HypervergeConfig interface {
 	GetHypervergeAppKey() string
 	GetHypervergeEndpoint() string
 	GetHypervergeFraudCheckEndpoint() string
+	GetHypervergeNSDLUrl() string
 }

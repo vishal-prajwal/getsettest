@@ -390,6 +390,12 @@ type FraudCheckPanRequest struct {
 	MatchDob                  string `json:"matchDob,omitempty"`
 }
 
+type NSDLPanRequest struct {
+	Pan  string `json:"pan,omitempty"`
+	Name string `json:"nameOnCard,omitempty"`
+	Dob  string `json:"dateOfBirth,omitempty"`
+}
+
 type FraudCheckPanResponse struct {
 	Status     string `json:"status"`
 	StatusCode string `json:"statusCode"`
@@ -400,6 +406,23 @@ type FraudCheckPanResponse struct {
 		Status    string      `json:"status"`
 		Duplicate interface{} `json:"duplicate"`
 	} `json:"result"`
+}
+
+type NSDLPanResponse struct {
+	Status     string `json:"status"`
+	StatusCode string `json:"statusCode"`
+	MetaData  struct {
+		TransactionID string `json:"transactionId"`
+		RequestID    string `json:"requestId"`
+	} `json:"metaData"`
+	Result struct {
+		Pan string `json:"pan"`
+		PanStatus string `json:"panStatus"`
+		Name string `json:"name"`
+		Dob  string `json:"dateOfBirth"`
+		AadharSeedingStatus string `json:"aadhaarSeedingStatus"`
+	} `json:"result"`
+	Error 	string `json:"error"`
 }
 
 type FraudCheckDlRequest struct {

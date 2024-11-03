@@ -350,10 +350,59 @@ func (hypervergeImpl *HypervergeImpl) FraudCheckPan(fraudCheckPanRequest FraudCh
 	return &fraudCheckPanResponse, err
 }
 
+func (hypervergeImpl *HypervergeImpl) FraudCheckPanV2(NSDLPanRequest NSDLPanRequest, txnID string) (*NSDLPanResponse, error) {
+	url := hypervergeImpl.config.GetHypervergeNSDLUrl() + "/NSDLPanVerification"
+	reqObj, err := json.Marshal(NSDLPanRequest)
+	if err != nil {
+		return nil, err
+	}
+	requestBody := bytes.NewBuffer(reqObj)
+	req, err := http.NewRequest(http.MethodPost, url, requestBody)
+	if err != nil {
+		return nil, err
+	}
+	hypervergeImpl.addHeaders(req, txnID)
+	res, err := hypervergeImpl.httpClient.Do(req)
+	if err != nil {
+		return nil, err
+	}
+	err = hypervergeImpl.handlNSDLErrorStatusCode(res)
+	if err != nil {
+		return nil, err
+	}
+	body := &bytes.Buffer{}
+	_, err = body.ReadFrom(res.Body)
+	if err != nil {
+		return nil, err
+	}
+	defer res.Body.Close()
+	var nsdlPanResp NSDLPanResponse
+	err = json.Unmarshal(body.Bytes(), &nsdlPanResp)
+	return &nsdlPanResp, err
+}
+
 func (hypervergeImpl HypervergeImpl) handlFruadCheckErrorStatusCode(res *http.Response) error {
 	if res.StatusCode != 200 {
 		switch res.StatusCode {
 		case 422:
+			return errors.Wrap(ErrInvalidDocID, fmt.Sprintf("%d  %v", res.StatusCode, res))
+		case 400:
+			return errors.Wrap(ErrBadRequest, fmt.Sprintf("%d %v", res.StatusCode, res))
+		case 500:
+			return errors.Wrap(ErrSomethingWentWrong, fmt.Sprintf("%d %v", res.StatusCode, res))
+		case 401:
+			return errors.Wrap(ErrFruadCheckUnauthrised, fmt.Errorf("%d %v", res.StatusCode, res).Error())
+		default:
+			return errors.Wrap(ErrSomethingWentWrong, fmt.Sprintf("%d %v", res.StatusCode, res))
+		}
+	}
+	return nil
+}
+
+func (hypervergeImpl HypervergeImpl) handlNSDLErrorStatusCode(res *http.Response) error {
+	if res.StatusCode != 200 {
+		switch res.StatusCode {
+		case 404:
 			return errors.Wrap(ErrInvalidDocID, fmt.Sprintf("%d  %v", res.StatusCode, res))
 		case 400:
 			return errors.Wrap(ErrBadRequest, fmt.Sprintf("%d %v", res.StatusCode, res))
