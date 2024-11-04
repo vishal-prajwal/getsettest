@@ -501,30 +501,30 @@ func (hypervergeImpl *HypervergeImpl) FraudCheckPassport(fraudCheckPassportReque
 	return &fraudCheckPassportResponse, err
 }
 
-func (hypervergeImpl *HypervergeImpl) FraudCheckAadhar(fraudCheckAadharRequest FraudCheckAadharRequest, txnID string) (*FraudCheckAadharResponse, error) {
+func (hypervergeImpl *HypervergeImpl) FraudCheckAadhar(fraudCheckAadharRequest FraudCheckAadharRequest, txnID string) (*FraudCheckAadharResponse, string, error) {
 	url := hypervergeImpl.config.GetHypervergeFraudCheckEndpoint() + "/verifyAadhaar"
 	reqObj, _ := json.Marshal(fraudCheckAadharRequest)
 	payload := strings.NewReader(string(reqObj))
 	req, err := http.NewRequest(http.MethodPost, url, payload)
 	if err != nil {
-		return nil, err
+		return nil, fmt.Sprintf("%s,%+v", HYPERVERGE, UNABLE_TO_SEND_REQUEST), err
 	}
 	hypervergeImpl.addHeaders(req, txnID)
 	res, err := hypervergeImpl.httpClient.Do(req)
 	if err != nil {
-		return nil, err
+		return nil, fmt.Sprintf("%s,%+v", HYPERVERGE, UNABLE_TO_SEND_REQUEST), err
 	}
 	err = hypervergeImpl.handlFruadCheckErrorStatusCode(res)
 	if err != nil {
-		return nil, err
+		return nil, fmt.Sprintf("%s,%+v", HYPERVERGE, UNABLE_TO_PARSE_VENDOR_RESPONSE), err
 	}
 	body := &bytes.Buffer{}
 	_, err = body.ReadFrom(res.Body)
 	if err != nil {
-		return nil, err
+		return nil, fmt.Sprintf("%s,%+v", HYPERVERGE, UNABLE_TO_PARSE_VENDOR_RESPONSE), err
 	}
 	defer res.Body.Close()
 	var fraudCheckAadharResponse FraudCheckAadharResponse
 	err = json.Unmarshal(body.Bytes(), &fraudCheckAadharResponse)
-	return &fraudCheckAadharResponse, err
+	return &fraudCheckAadharResponse, fmt.Sprintf("%s,%+v", HYPERVERGE, fraudCheckAadharResponse), err
 }

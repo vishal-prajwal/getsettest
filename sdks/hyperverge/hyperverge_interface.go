@@ -13,7 +13,7 @@ type Hyperverge interface {
 	FraudCheckDl(fraudCheckDlRequest FraudCheckDlRequest, txnID string) (*FraudCheckDlResponse, error)
 	FraudCheckVoter(fraudCheckVoterRequest FraudCheckVoterRequest, txnID string) (*FraudCheckVoterResponse, error)
 	FraudCheckPassport(fraudCheckPassportRequest FraudCheckPassportRequest, txnID string) (*FraudCheckPassportResponse, error)
-	FraudCheckAadhar(fraudCheckAadharRequest FraudCheckAadharRequest, txnID string) (*FraudCheckAadharResponse, error)
+	FraudCheckAadhar(fraudCheckAadharRequest FraudCheckAadharRequest, txnID string) (*FraudCheckAadharResponse, string, error)
 }
 
 type HypervergeConfig interface {
