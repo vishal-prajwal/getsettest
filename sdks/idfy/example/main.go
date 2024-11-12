@@ -41,7 +41,7 @@ func (this IdfyConfig) GetIdfyRetryAttemps() int {
 
 func main() {
 	d := idfy.New(IdfyConfig{}, newrelic.Agent{}, httpclient.NewHttpClient(30))
-	res, err := d.MaskAadharDoc(idfy.MaskAadharDocRequest{
+	res, err := d.MaskAadharDoc("id", idfy.MaskAadharDocRequest{
 		TaskID:  uuid.New().String(),
 		GroupID: uuid.New().String(),
 		Data: struct {

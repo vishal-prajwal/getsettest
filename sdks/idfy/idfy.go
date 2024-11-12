@@ -479,7 +479,7 @@ func (idfyImpl *IdfyImpl) getMaskAadharRequestId(id string, maskAadharDocRequest
 	if err != nil {
 		return nil, err
 	}
-	logger.Info(context.Background(), "Mask Aadhar RequestID Response for id %v is %v", id, body.String()))
+	logger.Info(context.Background(), "Mask Aadhar RequestID Response for id %v is %v", id, body.String())
 
 	if maskAadharRequestID.RequestID == "" {
 		return nil, fmt.Errorf("empty_requestid")
