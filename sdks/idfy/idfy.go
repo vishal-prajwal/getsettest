@@ -140,40 +140,40 @@ func (idfyImpl *IdfyImpl) addHeaders(req *http.Request) {
 	req.Header.Add("Content-Type", "application/json")
 }
 
-func (this *IdfyImpl) PostFruadValidationReq(documentType string, fraudCheckRequest FraudCheckRequest) (*string, error) {
+func (this *IdfyImpl) PostFruadValidationReq(documentType string, fraudCheckRequest FraudCheckRequest) (*string, string, error) {
 	postUrl := this.config.GetIdfyEndpoint() + documentType
 	reqObj, _ := json.Marshal(fraudCheckRequest)
 	payload := strings.NewReader(string(reqObj))
 	req, err := http.NewRequest(http.MethodPost, postUrl, payload)
 	if err != nil {
-		return nil, err
+		return nil, fmt.Sprintf("%s:%s", IDFY, UNABLE_TO_SEND_REQUEST), err
 	}
 	this.addHeaders(req)
 
 	res, err := this.httpClient.Do(req)
 	if err != nil {
-		return nil, err
+		return nil, fmt.Sprintf("%s:%s", IDFY, UNABLE_TO_SEND_REQUEST), err
 	}
 
 	body := &bytes.Buffer{}
 	_, err = body.ReadFrom(res.Body)
 	if err != nil {
-		return nil, err
+		return nil, fmt.Sprintf("%s:%s", IDFY, UNABLE_TO_PARSE_VENDOR_RESPONSE), err
 	}
 	defer res.Body.Close()
 	fmt.Printf("@@@@ debug %s", body.Bytes())
 	var fraudCheckResponse FraudCheckResponse
 	err = json.Unmarshal(body.Bytes(), &fraudCheckResponse)
 	if err != nil {
-		return nil, err
+		return nil, fmt.Sprintf("%s:%s", IDFY, UNABLE_TO_PARSE_VENDOR_RESPONSE), err
 	}
 	if fraudCheckResponse.RequestID == "" {
-		return nil, fmt.Errorf("empty_requestid")
+		return nil, fmt.Sprintf("%s:%s", IDFY, "empty_requestid"), fmt.Errorf("empty_requestid")
 	}
-	return &fraudCheckResponse.RequestID, nil
+	return &fraudCheckResponse.RequestID, fmt.Sprintf("%s:%+v", IDFY, fraudCheckResponse), nil
 }
 
-func (this *IdfyImpl) FetchPostedReq(requestID string) (*FraudCheckAadharResponse, error) {
+func (this *IdfyImpl) FetchPostedReq(requestID string) (*FraudCheckAadharResponse, string, error) {
 	var fraudCheckAadharResponse []FraudCheckAadharResponse
 	getUrl := this.config.GetIdfyEndpoint() + GetTaskStatus
 	params := url.Values{}
@@ -181,34 +181,35 @@ func (this *IdfyImpl) FetchPostedReq(requestID string) (*FraudCheckAadharRespons
 	fullURL := fmt.Sprintf("%v?%v", getUrl, params.Encode())
 	request, err := http.NewRequest("GET", fullURL, nil)
 	if err != nil {
-		return nil, err
+		return nil, "", err
 	}
 	this.addHeaders(request)
 	res, err := this.httpClient.Do(request)
 	if err != nil {
-		return nil, err
-	}
-	if res.StatusCode == 422 || res.StatusCode == 403 || res.StatusCode == 401 {
-		return nil, ErrAddharLiteFetchError
-	}
-	if res.StatusCode != 200 {
-		return nil, fmt.Errorf("statusCode %d body %s", res.StatusCode, res.Body)
+		return nil, UNABLE_TO_PARSE_VENDOR_RESPONSE, err
 	}
 	byteResp := &bytes.Buffer{}
 	_, err = byteResp.ReadFrom(res.Body)
 	if err != nil {
-		return nil, err
+		return nil, UNABLE_TO_PARSE_VENDOR_RESPONSE, err
 	}
 	defer res.Body.Close()
 	err = json.Unmarshal(byteResp.Bytes(), &fraudCheckAadharResponse)
 	if err != nil {
-		return nil, fmt.Errorf("res %s error %v", byteResp.Bytes(), err)
+		return nil, UNABLE_TO_PARSE_VENDOR_RESPONSE, fmt.Errorf("res %s error %v", byteResp.Bytes(), err)
 	}
 	if len(fraudCheckAadharResponse) == 0 {
-		return nil, fmt.Errorf("unable to validate aadhar")
+		return nil, NO_Vendor_Response, fmt.Errorf("unable to validate aadhar")
 	}
 	frRes := fraudCheckAadharResponse[0]
-	return &frRes, err
+	if res.StatusCode == 422 || res.StatusCode == 403 || res.StatusCode == 401 {
+		return nil, fmt.Sprintf("%s:%+v", IDFY, frRes), ErrAddharLiteFetchError
+	}
+	if res.StatusCode != 200 {
+		return nil, fmt.Sprintf("%s:%+v", IDFY, frRes), fmt.Errorf("statusCode %d body %s", res.StatusCode, res.Body)
+	}
+
+	return &frRes, fmt.Sprintf("%s:%+v", IDFY, frRes), err
 }
 
 func (idfyImpl *IdfyImpl) fraudCheck(documentType string, fraudCheckRequest FraudCheckRequest) (*bytes.Buffer, error) {
@@ -280,11 +281,11 @@ func (idfyImpl *IdfyImpl) FraudCheckPan(fraudCheckRequest FraudCheckRequest) (*F
 	return &fraudCheckPanResponse, err
 }
 
-func (idfyImpl *IdfyImpl) FraudCheckAadhar(fraudCheckRequest FraudCheckRequest) (*FraudCheckAadharResponse, error) {
+func (idfyImpl *IdfyImpl) FraudCheckAadhar(fraudCheckRequest FraudCheckRequest) (*FraudCheckAadharResponse, string, error) {
 	documentType := FraudCheckAadhar
-	requestID, err := idfyImpl.PostFruadValidationReq(documentType, fraudCheckRequest)
+	requestID, vendorResp, err := idfyImpl.PostFruadValidationReq(documentType, fraudCheckRequest)
 	if err != nil {
-		return nil, err
+		return nil, vendorResp, err
 	}
 	return idfyImpl.FetchPostedReq(*requestID)
 }

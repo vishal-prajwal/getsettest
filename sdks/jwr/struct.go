@@ -68,3 +68,16 @@ func (u UserProfile) GetDOB() (string, error) {
 	s := t.Format("02/01/2006")
 	return s, nil
 }
+
+func (u UserProfile) GetHyphenDOB() (string, error) {
+	t := time.Unix(0, int64(u.DOB)*int64(time.Millisecond))
+
+	loc, err := time.LoadLocation("Asia/Kolkata")
+	if err != nil {
+		return "", err
+	}
+
+	t = t.In(loc)
+	s := t.Format("02-01-2006")
+	return s, nil
+}
