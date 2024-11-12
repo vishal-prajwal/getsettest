@@ -2,6 +2,7 @@ package idfy
 
 import (
 	"bytes"
+	"context"
 	"encoding/json"
 	"fmt"
 	"io/ioutil"
@@ -14,6 +15,7 @@ import (
 
 	"bitbucket.org/junglee_games/getsetgo/httpclient"
 	"bitbucket.org/junglee_games/getsetgo/instrumenting/newrelic"
+	"bitbucket.org/junglee_games/getsetgo/logger"
 	"github.com/google/uuid"
 )
 
@@ -438,15 +440,16 @@ func (idfyImpl *IdfyImpl) Healthcheck() (*HealthCheckRes, error) {
 	return &healthCheckRes, nil
 }
 
-func (idfyImpl *IdfyImpl) MaskAadharDoc(maskAadharDocRequest MaskAadharDocRequest) (*MaskAadharDocResponse, error) {
-	requestID, err := idfyImpl.getMaskAadharRequestId(maskAadharDocRequest)
+func (idfyImpl *IdfyImpl) MaskAadharDoc(id string, maskAadharDocRequest MaskAadharDocRequest) (*MaskAadharDocResponse, error) {
+	requestID, err := idfyImpl.getMaskAadharRequestId(id, maskAadharDocRequest)
 	if err != nil {
 		return nil, err
 	}
+
 	return idfyImpl.FetchMaskDoc(*requestID)
 }
 
-func (idfyImpl *IdfyImpl) getMaskAadharRequestId(maskAadharDocRequest MaskAadharDocRequest) (*string, error) {
+func (idfyImpl *IdfyImpl) getMaskAadharRequestId(id string, maskAadharDocRequest MaskAadharDocRequest) (*string, error) {
 	postUrl := idfyImpl.config.GetIdfyEndpoint() + MASK_AADHAR_DOC
 	reqObj, err := json.Marshal(maskAadharDocRequest)
 	if err != nil {
@@ -475,6 +478,8 @@ func (idfyImpl *IdfyImpl) getMaskAadharRequestId(maskAadharDocRequest MaskAadhar
 	if err != nil {
 		return nil, err
 	}
+	logger.Info(context.Background(), "Mask Aadhar RequestID Response for id %v is %v", id, body.String()))
+
 	if maskAadharRequestID.RequestID == "" {
 		return nil, fmt.Errorf("empty_requestid")
 	}
