@@ -453,4 +453,5 @@ type MaskAadharDocResponse struct {
 	Status string `json:"status"`
 	TaskID string `json:"task_id"`
 	Type   string `json:"type"`
+	Error  string `json:"error"`
 }
