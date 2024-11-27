@@ -490,6 +490,7 @@ func (idfyImpl *IdfyImpl) getMaskAadharRequestId(id string, maskAadharDocRequest
 func (idfyImpl *IdfyImpl) FetchMaskDoc(requestID string) (*MaskAadharDocResponse, error) {
 	var err error
 	var res *MaskAadharDocResponse
+	initialTime := time.Now()
 	for attempt := 1; attempt <= idfyImpl.config.GetIdfyRetryAttemps(); attempt++ {
 
 		// Calculate the delay with exponential backoff and jitter
@@ -497,13 +498,16 @@ func (idfyImpl *IdfyImpl) FetchMaskDoc(requestID string) (*MaskAadharDocResponse
 		jitter := time.Duration(rand.Int63n(int64(delay / 2)))
 		delay += jitter
 
-		time.Sleep(delay)
-
 		res, err = idfyImpl.callMaskingApi(requestID)
 		if err == nil {
+			successTime := time.Now()
+			logger.Info(context.Background(), "Mask Aadhar request with request_id %s completed in time %v second, took %d attempt", requestID, successTime.Sub(initialTime).Seconds(), attempt)
 			return res, nil
 		}
+
+		time.Sleep(delay)
 	}
+	logger.Error(context.Background(), "Mask Aadhar request with request_id %s failed in time %v second, took %d attempt", requestID, time.Now().Sub(initialTime).Seconds(), idfyImpl.config.GetIdfyRetryAttemps())
 	return nil, err
 }
 
