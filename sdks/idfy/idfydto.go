@@ -450,8 +450,9 @@ type MaskAadharDocResponse struct {
 		OriginalDocumentURL string `json:"original_document_url"`
 		SelfLink            string `json:"self_link"`
 	} `json:"result"`
-	Status string `json:"status"`
-	TaskID string `json:"task_id"`
-	Type   string `json:"type"`
-	Error  string `json:"error"`
+	Status  string `json:"status"`
+	TaskID  string `json:"task_id"`
+	Type    string `json:"type"`
+	Error   string `json:"error"`
+	Message string `json:"message"`
 }
