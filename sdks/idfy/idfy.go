@@ -494,7 +494,7 @@ func (idfyImpl *IdfyImpl) FetchMaskDoc(requestID string) (*MaskAadharDocResponse
 	for attempt := 1; attempt <= idfyImpl.config.GetIdfyRetryAttemps(); attempt++ {
 
 		// Calculate the delay with exponential backoff and jitter
-		delay := BaseDelay * time.Duration(math.Pow(2, float64(attempt)))
+		delay := BaseDelay * time.Duration(math.Pow(2, float64(attempt-1)))
 		jitter := time.Duration(rand.Int63n(int64(delay / 2)))
 		delay += jitter
 
