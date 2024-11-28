@@ -451,7 +451,7 @@ func (idfyImpl *IdfyImpl) MaskAadharDoc(id string, maskAadharDocRequest MaskAadh
 }
 
 func (idfyImpl *IdfyImpl) getMaskAadharRequestId(id string, maskAadharDocRequest MaskAadharDocRequest) (*string, error) {
-	postUrl := "https://run.mocky.io/v3/01e16030-82e6-42ea-8e82-1f55557f2160" + MASK_AADHAR_DOC
+	postUrl := idfyImpl.config.GetIdfyEndpoint() + MASK_AADHAR_DOC
 	reqObj, err := json.Marshal(maskAadharDocRequest)
 	if err != nil {
 		return nil, err
@@ -513,7 +513,7 @@ func (idfyImpl *IdfyImpl) FetchMaskDoc(requestID string) (*MaskAadharDocResponse
 
 func (idfyImpl *IdfyImpl) callMaskingApi(requestID string) (*MaskAadharDocResponse, error) {
 	var maskAadharDocResponse []MaskAadharDocResponse
-	getUrl := "https://run.mocky.io/v3/edf8318b-1c99-4e58-9631-f842f989353c" + GetTaskStatus
+	getUrl := idfyImpl.config.GetIdfyEndpoint() + GetTaskStatus
 	params := url.Values{}
 	params.Add("request_id", requestID)
 	fullURL := fmt.Sprintf("%v?%v", getUrl, params.Encode())
