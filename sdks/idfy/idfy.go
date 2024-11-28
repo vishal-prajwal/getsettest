@@ -499,7 +499,7 @@ func (idfyImpl *IdfyImpl) FetchMaskDoc(requestID string) (*MaskAadharDocResponse
 		delay += jitter
 
 		res, err = idfyImpl.callMaskingApi(requestID)
-		if err == nil {
+		if err == nil && res != nil && res.Status == "completed" {
 			successTime := time.Now()
 			logger.Info(context.Background(), "Mask Aadhar request with request_id %s completed in time %v second, took %d attempt", requestID, successTime.Sub(initialTime).Seconds(), attempt)
 			return res, nil
