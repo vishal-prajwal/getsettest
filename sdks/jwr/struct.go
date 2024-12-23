@@ -12,6 +12,7 @@ type UserProfile struct {
 	MiddleName string `json:"middleName"`
 	LastName   string `json:"lastName"`
 	DOB        int64  `json:"dateOfBirth"`
+	StringDOB  string `json:"stringDateOfBirth"`
 	Pin        string `json:"pin"`
 	Address    string `json:"address"`
 	Address2   string `json:"address2"`
