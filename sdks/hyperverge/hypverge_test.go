@@ -44,7 +44,7 @@ func TestHypverge(t *testing.T) {
 	}
 	res, err := hvClient.ReadAadhar(context.Background(), HypervergeRequest{
 		ImageFile: string(bytes),
-	}, "123")
+	})
 	if err != nil {
 		fmt.Println(err)
 		log.Fatal(err)

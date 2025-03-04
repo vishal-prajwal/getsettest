@@ -64,7 +64,7 @@ func (idfyImpl *IdfyImpl) extract(documentType string, idfyrequest IdfyRequest) 
 	return body, res.StatusCode, err
 }
 
-func (idfyImpl *IdfyImpl) ExtractPan(ctx context.Context, idfyrequest IdfyRequest, traceID string) (*IdfyPanResponse, error) {
+func (idfyImpl *IdfyImpl) ExtractPan(ctx context.Context, idfyrequest IdfyRequest) (*IdfyPanResponse, error) {
 	documentType := PAN_DOC_TYPE
 	byteResp, statusCode, err := idfyImpl.extract(documentType, idfyrequest)
 	if err != nil {
@@ -77,14 +77,14 @@ func (idfyImpl *IdfyImpl) ExtractPan(ctx context.Context, idfyrequest IdfyReques
 	}
 	err = idfyImpl.handleError(statusCode, idfyPanResp.Error)
 	if err != nil {
-		logger.Info(ctx, "ExtractPan:: txnId : %s,traceID :  %s,response from Idfy %+v", idfyrequest.TaskID, idfyPanResp)
+		logger.Error(ctx, "ExtractPan:: txnId : %s,traceID :  %s,response from Idfy %+v", idfyrequest.TaskID, idfyPanResp)
 		return nil, err
 	}
 
 	return &idfyPanResp.Result.ExtractionOutput, nil
 }
 
-func (idfyImpl *IdfyImpl) ExtractAadhar(ctx context.Context, idfyrequest IdfyRequest, traceID string) (*IdfyAadharResponse, error) {
+func (idfyImpl *IdfyImpl) ExtractAadhar(ctx context.Context, idfyrequest IdfyRequest) (*IdfyAadharResponse, error) {
 	documentType := AADHAR_DOC_TYPE
 	byteResp, statusCode, err := idfyImpl.extract(documentType, idfyrequest)
 	if err != nil {
@@ -97,13 +97,13 @@ func (idfyImpl *IdfyImpl) ExtractAadhar(ctx context.Context, idfyrequest IdfyReq
 	}
 	err = idfyImpl.handleError(statusCode, idfyAadharResp.Error)
 	if err != nil {
-		logger.Info(ctx, "ExtractAadhar:: txnId : %s,traceID :  %s,response from Idfy %+v", idfyrequest.TaskID, idfyAadharResp)
+		logger.Error(ctx, "ExtractAadhar:: txnId : %s,traceID :  %s,response from Idfy %+v", idfyrequest.TaskID, idfyAadharResp)
 		return nil, err
 	}
 	return &idfyAadharResp.Result.ExtractionOutput, nil
 }
 
-func (idfyImpl *IdfyImpl) ExtractDl(ctx context.Context, idfyrequest IdfyRequest, traceID string) (*IdfyDlResponse, error) {
+func (idfyImpl *IdfyImpl) ExtractDl(ctx context.Context, idfyrequest IdfyRequest) (*IdfyDlResponse, error) {
 	documentType := DL_DOC_TYPE
 	byteResp, statusCode, err := idfyImpl.extract(documentType, idfyrequest)
 	if err != nil {
@@ -116,13 +116,13 @@ func (idfyImpl *IdfyImpl) ExtractDl(ctx context.Context, idfyrequest IdfyRequest
 	}
 	err = idfyImpl.handleError(statusCode, idfyDlResp.Error)
 	if err != nil {
-		logger.Info(ctx, "ExtractDl:: txnId : %s,traceID :  %s,response from Idfy %+v", idfyrequest.TaskID, idfyDlResp)
+		logger.Error(ctx, "ExtractDl:: txnId : %s,traceID :  %s,response from Idfy %+v", idfyrequest.TaskID, idfyDlResp)
 		return nil, err
 	}
 	return &idfyDlResp.Result.ExtractionOutput, nil
 }
 
-func (idfyImpl *IdfyImpl) ExtractVoter(ctx context.Context, idfyrequest IdfyRequest, traceID string) (*IdfyVoterIdResponse, error) {
+func (idfyImpl *IdfyImpl) ExtractVoter(ctx context.Context, idfyrequest IdfyRequest) (*IdfyVoterIdResponse, error) {
 	documentType := VOTER_DOC_TYPE
 	byteResp, statusCode, err := idfyImpl.extract(documentType, idfyrequest)
 	if err != nil {
@@ -135,13 +135,13 @@ func (idfyImpl *IdfyImpl) ExtractVoter(ctx context.Context, idfyrequest IdfyRequ
 	}
 	err = idfyImpl.handleError(statusCode, idfyVoterResp.Error)
 	if err != nil {
-		logger.Info(ctx, "ExtractVoter:: txnId : %s,traceID :  %s,response from Idfy %+v", idfyrequest.TaskID, idfyVoterResp)
+		logger.Error(ctx, "ExtractVoter:: txnId : %s,traceID :  %s,response from Idfy %+v", idfyrequest.TaskID, idfyVoterResp)
 		return nil, err
 	}
 	return &idfyVoterResp.Result.ExtractionOutput, nil
 }
 
-func (idfyImpl *IdfyImpl) ExtractPassport(ctx context.Context, idfyrequest IdfyRequest, traceID string) (*IdfyPassportResponse, error) {
+func (idfyImpl *IdfyImpl) ExtractPassport(ctx context.Context, idfyrequest IdfyRequest) (*IdfyPassportResponse, error) {
 	documentType := PASSPORT_DOC_TYPE
 	byteResp, statusCode, err := idfyImpl.extract(documentType, idfyrequest)
 	if err != nil {
@@ -154,7 +154,7 @@ func (idfyImpl *IdfyImpl) ExtractPassport(ctx context.Context, idfyrequest IdfyR
 	}
 	err = idfyImpl.handleError(statusCode, idfyPassportResp.Error)
 	if err != nil {
-		logger.Info(ctx, "ExtractPassport:: txnId : %s,traceID :  %s,response from Idfy %+v", idfyrequest.TaskID, idfyPassportResp)
+		logger.Error(ctx, "ExtractPassport:: txnId : %s,traceID :  %s,response from Idfy %+v", idfyrequest.TaskID, idfyPassportResp)
 		return nil, err
 	}
 	return &idfyPassportResp.Result.ExtractionOutput, nil
@@ -166,7 +166,7 @@ func (idfyImpl *IdfyImpl) addHeaders(req *http.Request) {
 	req.Header.Add("Content-Type", "application/json")
 }
 
-func (this *IdfyImpl) PostFruadValidationReq(ctx context.Context, documentType string, fraudCheckRequest FraudCheckRequest, traceID string) (*string, string, error) {
+func (this *IdfyImpl) PostFruadValidationReq(ctx context.Context, documentType string, fraudCheckRequest FraudCheckRequest) (*string, string, error) {
 	postUrl := this.config.GetIdfyEndpoint() + documentType
 	reqObj, _ := json.Marshal(fraudCheckRequest)
 	payload := strings.NewReader(string(reqObj))
@@ -199,7 +199,7 @@ func (this *IdfyImpl) PostFruadValidationReq(ctx context.Context, documentType s
 	return &fraudCheckResponse.RequestID, fmt.Sprintf("%s:%+v", IDFY, fraudCheckResponse), nil
 }
 
-func (this *IdfyImpl) FetchPostedReq(requestID string, traceID string) (*FraudCheckAadharResponse, string, error) {
+func (this *IdfyImpl) FetchPostedReq(requestID string) (*FraudCheckAadharResponse, string, error) {
 	var fraudCheckAadharResponse []FraudCheckAadharResponse
 	getUrl := this.config.GetIdfyEndpoint() + GetTaskStatus
 	params := url.Values{}
@@ -290,7 +290,7 @@ func (idfyImpl *IdfyImpl) fraudCheck(documentType string, fraudCheckRequest Frau
 	return body, err
 }
 
-func (idfyImpl *IdfyImpl) FraudCheckPan(ctx context.Context, fraudCheckRequest FraudCheckRequest, traceID string) (*FraudCheckPanResponse, error) {
+func (idfyImpl *IdfyImpl) FraudCheckPan(ctx context.Context, fraudCheckRequest FraudCheckRequest) (*FraudCheckPanResponse, error) {
 	documentType := PAN_DOC_TYPE
 	byteResp, err := idfyImpl.fraudCheck(documentType, fraudCheckRequest)
 	if err != nil {
@@ -307,20 +307,20 @@ func (idfyImpl *IdfyImpl) FraudCheckPan(ctx context.Context, fraudCheckRequest F
 	return &fraudCheckPanResponse, err
 }
 
-func (idfyImpl *IdfyImpl) FraudCheckAadhar(ctx context.Context, fraudCheckRequest FraudCheckRequest, traceID string) (*FraudCheckAadharResponse, string, error) {
+func (idfyImpl *IdfyImpl) FraudCheckAadhar(ctx context.Context, fraudCheckRequest FraudCheckRequest) (*FraudCheckAadharResponse, string, error) {
 	documentType := FraudCheckAadhar
-	requestID, vendorResp, err := idfyImpl.PostFruadValidationReq(ctx, documentType, fraudCheckRequest, traceID)
+	requestID, vendorResp, err := idfyImpl.PostFruadValidationReq(ctx, documentType, fraudCheckRequest)
 	if err != nil {
 		return nil, vendorResp, err
 	}
-	frRes, res, err := idfyImpl.FetchPostedReq(*requestID, traceID)
+	frRes, res, err := idfyImpl.FetchPostedReq(*requestID)
 	if err != nil {
-		logger.Error(ctx, "Error in FetchPostedReq for taceID : %s with res %s, error %v", traceID, res, err)
+		logger.Error(ctx, "Error in FetchPostedReq with res %s, error %v", res, err)
 	}
 	return frRes, res, err
 }
 
-func (idfyImpl *IdfyImpl) FraudCheckDl(ctx context.Context, fraudCheckRequest FraudCheckRequest, traceID string) (*FraudCheckDlResponse, error) {
+func (idfyImpl *IdfyImpl) FraudCheckDl(ctx context.Context, fraudCheckRequest FraudCheckRequest) (*FraudCheckDlResponse, error) {
 	documentType := DL_DOC_TYPE
 	byteResp, err := idfyImpl.fraudCheck(documentType, fraudCheckRequest)
 	if err != nil {
@@ -332,13 +332,13 @@ func (idfyImpl *IdfyImpl) FraudCheckDl(ctx context.Context, fraudCheckRequest Fr
 		return nil, err
 	}
 	if fraudCheckDlResponse.Status != "completed" {
-		logger.Error(ctx, "Error in FraudCheckDl for taceID : %s with res %+v, error %v", traceID, fraudCheckDlResponse, err)
+		logger.Error(ctx, "Error in FraudCheckDl with res %+v, error %v",fraudCheckDlResponse, err)
 		return nil, fmt.Errorf("%v %v", fraudCheckDlResponse.Message, fraudCheckDlResponse.Error)
 	}
 	return &fraudCheckDlResponse, err
 }
 
-func (idfyImpl *IdfyImpl) FraudCheckVoter(ctx context.Context, fraudCheckRequest FraudCheckRequest, traceID string) (*FraudCheckVoterResponse, error) {
+func (idfyImpl *IdfyImpl) FraudCheckVoter(ctx context.Context, fraudCheckRequest FraudCheckRequest) (*FraudCheckVoterResponse, error) {
 	documentType := VOTER_DOC_TYPE
 	byteResp, err := idfyImpl.fraudCheck(documentType, fraudCheckRequest)
 	if err != nil {
@@ -350,13 +350,13 @@ func (idfyImpl *IdfyImpl) FraudCheckVoter(ctx context.Context, fraudCheckRequest
 		return nil, err
 	}
 	if fraudCheckVoterResponse.Status != "completed" {
-		logger.Error(ctx, "Error in FraudCheckVoter for taceID : %s with res %+v, error %v", traceID, fraudCheckVoterResponse, err)
+		logger.Error(ctx, "Error in FraudCheckVoter with res %+v, error %v", fraudCheckVoterResponse, err)
 		return nil, fmt.Errorf("%v %v", fraudCheckVoterResponse.Message, fraudCheckVoterResponse.Error)
 	}
 	return &fraudCheckVoterResponse, err
 }
 
-func (idfyImpl *IdfyImpl) FraudCheckPassport(ctx context.Context, fraudCheckRequest FraudCheckRequest, traceID string) (*FraudCheckPassportResponse, error) {
+func (idfyImpl *IdfyImpl) FraudCheckPassport(ctx context.Context, fraudCheckRequest FraudCheckRequest) (*FraudCheckPassportResponse, error) {
 	documentType := PASSPORT_DOC_TYPE
 	byteResp, err := idfyImpl.fraudCheck(documentType, fraudCheckRequest)
 	if err != nil {
@@ -368,13 +368,13 @@ func (idfyImpl *IdfyImpl) FraudCheckPassport(ctx context.Context, fraudCheckRequ
 		return nil, err
 	}
 	if fraudCheckPassportResponse.Status != "completed" {
-		logger.Error(ctx, "Error in FraudCheckPassport for taceID : %s with res %+v, error %v", traceID, fraudCheckPassportResponse, err)
+		logger.Error(ctx, "Error in FraudCheckPassport with res %+v, error %v", fraudCheckPassportResponse, err)
 		return nil, fmt.Errorf("%v %v", fraudCheckPassportResponse.Message, fraudCheckPassportResponse.Error)
 	}
 	return &fraudCheckPassportResponse, nil
 }
 
-func (idfyImpl *IdfyImpl) CheckTemperedImage(ctx context.Context, req CheckTemperedReq, traceID string) (bool, error) {
+func (idfyImpl *IdfyImpl) CheckTemperedImage(ctx context.Context, req CheckTemperedReq) (bool, error) {
 
 	url := idfyImpl.config.GetIdfyEndpoint() + TemperedImage
 	reqObj, _ := json.Marshal(req)
@@ -396,7 +396,7 @@ func (idfyImpl *IdfyImpl) CheckTemperedImage(ctx context.Context, req CheckTempe
 	}
 	defer res.Body.Close()
 	if res.StatusCode != 200 {
-		logger.Error(ctx, "Error in CheckTemperedImage for taceID : %s with res %+v, error %v", traceID, body.String(), err)
+		logger.Error(ctx, "Error in CheckTemperedImage with res %+v, error %v",body.String(), err)
 		return false, fmt.Errorf("return with error code %d res %v", res.StatusCode, res)
 	}
 	var httpRes CheckTemperedRes
@@ -474,15 +474,15 @@ func (idfyImpl *IdfyImpl) Healthcheck() (*HealthCheckRes, error) {
 	return &healthCheckRes, nil
 }
 
-func (idfyImpl *IdfyImpl) MaskAadharDoc(ctx context.Context, id string, maskAadharDocRequest MaskAadharDocRequest, traceID string) (*MaskAadharDocResponse, error) {
+func (idfyImpl *IdfyImpl) MaskAadharDoc(ctx context.Context, id string, maskAadharDocRequest MaskAadharDocRequest) (*MaskAadharDocResponse, error) {
 	requestID, err := idfyImpl.getMaskAadharRequestId(id, maskAadharDocRequest)
 	if err != nil {
-		logger.Error(ctx, "Error in MaskAadharDoc for taceID : %s with res %+v, error %v", traceID, requestID, err)
+		logger.Error(ctx, "Error in MaskAadharDoc with res %+v, error %v", requestID, err)
 		return nil, err
 	}
-	res, err := idfyImpl.FetchMaskDoc(*requestID, traceID)
+	res, err := idfyImpl.FetchMaskDoc(*requestID)
 	if err != nil {
-		logger.Error(ctx, "Error in MaskAadharDoc for taceID : %s with res %+v, error %v", traceID, res, err)
+		logger.Error(ctx, "Error in MaskAadharDoc with res %+v, error %v", res, err)
 	}
 	return res, err
 }
@@ -524,7 +524,7 @@ func (idfyImpl *IdfyImpl) getMaskAadharRequestId(id string, maskAadharDocRequest
 	return &maskAadharRequestID.RequestID, nil
 }
 
-func (idfyImpl *IdfyImpl) FetchMaskDoc(requestID string, traceID string) (*MaskAadharDocResponse, error) {
+func (idfyImpl *IdfyImpl) FetchMaskDoc(requestID string) (*MaskAadharDocResponse, error) {
 	var err error
 	var res *MaskAadharDocResponse
 	initialTime := time.Now()
@@ -535,7 +535,7 @@ func (idfyImpl *IdfyImpl) FetchMaskDoc(requestID string, traceID string) (*MaskA
 		jitter := time.Duration(rand.Int63n(int64(delay / 2)))
 		delay += jitter
 
-		res, err = idfyImpl.callMaskingApi(requestID, traceID)
+		res, err = idfyImpl.callMaskingApi(requestID)
 		if err == nil && res != nil && res.Status == "completed" {
 			successTime := time.Now()
 			logger.Info(context.Background(), "Mask Aadhar request with request_id %s completed in time %v second, took %d attempt", requestID, successTime.Sub(initialTime).Seconds(), attempt)
@@ -544,11 +544,11 @@ func (idfyImpl *IdfyImpl) FetchMaskDoc(requestID string, traceID string) (*MaskA
 
 		time.Sleep(delay)
 	}
-	logger.Error(context.Background(), "Mask Aadhar request with request_id %s failed in time %v second, took %d attempt", requestID, time.Now().Sub(initialTime).Seconds(), idfyImpl.config.GetIdfyRetryAttemps())
+	logger.Info(context.Background(), "Mask Aadhar request with request_id %s failed in time %v second, took %d attempt", requestID, time.Now().Sub(initialTime).Seconds(), idfyImpl.config.GetIdfyRetryAttemps())
 	return nil, err
 }
 
-func (idfyImpl *IdfyImpl) callMaskingApi(requestID string, traceID string) (*MaskAadharDocResponse, error) {
+func (idfyImpl *IdfyImpl) callMaskingApi(requestID string) (*MaskAadharDocResponse, error) {
 	var maskAadharDocResponse []MaskAadharDocResponse
 	getUrl := idfyImpl.config.GetIdfyEndpoint() + GetTaskStatus
 	params := url.Values{}
