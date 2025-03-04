@@ -544,7 +544,7 @@ func (idfyImpl *IdfyImpl) FetchMaskDoc(requestID string) (*MaskAadharDocResponse
 
 		time.Sleep(delay)
 	}
-	logger.Info(context.Background(), "Mask Aadhar request with request_id %s failed in time %v second, took %d attempt", requestID, time.Now().Sub(initialTime).Seconds(), idfyImpl.config.GetIdfyRetryAttemps())
+	logger.Error(context.Background(), "Mask Aadhar request with request_id %s failed in time %v second, took %d attempt", requestID, time.Now().Sub(initialTime).Seconds(), idfyImpl.config.GetIdfyRetryAttemps())
 	return nil, err
 }
 
