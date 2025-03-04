@@ -2,6 +2,7 @@ package hyperverge
 
 import (
 	"bytes"
+	"context"
 	"encoding/json"
 	"fmt"
 	"io"
@@ -11,6 +12,7 @@ import (
 
 	"bitbucket.org/junglee_games/getsetgo/httpclient"
 	"bitbucket.org/junglee_games/getsetgo/instrumenting/newrelic"
+	"bitbucket.org/junglee_games/getsetgo/logger"
 	"github.com/pkg/errors"
 )
 
@@ -33,7 +35,7 @@ func New(config HypervergeConfig, nr newrelic.Agent, client httpclient.HTTPClien
 func (hypervergeImpl *HypervergeImpl) readDocument(documentType string, hypervergeRequest HypervergeRequest) (*bytes.Buffer, error) {
 	url := getURLFor(documentType, hypervergeImpl.config.GetHypervergeEndpoint())
 	req, err := newfileUploadRequest(url, hypervergeRequest.ImageFile,
-		hypervergeImpl.config.GetHypervergeAppKey(), hypervergeImpl.config.GetHypervergeAppID(), hypervergeRequest.ImageName)
+		hypervergeImpl.config.GetHypervergeAppKey(), hypervergeImpl.config.GetHypervergeAppID(), hypervergeRequest.ImageName, hypervergeRequest.TxnId)
 	if err != nil {
 		return nil, errors.Wrap(ErrUploadError, err.Error())
 	}
@@ -52,7 +54,7 @@ func (hypervergeImpl *HypervergeImpl) readDocument(documentType string, hyperver
 	return body, nil
 }
 
-func (hypervergeImpl *HypervergeImpl) ReadPan(hypervergeRequest HypervergeRequest) (*PanResponse, error) {
+func (hypervergeImpl *HypervergeImpl) ReadPan(ctx context.Context, hypervergeRequest HypervergeRequest, traceID string) (*PanResponse, error) {
 	body, err := hypervergeImpl.readDocument("pan", hypervergeRequest)
 	if err != nil {
 		return nil, errors.Wrap(ErrHttpError, err.Error())
@@ -63,6 +65,7 @@ func (hypervergeImpl *HypervergeImpl) ReadPan(hypervergeRequest HypervergeReques
 		return nil, err
 	}
 	if hypervergePanResponse.StatusCode != "200" {
+		logger.Info(ctx, "ReadPan:: txnId : %s,traceID :  %s,response from Hyeperverge %s", hypervergeRequest.TxnId, traceID, body.String())
 		switch hypervergePanResponse.StatusCode {
 		case "437":
 			return nil, errors.Wrap(ErrBlurredImage, hypervergePanResponse.Error)
@@ -88,7 +91,7 @@ func (hypervergeImpl *HypervergeImpl) ReadPan(hypervergeRequest HypervergeReques
 
 }
 
-func (hypervergeImpl *HypervergeImpl) ReadAadhar(hypervergeRequest HypervergeRequest) (*AadharResponse, error) {
+func (hypervergeImpl *HypervergeImpl) ReadAadhar(ctx context.Context, hypervergeRequest HypervergeRequest, traceID string) (*AadharResponse, error) {
 	body, err := hypervergeImpl.readDocument("aadhar", hypervergeRequest)
 	if err != nil {
 		return nil, err
@@ -99,6 +102,7 @@ func (hypervergeImpl *HypervergeImpl) ReadAadhar(hypervergeRequest HypervergeReq
 		return nil, err
 	}
 	if hypervergeAadharResponse.StatusCode != "200" {
+		logger.Info(ctx, "ReadAadhar:: txnId : %s,traceID :  %s,response from Hyeperverge %s", hypervergeRequest.TxnId, traceID, body.String())
 		switch hypervergeAadharResponse.StatusCode {
 		case "437":
 			return nil, errors.Wrap(ErrBlurredImage, hypervergeAadharResponse.Error)
@@ -143,7 +147,7 @@ func (hypervergeImpl *HypervergeImpl) ReadAadhar(hypervergeRequest HypervergeReq
 
 }
 
-func (hypervergeImpl *HypervergeImpl) ReadPassport(hypervergeRequest HypervergeRequest) (*PassportResponse, error) {
+func (hypervergeImpl *HypervergeImpl) ReadPassport(ctx context.Context, hypervergeRequest HypervergeRequest, traceID string) (*PassportResponse, error) {
 	body, err := hypervergeImpl.readDocument("passport", hypervergeRequest)
 	if err != nil {
 		return nil, err
@@ -154,6 +158,7 @@ func (hypervergeImpl *HypervergeImpl) ReadPassport(hypervergeRequest HypervergeR
 		return nil, err
 	}
 	if hypervergePassportResponse.StatusCode != "200" {
+		logger.Info(ctx, "ReadPassport:: txnId : %s,traceID :  %s,response from Hyeperverge %s", hypervergeRequest.TxnId, traceID, body.String())
 		switch hypervergePassportResponse.StatusCode {
 		case "437":
 			return nil, errors.Wrap(ErrBlurredImage, hypervergePassportResponse.Error)
@@ -204,7 +209,7 @@ func (hypervergeImpl *HypervergeImpl) ReadPassport(hypervergeRequest HypervergeR
 	return &passportResponse, err
 }
 
-func (hypervergeImpl *HypervergeImpl) ReadVotedID(hypervergeRequest HypervergeRequest) (*VoterIdResponse, error) {
+func (hypervergeImpl *HypervergeImpl) ReadVotedID(ctx context.Context, hypervergeRequest HypervergeRequest, traceID string) (*VoterIdResponse, error) {
 	body, err := hypervergeImpl.readDocument("voter", hypervergeRequest)
 	if err != nil {
 		return nil, err
@@ -215,6 +220,7 @@ func (hypervergeImpl *HypervergeImpl) ReadVotedID(hypervergeRequest HypervergeRe
 		return nil, err
 	}
 	if hypervergeVoterIdResponse.StatusCode != "200" {
+		logger.Info(ctx, "ReadVotedID:: txnId : %s,traceID :  %s,response from Hyeperverge %s", hypervergeRequest.TxnId, traceID, body.String())
 		switch hypervergeVoterIdResponse.StatusCode {
 		case "437":
 			return nil, errors.Wrap(ErrBlurredImage, hypervergeVoterIdResponse.Error)
@@ -253,7 +259,7 @@ func (hypervergeImpl *HypervergeImpl) ReadVotedID(hypervergeRequest HypervergeRe
 	return &voterIdResponse, err
 }
 
-func newfileUploadRequest(uri, file, appKey, appID, fileName string) (*http.Request, error) {
+func newfileUploadRequest(uri, file, appKey, appID, fileName, txnID string) (*http.Request, error) {
 
 	body := &bytes.Buffer{}
 	writer := multipart.NewWriter(body)
@@ -274,6 +280,7 @@ func newfileUploadRequest(uri, file, appKey, appID, fileName string) (*http.Requ
 	req.Header.Set("Content-Type", writer.FormDataContentType())
 	req.Header.Set("appId", appID)
 	req.Header.Set("appkey", appKey)
+	req.Header.Set("transactionId", txnID)
 	return req, err
 }
 
@@ -319,7 +326,7 @@ func (hypervergeImpl *HypervergeImpl) addHeaders(req *http.Request, txnID string
 	req.Header.Add("Content-Type", "application/json")
 }
 
-func (hypervergeImpl *HypervergeImpl) FraudCheckPan(fraudCheckPanRequest FraudCheckPanRequest, txnID string) (*FraudCheckPanResponse, error) {
+func (hypervergeImpl *HypervergeImpl) FraudCheckPan(ctx context.Context, fraudCheckPanRequest FraudCheckPanRequest, txnID string, traceID string) (*FraudCheckPanResponse, error) {
 	url := hypervergeImpl.config.GetHypervergeFraudCheckEndpoint() + "/verifyPAN"
 	reqObj, err := json.Marshal(fraudCheckPanRequest)
 	if err != nil {
@@ -335,22 +342,26 @@ func (hypervergeImpl *HypervergeImpl) FraudCheckPan(fraudCheckPanRequest FraudCh
 	if err != nil {
 		return nil, err
 	}
-	err = hypervergeImpl.handlFruadCheckErrorStatusCode(res)
-	if err != nil {
-		return nil, err
-	}
 	body := &bytes.Buffer{}
 	_, err = body.ReadFrom(res.Body)
 	if err != nil {
 		return nil, err
 	}
 	defer res.Body.Close()
+	err = hypervergeImpl.handlFruadCheckErrorStatusCode(res)
+	if err != nil {
+		logger.Info(ctx, "FraudCheckPan:: txnId : %s,traceID :  %s,response from Hyeperverge %+v", txnID, traceID, body.String())
+		return nil, err
+	}
 	var fraudCheckPanResponse FraudCheckPanResponse
 	err = json.Unmarshal(body.Bytes(), &fraudCheckPanResponse)
+	if err != nil {
+		return nil, err
+	}
 	return &fraudCheckPanResponse, err
 }
 
-func (hypervergeImpl *HypervergeImpl) FraudCheckPanV2(NSDLPanRequest NSDLPanRequest, txnID string) (*NSDLPanResponse, error) {
+func (hypervergeImpl *HypervergeImpl) FraudCheckPanV2(ctx context.Context, NSDLPanRequest NSDLPanRequest, txnID string, traceID string) (*NSDLPanResponse, error) {
 	url := hypervergeImpl.config.GetHypervergeNSDLUrl() + "/NSDLPanVerification"
 	reqObj, err := json.Marshal(NSDLPanRequest)
 	if err != nil {
@@ -366,18 +377,22 @@ func (hypervergeImpl *HypervergeImpl) FraudCheckPanV2(NSDLPanRequest NSDLPanRequ
 	if err != nil {
 		return nil, err
 	}
-	err = hypervergeImpl.handlNSDLErrorStatusCode(res)
-	if err != nil {
-		return nil, err
-	}
 	body := &bytes.Buffer{}
 	_, err = body.ReadFrom(res.Body)
 	if err != nil {
 		return nil, err
 	}
 	defer res.Body.Close()
+	err = hypervergeImpl.handlNSDLErrorStatusCode(res)
+	if err != nil {
+		logger.Info(ctx, "FraudCheckPanV2:: txnId : %s,traceID :  %s,response from Hyeperverge %+v", txnID, traceID, body.String())
+		return nil, err
+	}
 	var nsdlPanResp NSDLPanResponse
 	err = json.Unmarshal(body.Bytes(), &nsdlPanResp)
+	if err != nil {
+		return nil, err
+	}
 	return &nsdlPanResp, err
 }
 
@@ -417,7 +432,7 @@ func (hypervergeImpl HypervergeImpl) handlNSDLErrorStatusCode(res *http.Response
 	return nil
 }
 
-func (hypervergeImpl *HypervergeImpl) FraudCheckDl(fraudCheckDlRequest FraudCheckDlRequest, txnID string) (*FraudCheckDlResponse, error) {
+func (hypervergeImpl *HypervergeImpl) FraudCheckDl(ctx context.Context, fraudCheckDlRequest FraudCheckDlRequest, txnID string, traceID string) (*FraudCheckDlResponse, error) {
 	url := hypervergeImpl.config.GetHypervergeFraudCheckEndpoint() + "/checkDL"
 	reqObj, _ := json.Marshal(fraudCheckDlRequest)
 	payload := strings.NewReader(string(reqObj))
@@ -430,22 +445,26 @@ func (hypervergeImpl *HypervergeImpl) FraudCheckDl(fraudCheckDlRequest FraudChec
 	if err != nil {
 		return nil, err
 	}
-	err = hypervergeImpl.handlFruadCheckErrorStatusCode(res)
-	if err != nil {
-		return nil, err
-	}
 	body := &bytes.Buffer{}
 	_, err = body.ReadFrom(res.Body)
 	if err != nil {
 		return nil, err
 	}
 	defer res.Body.Close()
+	err = hypervergeImpl.handlFruadCheckErrorStatusCode(res)
+	if err != nil {
+		logger.Info(ctx, "FraudCheckDl:: txnId : %s,traceID :  %s,response from Hyeperverge %s", txnID, traceID, body.String())
+		return nil, err
+	}
 	var fraudCheckDlResponse FraudCheckDlResponse
 	err = json.Unmarshal(body.Bytes(), &fraudCheckDlResponse)
+	if err != nil {
+		return nil, err
+	}
 	return &fraudCheckDlResponse, err
 }
 
-func (hypervergeImpl *HypervergeImpl) FraudCheckVoter(fraudCheckVoterRequest FraudCheckVoterRequest, txnID string) (*FraudCheckVoterResponse, error) {
+func (hypervergeImpl *HypervergeImpl) FraudCheckVoter(ctx context.Context, fraudCheckVoterRequest FraudCheckVoterRequest, txnID string, traceID string) (*FraudCheckVoterResponse, error) {
 	url := hypervergeImpl.config.GetHypervergeFraudCheckEndpoint() + "/checkVoterId"
 	reqObj, _ := json.Marshal(fraudCheckVoterRequest)
 	payload := strings.NewReader(string(reqObj))
@@ -458,22 +477,26 @@ func (hypervergeImpl *HypervergeImpl) FraudCheckVoter(fraudCheckVoterRequest Fra
 	if err != nil {
 		return nil, err
 	}
-	err = hypervergeImpl.handlFruadCheckErrorStatusCode(res)
-	if err != nil {
-		return nil, err
-	}
 	body := &bytes.Buffer{}
 	_, err = body.ReadFrom(res.Body)
 	if err != nil {
 		return nil, err
 	}
 	defer res.Body.Close()
+	err = hypervergeImpl.handlFruadCheckErrorStatusCode(res)
+	if err != nil {
+		logger.Info(ctx, "FraudCheckVoter:: txnId : %s,traceID :  %s,response from Hyeperverge %+v", txnID, traceID, body.String())
+		return nil, err
+	}
 	var fraudCheckVoterResponse FraudCheckVoterResponse
 	err = json.Unmarshal(body.Bytes(), &fraudCheckVoterResponse)
+	if err != nil {
+		return nil, err
+	}
 	return &fraudCheckVoterResponse, err
 }
 
-func (hypervergeImpl *HypervergeImpl) FraudCheckPassport(fraudCheckPassportRequest FraudCheckPassportRequest, txnID string) (*FraudCheckPassportResponse, error) {
+func (hypervergeImpl *HypervergeImpl) FraudCheckPassport(ctx context.Context, fraudCheckPassportRequest FraudCheckPassportRequest, txnID string, traceID string) (*FraudCheckPassportResponse, error) {
 	url := hypervergeImpl.config.GetHypervergeFraudCheckEndpoint() + "/verifyPassport"
 	reqObj, _ := json.Marshal(fraudCheckPassportRequest)
 	payload := strings.NewReader(string(reqObj))
@@ -486,22 +509,26 @@ func (hypervergeImpl *HypervergeImpl) FraudCheckPassport(fraudCheckPassportReque
 	if err != nil {
 		return nil, err
 	}
-	err = hypervergeImpl.handlFruadCheckErrorStatusCode(res)
-	if err != nil {
-		return nil, err
-	}
 	body := &bytes.Buffer{}
 	_, err = body.ReadFrom(res.Body)
 	if err != nil {
 		return nil, err
 	}
 	defer res.Body.Close()
+	err = hypervergeImpl.handlFruadCheckErrorStatusCode(res)
+	if err != nil {
+		logger.Info(ctx, "FraudCheckPassport:: txnId : %s,traceID :  %s,response from Hyeperverge %+v", txnID, traceID, body.String())
+		return nil, err
+	}
 	var fraudCheckPassportResponse FraudCheckPassportResponse
 	err = json.Unmarshal(body.Bytes(), &fraudCheckPassportResponse)
+	if err != nil {
+		return nil, err
+	}
 	return &fraudCheckPassportResponse, err
 }
 
-func (hypervergeImpl *HypervergeImpl) FraudCheckAadhar(fraudCheckAadharRequest FraudCheckAadharRequest, txnID string) (*FraudCheckAadharResponse, string, error) {
+func (hypervergeImpl *HypervergeImpl) FraudCheckAadhar(ctx context.Context, fraudCheckAadharRequest FraudCheckAadharRequest, txnID string, traceID string) (*FraudCheckAadharResponse, string, error) {
 	url := hypervergeImpl.config.GetHypervergeFraudCheckEndpoint() + "/verifyAadhaar"
 	reqObj, _ := json.Marshal(fraudCheckAadharRequest)
 	payload := strings.NewReader(string(reqObj))
@@ -514,17 +541,21 @@ func (hypervergeImpl *HypervergeImpl) FraudCheckAadhar(fraudCheckAadharRequest F
 	if err != nil {
 		return nil, fmt.Sprintf("%s,%+v", HYPERVERGE, UNABLE_TO_SEND_REQUEST), err
 	}
-	err = hypervergeImpl.handlFruadCheckErrorStatusCode(res)
-	if err != nil {
-		return nil, fmt.Sprintf("%s,%+v", HYPERVERGE, UNABLE_TO_PARSE_VENDOR_RESPONSE), err
-	}
 	body := &bytes.Buffer{}
 	_, err = body.ReadFrom(res.Body)
 	if err != nil {
 		return nil, fmt.Sprintf("%s,%+v", HYPERVERGE, UNABLE_TO_PARSE_VENDOR_RESPONSE), err
 	}
 	defer res.Body.Close()
+	err = hypervergeImpl.handlFruadCheckErrorStatusCode(res)
+	if err != nil {
+		logger.Info(ctx, "FraudCheckAadhar:: txnId : %s,traceID :  %s,response from Hyeperverge %+v", txnID, traceID, body.String())
+		return nil, fmt.Sprintf("%s,%+v", HYPERVERGE, UNABLE_TO_PARSE_VENDOR_RESPONSE), err
+	}
 	var fraudCheckAadharResponse FraudCheckAadharResponse
 	err = json.Unmarshal(body.Bytes(), &fraudCheckAadharResponse)
+	if err != nil {
+		return nil, fmt.Sprintf("%s,%+v", HYPERVERGE, UNABLE_TO_PARSE_VENDOR_RESPONSE), err
+	}
 	return &fraudCheckAadharResponse, fmt.Sprintf("%s,%+v", HYPERVERGE, fraudCheckAadharResponse), err
 }

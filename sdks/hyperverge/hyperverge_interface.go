@@ -1,19 +1,22 @@
 package hyperverge
 
-import "bytes"
+import (
+	"bytes"
+	"context"
+)
 
 type Hyperverge interface {
 	readDocument(documentType string, hypervergeRequest HypervergeRequest) (*bytes.Buffer, error)
-	ReadPan(hypervergeRequest HypervergeRequest) (*PanResponse, error)
-	ReadAadhar(hypervergeRequest HypervergeRequest) (*AadharResponse, error)
-	ReadPassport(hypervergeRequest HypervergeRequest) (*PassportResponse, error)
-	ReadVotedID(hypervergeRequest HypervergeRequest) (*VoterIdResponse, error)
-	FraudCheckPan(fraudCheckPanRequest FraudCheckPanRequest, txnID string) (*FraudCheckPanResponse, error)
-	FraudCheckPanV2(NSDLPanRequest NSDLPanRequest, txnID string) (*NSDLPanResponse, error)
-	FraudCheckDl(fraudCheckDlRequest FraudCheckDlRequest, txnID string) (*FraudCheckDlResponse, error)
-	FraudCheckVoter(fraudCheckVoterRequest FraudCheckVoterRequest, txnID string) (*FraudCheckVoterResponse, error)
-	FraudCheckPassport(fraudCheckPassportRequest FraudCheckPassportRequest, txnID string) (*FraudCheckPassportResponse, error)
-	FraudCheckAadhar(fraudCheckAadharRequest FraudCheckAadharRequest, txnID string) (*FraudCheckAadharResponse, string, error)
+	ReadPan(ctx context.Context, hypervergeRequest HypervergeRequest, traceID string) (*PanResponse, error)
+	ReadAadhar(ctx context.Context, hypervergeRequest HypervergeRequest, traceID string) (*AadharResponse, error)
+	ReadPassport(ctx context.Context, hypervergeRequest HypervergeRequest, traceID string) (*PassportResponse, error)
+	ReadVotedID(ctx context.Context, hypervergeRequest HypervergeRequest, traceID string) (*VoterIdResponse, error)
+	FraudCheckPan(ctx context.Context, fraudCheckPanRequest FraudCheckPanRequest, txnID string, traceID string) (*FraudCheckPanResponse, error)
+	FraudCheckPanV2(ctx context.Context, NSDLPanRequest NSDLPanRequest, txnID string, traceID string) (*NSDLPanResponse, error)
+	FraudCheckDl(ctx context.Context, fraudCheckDlRequest FraudCheckDlRequest, txnID string, traceID string) (*FraudCheckDlResponse, error)
+	FraudCheckVoter(ctx context.Context, fraudCheckVoterRequest FraudCheckVoterRequest, txnID string, traceID string) (*FraudCheckVoterResponse, error)
+	FraudCheckPassport(ctx context.Context, fraudCheckPassportRequest FraudCheckPassportRequest, txnID string, traceID string) (*FraudCheckPassportResponse, error)
+	FraudCheckAadhar(ctx context.Context, fraudCheckAadharRequest FraudCheckAadharRequest, txnID string, traceID string) (*FraudCheckAadharResponse, string, error)
 }
 
 type HypervergeConfig interface {
