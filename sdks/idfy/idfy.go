@@ -77,7 +77,7 @@ func (idfyImpl *IdfyImpl) ExtractPan(ctx context.Context, idfyrequest IdfyReques
 	}
 	err = idfyImpl.handleError(statusCode, idfyPanResp.Error)
 	if err != nil {
-		logger.Error(ctx, "ExtractPan:: txnId : %s,traceID :  %s,response from Idfy %+v", idfyrequest.TaskID, idfyPanResp)
+		logger.Error(ctx, "ExtractPan:: txnId : %s,response from Idfy %+v", idfyrequest.TaskID, idfyPanResp)
 		return nil, err
 	}
 
@@ -97,7 +97,7 @@ func (idfyImpl *IdfyImpl) ExtractAadhar(ctx context.Context, idfyrequest IdfyReq
 	}
 	err = idfyImpl.handleError(statusCode, idfyAadharResp.Error)
 	if err != nil {
-		logger.Error(ctx, "ExtractAadhar:: txnId : %s,traceID :  %s,response from Idfy %+v", idfyrequest.TaskID, idfyAadharResp)
+		logger.Error(ctx, "ExtractAadhar:: txnId : %s,response from Idfy %+v", idfyrequest.TaskID, idfyAadharResp)
 		return nil, err
 	}
 	return &idfyAadharResp.Result.ExtractionOutput, nil
@@ -116,7 +116,7 @@ func (idfyImpl *IdfyImpl) ExtractDl(ctx context.Context, idfyrequest IdfyRequest
 	}
 	err = idfyImpl.handleError(statusCode, idfyDlResp.Error)
 	if err != nil {
-		logger.Error(ctx, "ExtractDl:: txnId : %s,traceID :  %s,response from Idfy %+v", idfyrequest.TaskID, idfyDlResp)
+		logger.Error(ctx, "ExtractDl:: txnId : %s,response from Idfy %+v", idfyrequest.TaskID, idfyDlResp)
 		return nil, err
 	}
 	return &idfyDlResp.Result.ExtractionOutput, nil
@@ -135,7 +135,7 @@ func (idfyImpl *IdfyImpl) ExtractVoter(ctx context.Context, idfyrequest IdfyRequ
 	}
 	err = idfyImpl.handleError(statusCode, idfyVoterResp.Error)
 	if err != nil {
-		logger.Error(ctx, "ExtractVoter:: txnId : %s,traceID :  %s,response from Idfy %+v", idfyrequest.TaskID, idfyVoterResp)
+		logger.Error(ctx, "ExtractVoter:: txnId : %s,response from Idfy %+v", idfyrequest.TaskID, idfyVoterResp)
 		return nil, err
 	}
 	return &idfyVoterResp.Result.ExtractionOutput, nil
@@ -154,7 +154,7 @@ func (idfyImpl *IdfyImpl) ExtractPassport(ctx context.Context, idfyrequest IdfyR
 	}
 	err = idfyImpl.handleError(statusCode, idfyPassportResp.Error)
 	if err != nil {
-		logger.Error(ctx, "ExtractPassport:: txnId : %s,traceID :  %s,response from Idfy %+v", idfyrequest.TaskID, idfyPassportResp)
+		logger.Error(ctx, "ExtractPassport:: txnId : %s,response from Idfy %+v", idfyrequest.TaskID, idfyPassportResp)
 		return nil, err
 	}
 	return &idfyPassportResp.Result.ExtractionOutput, nil
@@ -332,7 +332,7 @@ func (idfyImpl *IdfyImpl) FraudCheckDl(ctx context.Context, fraudCheckRequest Fr
 		return nil, err
 	}
 	if fraudCheckDlResponse.Status != "completed" {
-		logger.Error(ctx, "Error in FraudCheckDl with res %+v, error %v",fraudCheckDlResponse, err)
+		logger.Error(ctx, "Error in FraudCheckDl with res %+v, error %v", fraudCheckDlResponse, err)
 		return nil, fmt.Errorf("%v %v", fraudCheckDlResponse.Message, fraudCheckDlResponse.Error)
 	}
 	return &fraudCheckDlResponse, err
@@ -396,7 +396,7 @@ func (idfyImpl *IdfyImpl) CheckTemperedImage(ctx context.Context, req CheckTempe
 	}
 	defer res.Body.Close()
 	if res.StatusCode != 200 {
-		logger.Error(ctx, "Error in CheckTemperedImage with res %+v, error %v",body.String(), err)
+		logger.Error(ctx, "Error in CheckTemperedImage with res %+v, error %v", body.String(), err)
 		return false, fmt.Errorf("return with error code %d res %v", res.StatusCode, res)
 	}
 	var httpRes CheckTemperedRes
