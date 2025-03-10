@@ -42,4 +42,5 @@ type LocationServiceResponse struct {
 
 type Location interface {
 	ExtractStateFromLatLong(locationrequest LocationRequest) (*LocationResponse, error)
+	GetValidState(state string) (*IndiaState, error)
 }
