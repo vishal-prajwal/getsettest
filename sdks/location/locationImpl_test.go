@@ -53,3 +53,43 @@ func TestLocationImpl_ExtractStateFromLatLong(t *testing.T) {
 		})
 	}
 }
+
+func TestLocationImpl_GetValidState(t *testing.T) {
+	locSDK := &LocationImpl{
+		nameOrShortToIndiaStateMap: indiaStates.ToNameOrShortNameToIndiaStateMap(),
+	}
+	type args struct {
+		state string
+	}
+	tests := []struct {
+		name    string
+		args    args
+		want    *IndiaState
+		wantErr bool
+	}{
+		{
+			name: "Karnataka",
+			args: args{
+				state: "Karnataka",
+			},
+			want: &IndiaState{
+				Name:         "Karnataka",
+				NameInitials: "KA",
+			},
+			wantErr: false,
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+
+			got, err := locSDK.GetValidState(tt.args.state)
+			if (err != nil) != tt.wantErr {
+				t.Errorf("LocationImpl.GetValidState() error = %v, wantErr %v", err, tt.wantErr)
+				return
+			}
+			if !reflect.DeepEqual(got, tt.want) {
+				t.Errorf("LocationImpl.GetValidState() = %v, want %v", got, tt.want)
+			}
+		})
+	}
+}

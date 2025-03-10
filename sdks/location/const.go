@@ -12,15 +12,15 @@ type IndiaState struct {
 
 type IndiaStatesMap map[int]IndiaState
 
-type NameOrShortToIndiaStateMap map[string]*IndiaState
+type NameOrShortToIndiaStateMap map[string]IndiaState
 
-func (ism IndiaStatesMap) ToReverseMap() NameOrShortToIndiaStateMap {
-	ismReverse := make(NameOrShortToIndiaStateMap)
+func (ism IndiaStatesMap) ToNameOrShortNameToIndiaStateMap() NameOrShortToIndiaStateMap {
+	mapp := make(NameOrShortToIndiaStateMap)
 	for _, v := range ism {
-		ismReverse[strings.ToLower(v.Name)] = &v
-		ismReverse[strings.ToLower(v.NameInitials)] = &v
+		mapp[strings.ToLower(v.Name)] = v
+		mapp[strings.ToLower(v.NameInitials)] = v
 	}
-	return ismReverse
+	return mapp
 }
 
 var indiaStates IndiaStatesMap = map[int]IndiaState{
@@ -69,5 +69,5 @@ var indiaStates IndiaStatesMap = map[int]IndiaState{
 
 // errors
 var (
-	ErrInvalidState = errors.New("Invalid state")
+	ErrInvalidState = errors.New("invalid state")
 )

@@ -28,7 +28,7 @@ func New(cfg *LocationConfig) Location {
 	return &LocationImpl{
 		httpClient:                 httpClient,
 		cfg:                        cfg,
-		nameOrShortToIndiaStateMap: indiaStates.ToReverseMap(),
+		nameOrShortToIndiaStateMap: indiaStates.ToNameOrShortNameToIndiaStateMap(),
 	}
 }
 
@@ -73,5 +73,5 @@ func (locSDK *LocationImpl) GetValidState(state string) (*IndiaState, error) {
 	if !exists {
 		return nil, ErrInvalidState
 	}
-	return indiaState, nil
+	return &indiaState, nil
 }
