@@ -6,7 +6,7 @@ import (
 )
 
 func TestLocationImpl_ExtractStateFromLatLong(t *testing.T) {
-	locSDK := New(LocationConfig{
+	locSDK := New(&LocationConfig{
 		// change this address before running tests
 		BaseURL:           "http://geolocation.jwr-uat-5.jungleerummyuat.com",
 		DefaultAPITimeout: 10,

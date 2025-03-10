@@ -1,11 +1,26 @@
 package location
 
+import "errors"
+
 type IndiaState struct {
 	Name         string
 	NameInitials string
 }
 
-var indiaStates = map[int]IndiaState{
+type IndiaStatesMap map[int]IndiaState
+
+type NameOrShortToIndiaStateMap map[string]*IndiaState
+
+func (ism IndiaStatesMap) ToReverseMap() NameOrShortToIndiaStateMap {
+	ismReverse := make(NameOrShortToIndiaStateMap)
+	for _, v := range ism {
+		ismReverse[v.Name] = &v
+		ismReverse[v.NameInitials] = &v
+	}
+	return ismReverse
+}
+
+var indiaStates IndiaStatesMap = map[int]IndiaState{
 	0:  {"Unknown", "Unknown"},
 	1:  {"Andaman & Nicobar", "AN"},
 	2:  {"Andhra Pradesh", "AP,AD"},
@@ -48,3 +63,8 @@ var indiaStates = map[int]IndiaState{
 	39: {"Telangana", "TG,TS"},
 	40: {"Restricted State", "Restricted"},
 }
+
+// errors
+var (
+	ErrInvalidState = errors.New("Invalid state")
+)

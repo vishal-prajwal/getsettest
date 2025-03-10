@@ -9,9 +9,9 @@ import (
 )
 
 type LocationImpl struct {
-	BaseURL           string
-	DefaultAPITimeout int
-	httpClient        *http.Client
+	cfg                        *LocationConfig
+	httpClient                 *http.Client
+	nameOrShortToIndiaStateMap NameOrShortToIndiaStateMap
 }
 
 type LocationConfig struct {
@@ -19,21 +19,21 @@ type LocationConfig struct {
 	DefaultAPITimeout int
 }
 
-func New(cfg LocationConfig) Location {
+func New(cfg *LocationConfig) Location {
 	httpClient := &http.Client{
 		Timeout: time.Duration(cfg.DefaultAPITimeout) * time.Second,
 	}
 
 	return &LocationImpl{
-		httpClient:        httpClient,
-		BaseURL:           cfg.BaseURL,
-		DefaultAPITimeout: cfg.DefaultAPITimeout,
+		httpClient:                 httpClient,
+		cfg:                        cfg,
+		nameOrShortToIndiaStateMap: indiaStates.ToReverseMap(),
 	}
 }
 
 func (locSDK *LocationImpl) ExtractStateFromLatLong(locationrequest LocationRequest) (*LocationResponse, error) {
 
-	url := fmt.Sprintf("%s/state/%f,%f", locSDK.BaseURL, locationrequest.Latitude, locationrequest.Longitude)
+	url := fmt.Sprintf("%s/state/%f,%f", locSDK.cfg.BaseURL, locationrequest.Latitude, locationrequest.Longitude)
 	method := "GET"
 	req, err := http.NewRequest(method, url, nil)
 
@@ -65,4 +65,12 @@ func (locSDK *LocationImpl) ExtractStateFromLatLong(locationrequest LocationRequ
 		LocalityName:     locationResponse.Locality.LongName,
 		PostalCode:       locationResponse.PostalCode.LongName,
 	}, nil
+}
+
+func (locSDK *LocationImpl) GetValidState(state string) (*IndiaState, error) {
+	indiaState, exists := locSDK.nameOrShortToIndiaStateMap[state]
+	if !exists {
+		return nil, ErrInvalidState
+	}
+	return indiaState, nil
 }
