@@ -1,6 +1,9 @@
 package location
 
-import "errors"
+import (
+	"errors"
+	"strings"
+)
 
 type IndiaState struct {
 	Name         string
@@ -14,8 +17,8 @@ type NameOrShortToIndiaStateMap map[string]*IndiaState
 func (ism IndiaStatesMap) ToReverseMap() NameOrShortToIndiaStateMap {
 	ismReverse := make(NameOrShortToIndiaStateMap)
 	for _, v := range ism {
-		ismReverse[v.Name] = &v
-		ismReverse[v.NameInitials] = &v
+		ismReverse[strings.ToLower(v.Name)] = &v
+		ismReverse[strings.ToLower(v.NameInitials)] = &v
 	}
 	return ismReverse
 }

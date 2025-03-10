@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"io"
 	"net/http"
+	"strings"
 	"time"
 )
 
@@ -68,7 +69,7 @@ func (locSDK *LocationImpl) ExtractStateFromLatLong(locationrequest LocationRequ
 }
 
 func (locSDK *LocationImpl) GetValidState(state string) (*IndiaState, error) {
-	indiaState, exists := locSDK.nameOrShortToIndiaStateMap[state]
+	indiaState, exists := locSDK.nameOrShortToIndiaStateMap[strings.ToLower(state)]
 	if !exists {
 		return nil, ErrInvalidState
 	}
