@@ -13,5 +13,5 @@ func main() {
 	httpClient := http.Client{}
 
 	howzat := howzatkyc.New(endpoint, newrelic.Agent{}, &httpClient)
-	fmt.Println(howzat.FetchPanByUserID(998632))
+	fmt.Println(howzat.FetchPanByUserID(998632, ""))
 }

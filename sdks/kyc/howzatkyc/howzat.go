@@ -21,7 +21,7 @@ func New(endpoint string, monitoringAgent monitoring.Agent, client *http.Client)
 	return &HowzatKycServiceClient{endpoint: endpoint, monitoringAgent: monitoringAgent, httpClient: client}
 }
 
-func (howzatImpl *HowzatKycServiceClient) FetchUserByPan(userByPanRequest domain.UserByPanRequest) (domain.UserByPanResponse, error) {
+func (howzatImpl *HowzatKycServiceClient) FetchUserByPan(userByPanRequest domain.UserByPanRequest) (*domain.UserByPanResponse, error) {
 	userPanInfo := make([]domain.UserPanInfo, 0)
 	ch := make(chan domain.UserPanInfo)
 	for _, pan := range userByPanRequest.PanNumber {
@@ -47,7 +47,7 @@ func (howzatImpl *HowzatKycServiceClient) FetchUserByPan(userByPanRequest domain
 	userByPanResponse := domain.UserByPanResponse{
 		UserPanInfo: userPanInfo,
 	}
-	return userByPanResponse, nil
+	return &userByPanResponse, nil
 }
 
 func (howzatImpl *HowzatKycServiceClient) getHowzatKyc(panNumber string) (*KycResponse, error) {
@@ -80,7 +80,7 @@ func (howzatImpl *HowzatKycServiceClient) getHowzatKyc(panNumber string) (*KycRe
 	return &response, nil
 }
 
-func (howzatImpl *HowzatKycServiceClient) FetchPanByUserID(userID int) (*domain.PanByUserResponse, error) {
+func (howzatImpl *HowzatKycServiceClient) FetchPanByUserID(userID int, productID string) (*domain.PanByUserResponse, error) {
 	tr := howzatImpl.monitoringAgent.StartTransaction(HOWZAT_USER_BY_PAN_CALL)
 	defer tr.End()
 	url := howzatImpl.endpoint + fmt.Sprintf(GET_PAN_BY_USER_URI, userID)
@@ -88,7 +88,7 @@ func (howzatImpl *HowzatKycServiceClient) FetchPanByUserID(userID int) (*domain.
 	if err != nil {
 		return nil, errors.Wrap(ErrCreatingRequest, err.Error())
 	}
-
+	request.Header.Add("X-Product-ID", productID)
 	res, err := howzatImpl.httpClient.Do(request)
 	if err != nil {
 		return nil, errors.Wrap(ErrCallingHowzat, err.Error())
