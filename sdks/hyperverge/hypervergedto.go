@@ -8,6 +8,7 @@ type HypervergeRequest struct {
 	ImageName           string `json:"imageName"`
 	RejectBlur          string `json:"rejectBlur"`
 	RejectTempredImage  string `json:"rejectBasicTampering"`
+	TxnId               string `json:"txnId"`
 }
 
 type HypervergePanResponse struct {

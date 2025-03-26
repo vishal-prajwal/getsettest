@@ -1,21 +1,23 @@
 package idfy
 
+import "context"
+
 type Idfy interface {
-	ExtractPan(idfyrequest IdfyRequest) (*IdfyPanResponse, error)
-	ExtractAadhar(idfyrequest IdfyRequest) (*IdfyAadharResponse, error)
-	ExtractDl(idfyrequest IdfyRequest) (*IdfyDlResponse, error)
-	ExtractVoter(idfyrequest IdfyRequest) (*IdfyVoterIdResponse, error)
-	ExtractPassport(idfyrequest IdfyRequest) (*IdfyPassportResponse, error)
-	FraudCheckPan(fraudCheckRequest FraudCheckRequest) (*FraudCheckPanResponse, error)
-	FraudCheckAadhar(fraudCheckRequest FraudCheckRequest) (*FraudCheckAadharResponse, string, error)
-	FraudCheckDl(fraudCheckRequest FraudCheckRequest) (*FraudCheckDlResponse, error)
-	FraudCheckVoter(fraudCheckRequest FraudCheckRequest) (*FraudCheckVoterResponse, error)
-	FraudCheckPassport(fraudCheckRequest FraudCheckRequest) (*FraudCheckPassportResponse, error)
-	CheckTemperedImage(req CheckTemperedReq) (bool, error)
-	PostFruadValidationReq(documentType string, fraudCheckRequest FraudCheckRequest) (*string, string, error)
+	ExtractPan(ctx context.Context, idfyrequest IdfyRequest) (*IdfyPanResponse, error)
+	ExtractAadhar(ctx context.Context, idfyrequest IdfyRequest) (*IdfyAadharResponse, error)
+	ExtractDl(ctx context.Context, idfyrequest IdfyRequest) (*IdfyDlResponse, error)
+	ExtractVoter(ctx context.Context, idfyrequest IdfyRequest) (*IdfyVoterIdResponse, error)
+	ExtractPassport(ctx context.Context, idfyrequest IdfyRequest) (*IdfyPassportResponse, error)
+	FraudCheckPan(ctx context.Context, fraudCheckRequest FraudCheckRequest) (*FraudCheckPanResponse, error)
+	FraudCheckAadhar(ctx context.Context, fraudCheckRequest FraudCheckRequest) (*FraudCheckAadharResponse, string, error)
+	FraudCheckDl(ctx context.Context, fraudCheckRequest FraudCheckRequest) (*FraudCheckDlResponse, error)
+	FraudCheckVoter(ctx context.Context, fraudCheckRequest FraudCheckRequest) (*FraudCheckVoterResponse, error)
+	FraudCheckPassport(ctx context.Context, fraudCheckRequest FraudCheckRequest) (*FraudCheckPassportResponse, error)
+	CheckTemperedImage(ctx context.Context, req CheckTemperedReq) (bool, error)
+	PostFruadValidationReq(ctx context.Context, documentType string, fraudCheckRequest FraudCheckRequest) (*string, string, error)
 	FetchPostedReq(requestID string) (*FraudCheckAadharResponse, string, error)
 	Healthcheck() (*HealthCheckRes, error)
-	MaskAadharDoc(id string, maskAadharDocRequest MaskAadharDocRequest) (*MaskAadharDocResponse, error)
+	MaskAadharDoc(ctx context.Context, id string, maskAadharDocRequest MaskAadharDocRequest) (*MaskAadharDocResponse, error)
 }
 
 type IdfyConfig interface {

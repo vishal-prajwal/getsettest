@@ -1,6 +1,7 @@
 package hyperverge
 
 import (
+	"context"
 	"fmt"
 	"io/ioutil"
 	"log"
@@ -41,7 +42,7 @@ func TestHypverge(t *testing.T) {
 		fmt.Println(err)
 		log.Fatal(err)
 	}
-	res, err := hvClient.ReadAadhar(HypervergeRequest{
+	res, err := hvClient.ReadAadhar(context.Background(), HypervergeRequest{
 		ImageFile: string(bytes),
 	})
 	if err != nil {
