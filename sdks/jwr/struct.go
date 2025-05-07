@@ -8,32 +8,34 @@ import (
 )
 
 type UserProfile struct {
-	FirstName  string `json:"firstName"`
-	MiddleName string `json:"middleName"`
-	LastName   string `json:"lastName"`
-	DOB        int64  `json:"dateOfBirth"`
-	StringDOB  string `json:"stringDateOfBirth"`
-	Pin        string `json:"pin"`
-	Address    string `json:"address"`
-	Address2   string `json:"address2"`
-	City       string `json:"city"`
-	State      string `json:"state"`
-	Gender     string `json:"gender"`
-	Updatedby  string `json:"updatedBy"`
+	FirstName     string `json:"firstName"`
+	MiddleName    string `json:"middleName"`
+	LastName      string `json:"lastName"`
+	DOB           int64  `json:"dateOfBirth"`
+	StringDOB     string `json:"stringDateOfBirth"`
+	Pin           string `json:"pin"`
+	Address       string `json:"address"`
+	Address2      string `json:"address2"`
+	City          string `json:"city"`
+	State         string `json:"state"`
+	Gender        string `json:"gender"`
+	Updatedby     string `json:"updatedBy"`
+	IsRDCSyncUser bool   `json:"isRDCSyncUser"`
 }
 
 type UpdateUserProfileRequest struct {
-	FirstName  *string `json:"firstName,omitempty"`
-	MiddleName *string `json:"middleName,omitempty"`
-	LastName   *string `json:"lastName,omitempty"`
-	DOB        *int64  `json:"dateOfBirth,omitempty"`
-	Pin        *string `json:"pin,omitempty"`
-	Address    *string `json:"address,omitempty"`
-	Address2   *string `json:"address2,omitempty"`
-	City       *string `json:"city,omitempty"`
-	State      *string `json:"state,omitempty"`
-	Gender     *string `json:"gender,omitempty"`
-	Updatedby  *string `json:"updatedBy,omitempty"`
+	FirstName     *string `json:"firstName,omitempty"`
+	MiddleName    *string `json:"middleName,omitempty"`
+	LastName      *string `json:"lastName,omitempty"`
+	DOB           *int64  `json:"dateOfBirth,omitempty"`
+	Pin           *string `json:"pin,omitempty"`
+	Address       *string `json:"address,omitempty"`
+	Address2      *string `json:"address2,omitempty"`
+	City          *string `json:"city,omitempty"`
+	State         *string `json:"state,omitempty"`
+	Gender        *string `json:"gender,omitempty"`
+	Updatedby     *string `json:"updatedBy,omitempty"`
+	IsRDCSyncUser *bool   `json:"isRDCSyncUser,omitempty"`
 }
 
 type JWRSDKConfig struct {
