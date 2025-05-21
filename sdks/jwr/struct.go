@@ -8,18 +8,19 @@ import (
 )
 
 type UserProfile struct {
-	FirstName  string `json:"firstName"`
-	MiddleName string `json:"middleName"`
-	LastName   string `json:"lastName"`
-	DOB        int64  `json:"dateOfBirth"`
-	StringDOB  string `json:"stringDateOfBirth"`
-	Pin        string `json:"pin"`
-	Address    string `json:"address"`
-	Address2   string `json:"address2"`
-	City       string `json:"city"`
-	State      string `json:"state"`
-	Gender     string `json:"gender"`
-	Updatedby  string `json:"updatedBy"`
+	FirstName     string `json:"firstName"`
+	MiddleName    string `json:"middleName"`
+	LastName      string `json:"lastName"`
+	DOB           int64  `json:"dateOfBirth"`
+	StringDOB     string `json:"stringDateOfBirth"`
+	Pin           string `json:"pin"`
+	Address       string `json:"address"`
+	Address2      string `json:"address2"`
+	City          string `json:"city"`
+	State         string `json:"state"`
+	Gender        string `json:"gender"`
+	SocialNetwork string `json:"socialNetwork"`
+	Updatedby     string `json:"updatedBy"`
 }
 
 type UpdateUserProfileRequest struct {
