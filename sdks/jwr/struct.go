@@ -20,7 +20,7 @@ type UserProfile struct {
 	State         string `json:"state"`
 	Gender        string `json:"gender"`
 	Updatedby     string `json:"updatedBy"`
-	IsRDCSyncUser bool   `json:"isRDCSyncUser"`
+	IsRDCSyncUser bool   `json:"rdcsyncUser"`
 }
 
 type UpdateUserProfileRequest struct {
@@ -35,7 +35,7 @@ type UpdateUserProfileRequest struct {
 	State         *string `json:"state,omitempty"`
 	Gender        *string `json:"gender,omitempty"`
 	Updatedby     *string `json:"updatedBy,omitempty"`
-	IsRDCSyncUser *bool   `json:"isRDCSyncUser,omitempty"`
+	IsRDCSyncUser *bool   `json:"rdcsyncUser,omitempty"`
 }
 
 type JWRSDKConfig struct {
