@@ -5,5 +5,5 @@ import (
 )
 
 func FuzzyCompareDates(dateStr1, dateStr2 string) bool {
-	return !strings.EqualFold(dateStr1, dateStr2)
+	return strings.EqualFold(dateStr1, dateStr2)
 }
