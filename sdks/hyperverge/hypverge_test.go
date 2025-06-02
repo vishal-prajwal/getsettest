@@ -7,6 +7,7 @@ import (
 	"log"
 	"testing"
 
+	"bitbucket.org/junglee_games/getsetgo/configs"
 	"bitbucket.org/junglee_games/getsetgo/httpclient"
 	"bitbucket.org/junglee_games/getsetgo/instrumenting/newrelic"
 )
@@ -35,7 +36,7 @@ func (this HypvergeTest) GetHypervergeNSDLUrl() string {
 }
 func TestHypverge(t *testing.T) {
 	var hvConfig HypvergeTest
-	hvClient := New(hvConfig, newrelic.Agent{}, httpclient.NewHttpClient(10))
+	hvClient := New(hvConfig, newrelic.Agent{}, httpclient.NewHttpClient(10), &configs.DefaultKafkaConfig{})
 
 	bytes, err := ioutil.ReadFile("tt_front.jpeg")
 	if err != nil {
