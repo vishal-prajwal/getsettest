@@ -1,9 +1,14 @@
 package apilogger
 
-import "time"
+import (
+	"context"
+	"time"
+)
 
 type ApiData struct {
-	UserID    int64        `json:"userId"`
+	UserID    string       `json:"userId"`
+	RequestID string       `json:"requestId,omitempty"` // Optional, can be used for tracking specific requests
+	Reason    string       `json:"reason,omitempty"`    // Optional, can be used to provide additional context or reason for the API call
 	ProductID int64        `json:"productId"`
 	Source    string       `json:"source"`
 	EventTime int64        `json:"eventTime"`
@@ -30,16 +35,26 @@ type ApiDataBuilder struct {
 	apiData ApiData
 }
 
-func NewApiDataBuilder() *ApiDataBuilder {
+func NewApiDataBuilder(cfg Config) *ApiDataBuilder {
 	return &ApiDataBuilder{
-		apiData: ApiData{},
+		apiData: ApiData{
+			ProductID: cfg.ProductID,
+			Source:    cfg.Source,
+			EventType: cfg.EventType,
+		},
 	}
 }
 
-func (b *ApiDataBuilder) WithBasic(userID int64, vendor string) *ApiDataBuilder {
-	b.apiData.UserID = userID
-	b.apiData.Request.VendorName = vendor
+func (b *ApiDataBuilder) WithRequestContext(ctx context.Context) *ApiDataBuilder {
+	b.apiData.UserID = ctx.Value(CONTEXT_USER_ID).(string)
+	b.apiData.RequestID = ctx.Value(CONTEXT_REQUEST_ID).(string)
 	return b
+}
+
+func (b *ApiDataBuilder) WithBasic(ctx context.Context, vendor, reason string) *ApiDataBuilder {
+	b.apiData.Request.VendorName = vendor
+	b.apiData.Reason = reason
+	return b.WithRequestContext(ctx)
 }
 
 func (b *ApiDataBuilder) WithRequest(url, method, payload string, headers map[string]string) *ApiDataBuilder {
@@ -66,9 +81,6 @@ func (b *ApiDataBuilder) WithError(err string) *ApiDataBuilder {
 }
 
 func (b *ApiDataBuilder) Build() *ApiData {
-	b.apiData.ProductID = 3 // Assuming a fixed product ID for Rummy
-	b.apiData.Source = RUMMY_GAME_AUDIT
 	b.apiData.EventTime = time.Now().UnixMilli()
-	b.apiData.EventType = KYC_API_USAGE_EVENT_TYPE
 	return &b.apiData
 }
