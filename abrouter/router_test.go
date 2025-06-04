@@ -113,9 +113,6 @@ func TestNewABRouter(t *testing.T) {
 }
 
 func TestChoose(t *testing.T) {
-	type args struct {
-		choices []Choice[string]
-	}
 	tests := []struct {
 		name string
 	}{
