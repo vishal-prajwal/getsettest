@@ -30,7 +30,7 @@ func NewABRouter[T any](choices []Choice[T]) (ABRouter[T], error) {
 
 	totalWeight := 0
 	for _, choice := range choices {
-		if choice.Weight <= 0 {
+		if choice.Weight < 0 {
 			return nil, ErrInvalidWeight
 		}
 		totalWeight += choice.Weight
