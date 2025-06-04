@@ -3,6 +3,9 @@ package abrouter
 import "math/rand"
 
 type ABRouter[T any] interface {
+	// Choose selects one of the choices based on the weights.
+	// userId is optional and can be used to ensure consistent selection for the same user.
+	// If no userId is provided, a random choice will be made.
 	Choose(userId ...int) T
 }
 

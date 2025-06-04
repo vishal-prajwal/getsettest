@@ -3,6 +3,9 @@ package froller
 import "math/rand"
 
 type FeatureRoller[T comparable] interface {
+	// IsEnabled checks if a feature is enabled for a given user.
+	// userId is optional and can be used to ensure consistent feature enablement for the same user.
+	// If no userId is provided, a random selection will be made based on the feature's percentage.
 	IsEnabled(feature T, userId ...int) bool
 }
 
