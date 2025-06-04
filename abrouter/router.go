@@ -35,7 +35,9 @@ func NewABRouter[T any](choices []Choice[T]) (ABRouter[T], error) {
 		}
 		totalWeight += choice.Weight
 	}
-
+	if totalWeight == 0 {
+		return nil, ErrNoChoices
+	}
 	return &abRouterImpl[T]{
 		choices:     choices,
 		totalWeight: totalWeight,
