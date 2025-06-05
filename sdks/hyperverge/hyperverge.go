@@ -26,8 +26,8 @@ type HypervergeImpl struct {
 }
 
 // New creates a new Hyperverge client
-func New(config HypervergeConfig, nr newrelic.Agent, client httpclient.HTTPClient, cfg apilogger.Config) *HypervergeImpl {
-	apiLogger, err := apilogger.NewApiUsageLogger(cfg)
+func New(config HypervergeConfig, nr newrelic.Agent, client httpclient.HTTPClient) *HypervergeImpl {
+	apiLogger, err := apilogger.NewApiUsageLogger(config.GetApiLoggerConfig())
 	if err != nil {
 		logger.Error(context.Background(), "Failed to create API logger: %v", err)
 		panic("Failed to create API logger")

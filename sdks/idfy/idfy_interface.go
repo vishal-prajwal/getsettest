@@ -1,6 +1,10 @@
 package idfy
 
-import "context"
+import (
+	"context"
+
+	"bitbucket.org/junglee_games/getsetgo/apilogger"
+)
 
 type Idfy interface {
 	ExtractPan(ctx context.Context, idfyrequest IdfyRequest) (*IdfyPanResponse, error)
@@ -26,4 +30,5 @@ type IdfyConfig interface {
 	GetIdfyEndpoint() string
 	GetIdfyHealthCheckEndpoint() string
 	GetIdfyRetryAttemps() int
+	GetApiLoggerConfig() apilogger.Config
 }
