@@ -13,9 +13,12 @@ import (
 	"strings"
 	"time"
 
+	"bitbucket.org/junglee_games/getsetgo/apilogger"
 	"bitbucket.org/junglee_games/getsetgo/httpclient"
 	"bitbucket.org/junglee_games/getsetgo/instrumenting/newrelic"
 	"bitbucket.org/junglee_games/getsetgo/logger"
+	"bitbucket.org/junglee_games/getsetgo/sdks/constants"
+	"bitbucket.org/junglee_games/getsetgo/utils/aadharmasking"
 	"github.com/google/uuid"
 )
 
@@ -23,6 +26,7 @@ type IdfyImpl struct {
 	config     IdfyConfig
 	nr         newrelic.Agent
 	httpClient httpclient.HTTPClient
+	apilogger  apilogger.ApiUsageLogger
 }
 
 const (
@@ -30,19 +34,31 @@ const (
 )
 
 // New creates a new Idfy client
-func New(config IdfyConfig, nr newrelic.Agent, client httpclient.HTTPClient) *IdfyImpl {
+func New(config IdfyConfig, nr newrelic.Agent, client httpclient.HTTPClient, cfg apilogger.Config) *IdfyImpl {
+	apiLogger, err := apilogger.NewApiUsageLogger(context.Background(), cfg)
+	if err != nil {
+		logger.Error(context.Background(), "Failed to create API logger: %v", err)
+		panic("Failed to create API logger")
+	}
 	idfy := IdfyImpl{
 		config:     config,
 		nr:         nr,
 		httpClient: client,
+		apilogger:  apiLogger,
 	}
 	return &idfy
 }
 
-func (idfyImpl *IdfyImpl) extract(documentType string, idfyrequest IdfyRequest) (*bytes.Buffer, int, error) {
+func (idfyImpl *IdfyImpl) extract(documentType string, idfyrequest IdfyRequest, apiloggerBuilder *apilogger.ApiDataBuilder) (*bytes.Buffer, int, error) {
 	url := idfyImpl.config.GetIdfyEndpoint() + documentType
 	reqObj, _ := json.Marshal(idfyrequest)
 	payload := strings.NewReader(string(reqObj))
+	if apiloggerBuilder != nil {
+		apiloggerBuilder.WithRequest(url, http.MethodPost, "", map[string]string{
+			"task_id":  idfyrequest.TaskID,
+			"group_id": idfyrequest.GroupID,
+		})
+	}
 	req, err := http.NewRequest(http.MethodPost, url, payload)
 	if err != nil {
 		return nil, 0, err
@@ -65,18 +81,28 @@ func (idfyImpl *IdfyImpl) extract(documentType string, idfyrequest IdfyRequest) 
 }
 
 func (idfyImpl *IdfyImpl) ExtractPan(ctx context.Context, idfyrequest IdfyRequest) (*IdfyPanResponse, error) {
+	apiloggerBuilder := apilogger.NewApiDataBuilder(idfyImpl.apilogger.GetConfig())
+	apiloggerBuilder.WithBasic(ctx, IDFY, constants.OCRReadPan)
+	defer func() {
+		idfyImpl.apilogger.Log(context.Background(), apiloggerBuilder.Build())
+	}()
 	documentType := PAN_DOC_TYPE
-	byteResp, statusCode, err := idfyImpl.extract(documentType, idfyrequest)
+	byteResp, statusCode, err := idfyImpl.extract(documentType, idfyrequest, apiloggerBuilder)
 	if err != nil {
+		apiloggerBuilder.WithError(err.Error())
 		return nil, err
 	}
 	var idfyPanResp PanResponse
 	err = json.Unmarshal(byteResp.Bytes(), &idfyPanResp)
 	if err != nil {
+		apiloggerBuilder.WithError("failed to unmarshal response: "+err.Error()).
+			WithResponse("", byteResp.String())
 		return nil, err
 	}
+	apiloggerBuilder.WithResponse(fmt.Sprintf("%d", statusCode), byteResp.String())
 	err = idfyImpl.handleError(statusCode, idfyPanResp.Error)
 	if err != nil {
+		apiloggerBuilder.WithError(err.Error())
 		logger.Error(ctx, "ExtractPan:: txnId : %s,response from Idfy %+v", idfyrequest.TaskID, idfyPanResp)
 		return nil, err
 	}
@@ -85,18 +111,28 @@ func (idfyImpl *IdfyImpl) ExtractPan(ctx context.Context, idfyrequest IdfyReques
 }
 
 func (idfyImpl *IdfyImpl) ExtractAadhar(ctx context.Context, idfyrequest IdfyRequest) (*IdfyAadharResponse, error) {
+	apiloggerBuilder := apilogger.NewApiDataBuilder(idfyImpl.apilogger.GetConfig())
+	apiloggerBuilder.WithBasic(ctx, IDFY, constants.OCRReadAadhar)
+	defer func() {
+		idfyImpl.apilogger.Log(context.Background(), apiloggerBuilder.Build())
+	}()
 	documentType := AADHAR_DOC_TYPE
-	byteResp, statusCode, err := idfyImpl.extract(documentType, idfyrequest)
+	byteResp, statusCode, err := idfyImpl.extract(documentType, idfyrequest, apiloggerBuilder)
 	if err != nil {
+		apiloggerBuilder.WithError(err.Error())
 		return nil, err
 	}
 	var idfyAadharResp AadharResponse
 	err = json.Unmarshal(byteResp.Bytes(), &idfyAadharResp)
 	if err != nil {
+		apiloggerBuilder.WithError("failed to unmarshal response: "+err.Error()).
+			WithResponse("", byteResp.String())
 		return nil, err
 	}
+	apiloggerBuilder.WithResponse(fmt.Sprintf("%d", statusCode), aadharmasking.MaskAddharInResponseJson(byteResp.String()))
 	err = idfyImpl.handleError(statusCode, idfyAadharResp.Error)
 	if err != nil {
+		apiloggerBuilder.WithError(err.Error())
 		logger.Error(ctx, "ExtractAadhar:: txnId : %s,response from Idfy %+v", idfyrequest.TaskID, idfyAadharResp)
 		return nil, err
 	}
@@ -104,18 +140,28 @@ func (idfyImpl *IdfyImpl) ExtractAadhar(ctx context.Context, idfyrequest IdfyReq
 }
 
 func (idfyImpl *IdfyImpl) ExtractDl(ctx context.Context, idfyrequest IdfyRequest) (*IdfyDlResponse, error) {
+	apiloggerBuilder := apilogger.NewApiDataBuilder(idfyImpl.apilogger.GetConfig())
+	apiloggerBuilder.WithBasic(ctx, IDFY, constants.OCRReadDl)
+	defer func() {
+		idfyImpl.apilogger.Log(context.Background(), apiloggerBuilder.Build())
+	}()
 	documentType := DL_DOC_TYPE
-	byteResp, statusCode, err := idfyImpl.extract(documentType, idfyrequest)
+	byteResp, statusCode, err := idfyImpl.extract(documentType, idfyrequest, apiloggerBuilder)
 	if err != nil {
+		apiloggerBuilder.WithError(err.Error())
 		return nil, err
 	}
 	var idfyDlResp DlResponse
 	err = json.Unmarshal(byteResp.Bytes(), &idfyDlResp)
 	if err != nil {
+		apiloggerBuilder.WithError("failed to unmarshal response: "+err.Error()).
+			WithResponse("", byteResp.String())
 		return nil, err
 	}
+	apiloggerBuilder.WithResponse(fmt.Sprintf("%d", statusCode), byteResp.String())
 	err = idfyImpl.handleError(statusCode, idfyDlResp.Error)
 	if err != nil {
+		apiloggerBuilder.WithError(err.Error())
 		logger.Error(ctx, "ExtractDl:: txnId : %s,response from Idfy %+v", idfyrequest.TaskID, idfyDlResp)
 		return nil, err
 	}
@@ -123,18 +169,28 @@ func (idfyImpl *IdfyImpl) ExtractDl(ctx context.Context, idfyrequest IdfyRequest
 }
 
 func (idfyImpl *IdfyImpl) ExtractVoter(ctx context.Context, idfyrequest IdfyRequest) (*IdfyVoterIdResponse, error) {
+	apiloggerBuilder := apilogger.NewApiDataBuilder(idfyImpl.apilogger.GetConfig())
+	apiloggerBuilder.WithBasic(ctx, IDFY, constants.OCRReadVoterId)
+	defer func() {
+		idfyImpl.apilogger.Log(context.Background(), apiloggerBuilder.Build())
+	}()
 	documentType := VOTER_DOC_TYPE
-	byteResp, statusCode, err := idfyImpl.extract(documentType, idfyrequest)
+	byteResp, statusCode, err := idfyImpl.extract(documentType, idfyrequest, apiloggerBuilder)
 	if err != nil {
+		apiloggerBuilder.WithError(err.Error())
 		return nil, err
 	}
 	var idfyVoterResp VoterResponse
 	err = json.Unmarshal(byteResp.Bytes(), &idfyVoterResp)
 	if err != nil {
+		apiloggerBuilder.WithError("failed to unmarshal response: "+err.Error()).
+			WithResponse("", byteResp.String())
 		return nil, err
 	}
+	apiloggerBuilder.WithResponse(fmt.Sprintf("%d", statusCode), byteResp.String())
 	err = idfyImpl.handleError(statusCode, idfyVoterResp.Error)
 	if err != nil {
+		apiloggerBuilder.WithError(err.Error())
 		logger.Error(ctx, "ExtractVoter:: txnId : %s,response from Idfy %+v", idfyrequest.TaskID, idfyVoterResp)
 		return nil, err
 	}
@@ -142,18 +198,28 @@ func (idfyImpl *IdfyImpl) ExtractVoter(ctx context.Context, idfyrequest IdfyRequ
 }
 
 func (idfyImpl *IdfyImpl) ExtractPassport(ctx context.Context, idfyrequest IdfyRequest) (*IdfyPassportResponse, error) {
+	apiloggerBuilder := apilogger.NewApiDataBuilder(idfyImpl.apilogger.GetConfig())
+	apiloggerBuilder.WithBasic(ctx, IDFY, constants.OCRReadPassport)
+	defer func() {
+		idfyImpl.apilogger.Log(context.Background(), apiloggerBuilder.Build())
+	}()
 	documentType := PASSPORT_DOC_TYPE
-	byteResp, statusCode, err := idfyImpl.extract(documentType, idfyrequest)
+	byteResp, statusCode, err := idfyImpl.extract(documentType, idfyrequest, apiloggerBuilder)
 	if err != nil {
+		apiloggerBuilder.WithError(err.Error())
 		return nil, err
 	}
 	var idfyPassportResp PassportResponse
 	err = json.Unmarshal(byteResp.Bytes(), &idfyPassportResp)
 	if err != nil {
+		apiloggerBuilder.WithError("failed to unmarshal response: "+err.Error()).
+			WithResponse("", byteResp.String())
 		return nil, err
 	}
+	apiloggerBuilder.WithResponse(fmt.Sprintf("%d", statusCode), byteResp.String())
 	err = idfyImpl.handleError(statusCode, idfyPassportResp.Error)
 	if err != nil {
+		apiloggerBuilder.WithError(err.Error())
 		logger.Error(ctx, "ExtractPassport:: txnId : %s,response from Idfy %+v", idfyrequest.TaskID, idfyPassportResp)
 		return nil, err
 	}
@@ -238,7 +304,7 @@ func (this *IdfyImpl) FetchPostedReq(requestID string) (*FraudCheckAadharRespons
 	return &frRes, fmt.Sprintf("%s:%+v", IDFY, frRes), err
 }
 
-func (idfyImpl *IdfyImpl) fraudCheck(documentType string, fraudCheckRequest FraudCheckRequest) (*bytes.Buffer, error) {
+func (idfyImpl *IdfyImpl) fraudCheck(documentType string, fraudCheckRequest FraudCheckRequest, apiloggerBuilder *apilogger.ApiDataBuilder) (*bytes.Buffer, error) {
 	postUrl := idfyImpl.config.GetIdfyEndpoint() + documentType
 	reqObj, _ := json.Marshal(fraudCheckRequest)
 	payload := strings.NewReader(string(reqObj))
@@ -247,6 +313,16 @@ func (idfyImpl *IdfyImpl) fraudCheck(documentType string, fraudCheckRequest Frau
 		return nil, err
 	}
 	idfyImpl.addHeaders(req)
+	if apiloggerBuilder != nil {
+		requestPyload := fmt.Sprintf("%+v", fraudCheckRequest.Data)
+		if documentType == AADHAR_DOC_TYPE {
+			requestPyload = aadharmasking.MaskAddharInResponseJson(requestPyload)
+		}
+		apiloggerBuilder.WithRequest(postUrl, http.MethodPost, requestPyload, map[string]string{
+			"task_id":  fraudCheckRequest.TaskID,
+			"group_id": fraudCheckRequest.GroupID,
+		})
+	}
 
 	res, err := idfyImpl.httpClient.Do(req)
 	if err != nil {
@@ -291,19 +367,30 @@ func (idfyImpl *IdfyImpl) fraudCheck(documentType string, fraudCheckRequest Frau
 }
 
 func (idfyImpl *IdfyImpl) FraudCheckPan(ctx context.Context, fraudCheckRequest FraudCheckRequest) (*FraudCheckPanResponse, error) {
+	apiloggerBuilder := apilogger.NewApiDataBuilder(idfyImpl.apilogger.GetConfig())
+	apiloggerBuilder.WithBasic(ctx, IDFY, constants.OCRReadPan)
+	defer func() {
+		idfyImpl.apilogger.Log(context.Background(), apiloggerBuilder.Build())
+	}()
 	documentType := PAN_DOC_TYPE
-	byteResp, err := idfyImpl.fraudCheck(documentType, fraudCheckRequest)
+	byteResp, err := idfyImpl.fraudCheck(documentType, fraudCheckRequest, apiloggerBuilder)
 	if err != nil {
+		apiloggerBuilder.WithError(err.Error())
 		return nil, err
 	}
 	var fraudCheckPanResponse FraudCheckPanResponse
 	err = json.Unmarshal(byteResp.Bytes(), &fraudCheckPanResponse)
 	if err != nil {
+		apiloggerBuilder.WithError("failed to unmarshal response: "+err.Error()).
+			WithResponse("", byteResp.String())
 		return nil, err
 	}
 	if fraudCheckPanResponse.Status != "completed" {
+		apiloggerBuilder.WithError(fmt.Sprintf("%v %v", fraudCheckPanResponse.Message, fraudCheckPanResponse.Error)).
+			WithResponse("", byteResp.String())
 		return nil, fmt.Errorf("%v %v", fraudCheckPanResponse.Message, fraudCheckPanResponse.Error)
 	}
+	apiloggerBuilder.WithResponse(fmt.Sprintf("%d", 200), byteResp.String())
 	return &fraudCheckPanResponse, err
 }
 
@@ -321,64 +408,103 @@ func (idfyImpl *IdfyImpl) FraudCheckAadhar(ctx context.Context, fraudCheckReques
 }
 
 func (idfyImpl *IdfyImpl) FraudCheckDl(ctx context.Context, fraudCheckRequest FraudCheckRequest) (*FraudCheckDlResponse, error) {
+	apiloggerBuilder := apilogger.NewApiDataBuilder(idfyImpl.apilogger.GetConfig())
+	apiloggerBuilder.WithBasic(ctx, IDFY, constants.OCRReadDl)
+	defer func() {
+		idfyImpl.apilogger.Log(context.Background(), apiloggerBuilder.Build())
+	}()
 	documentType := DL_DOC_TYPE
-	byteResp, err := idfyImpl.fraudCheck(documentType, fraudCheckRequest)
+	byteResp, err := idfyImpl.fraudCheck(documentType, fraudCheckRequest, apiloggerBuilder)
 	if err != nil {
+		apiloggerBuilder.WithError(err.Error())
 		return nil, err
 	}
 	var fraudCheckDlResponse FraudCheckDlResponse
 	err = json.Unmarshal(byteResp.Bytes(), &fraudCheckDlResponse)
 	if err != nil {
+		apiloggerBuilder.WithError("failed to unmarshal response: "+err.Error()).
+			WithResponse("", byteResp.String())
 		return nil, err
 	}
 	if fraudCheckDlResponse.Status != "completed" {
-		logger.Error(ctx, "Error in FraudCheckDl with res %+v, error %v", fraudCheckDlResponse, err)
+		apiloggerBuilder.WithError(fmt.Sprintf("%v %v", fraudCheckDlResponse.Message, fraudCheckDlResponse.Error)).
+			WithResponse("", byteResp.String())
 		return nil, fmt.Errorf("%v %v", fraudCheckDlResponse.Message, fraudCheckDlResponse.Error)
 	}
-	return &fraudCheckDlResponse, err
+	apiloggerBuilder.WithResponse(fmt.Sprintf("%d", 200), byteResp.String())
+	return &fraudCheckDlResponse, nil
 }
 
 func (idfyImpl *IdfyImpl) FraudCheckVoter(ctx context.Context, fraudCheckRequest FraudCheckRequest) (*FraudCheckVoterResponse, error) {
+	apiloggerBuilder := apilogger.NewApiDataBuilder(idfyImpl.apilogger.GetConfig())
+	apiloggerBuilder.WithBasic(ctx, IDFY, constants.OCRReadVoterId)
+	defer func() {
+		idfyImpl.apilogger.Log(context.Background(), apiloggerBuilder.Build())
+	}()
 	documentType := VOTER_DOC_TYPE
-	byteResp, err := idfyImpl.fraudCheck(documentType, fraudCheckRequest)
+	byteResp, err := idfyImpl.fraudCheck(documentType, fraudCheckRequest, apiloggerBuilder)
 	if err != nil {
+		apiloggerBuilder.WithError(err.Error())
 		return nil, err
 	}
 	var fraudCheckVoterResponse FraudCheckVoterResponse
 	err = json.Unmarshal(byteResp.Bytes(), &fraudCheckVoterResponse)
 	if err != nil {
+		apiloggerBuilder.WithError("failed to unmarshal response: "+err.Error()).
+			WithResponse("", byteResp.String())
 		return nil, err
 	}
 	if fraudCheckVoterResponse.Status != "completed" {
-		logger.Error(ctx, "Error in FraudCheckVoter with res %+v, error %v", fraudCheckVoterResponse, err)
+		apiloggerBuilder.WithError(fmt.Sprintf("%v %v", fraudCheckVoterResponse.Message, fraudCheckVoterResponse.Error)).
+			WithResponse("", byteResp.String())
 		return nil, fmt.Errorf("%v %v", fraudCheckVoterResponse.Message, fraudCheckVoterResponse.Error)
 	}
-	return &fraudCheckVoterResponse, err
+	apiloggerBuilder.WithResponse(fmt.Sprintf("%d", 200), byteResp.String())
+	return &fraudCheckVoterResponse, nil
 }
 
 func (idfyImpl *IdfyImpl) FraudCheckPassport(ctx context.Context, fraudCheckRequest FraudCheckRequest) (*FraudCheckPassportResponse, error) {
+	apiloggerBuilder := apilogger.NewApiDataBuilder(idfyImpl.apilogger.GetConfig())
+	apiloggerBuilder.WithBasic(ctx, IDFY, constants.OCRReadPassport)
+	defer func() {
+		idfyImpl.apilogger.Log(context.Background(), apiloggerBuilder.Build())
+	}()
 	documentType := PASSPORT_DOC_TYPE
-	byteResp, err := idfyImpl.fraudCheck(documentType, fraudCheckRequest)
+	byteResp, err := idfyImpl.fraudCheck(documentType, fraudCheckRequest, apiloggerBuilder)
 	if err != nil {
+		apiloggerBuilder.WithError(err.Error())
 		return nil, err
 	}
 	var fraudCheckPassportResponse FraudCheckPassportResponse
 	err = json.Unmarshal(byteResp.Bytes(), &fraudCheckPassportResponse)
 	if err != nil {
+		apiloggerBuilder.WithError("failed to unmarshal response: "+err.Error()).
+			WithResponse("", byteResp.String())
 		return nil, err
 	}
 	if fraudCheckPassportResponse.Status != "completed" {
-		logger.Error(ctx, "Error in FraudCheckPassport with res %+v, error %v", fraudCheckPassportResponse, err)
+		apiloggerBuilder.WithError(fmt.Sprintf("%v %v", fraudCheckPassportResponse.Message, fraudCheckPassportResponse.Error)).
+			WithResponse("", byteResp.String())
 		return nil, fmt.Errorf("%v %v", fraudCheckPassportResponse.Message, fraudCheckPassportResponse.Error)
 	}
+	apiloggerBuilder.WithResponse(fmt.Sprintf("%d", 200), byteResp.String())
 	return &fraudCheckPassportResponse, nil
 }
 
 func (idfyImpl *IdfyImpl) CheckTemperedImage(ctx context.Context, req CheckTemperedReq) (bool, error) {
 
+	apiloggerBuilder := apilogger.NewApiDataBuilder(idfyImpl.apilogger.GetConfig())
+	apiloggerBuilder.WithBasic(ctx, IDFY, constants.OCRReadPassport)
+	defer func() {
+		idfyImpl.apilogger.Log(context.Background(), apiloggerBuilder.Build())
+	}()
 	url := idfyImpl.config.GetIdfyEndpoint() + TemperedImage
 	reqObj, _ := json.Marshal(req)
 	payload := strings.NewReader(string(reqObj))
+	apiloggerBuilder.WithRequest(url, http.MethodPost, "", map[string]string{
+		"task_id":  req.TaskID,
+		"group_id": req.GroupID,
+	})
 	httpReq, err := http.NewRequest(http.MethodPost, url, payload)
 	if err != nil {
 		return false, err
@@ -387,15 +513,20 @@ func (idfyImpl *IdfyImpl) CheckTemperedImage(ctx context.Context, req CheckTempe
 
 	res, err := idfyImpl.httpClient.Do(httpReq)
 	if err != nil {
+		apiloggerBuilder.WithError(err.Error())
+		logger.Error(ctx, "Error in CheckTemperedImage with res %+v, error %v", res, err)
 		return false, err
 	}
 	body := &bytes.Buffer{}
 	_, err = body.ReadFrom(res.Body)
 	if err != nil {
+		apiloggerBuilder.WithError(err.Error())
 		return false, err
 	}
+	apiloggerBuilder.WithResponse(fmt.Sprintf("%d", res.StatusCode), body.String())
 	defer res.Body.Close()
 	if res.StatusCode != 200 {
+		apiloggerBuilder.WithError(fmt.Sprintf("statusCode %d body %s", res.StatusCode, body.String()))
 		logger.Error(ctx, "Error in CheckTemperedImage with res %+v, error %v", body.String(), err)
 		return false, fmt.Errorf("return with error code %d res %v", res.StatusCode, res)
 	}
@@ -475,14 +606,30 @@ func (idfyImpl *IdfyImpl) Healthcheck() (*HealthCheckRes, error) {
 }
 
 func (idfyImpl *IdfyImpl) MaskAadharDoc(ctx context.Context, id string, maskAadharDocRequest MaskAadharDocRequest) (*MaskAadharDocResponse, error) {
+	apiloggerBuilder := apilogger.NewApiDataBuilder(idfyImpl.apilogger.GetConfig())
+	apiloggerBuilder.WithBasic(ctx, IDFY, constants.MaskAadhar)
+	defer func() {
+		idfyImpl.apilogger.Log(context.Background(), apiloggerBuilder.Build())
+	}()
+	apiloggerBuilder.WithRequest(idfyImpl.config.GetIdfyEndpoint()+MASK_AADHAR_DOC, http.MethodPost, "", map[string]string{
+		"task_id":  maskAadharDocRequest.TaskID,
+		"group_id": maskAadharDocRequest.GroupID,
+	})
 	requestID, err := idfyImpl.getMaskAadharRequestId(id, maskAadharDocRequest)
 	if err != nil {
+		apiloggerBuilder.WithError(err.Error())
 		logger.Error(ctx, "Error in MaskAadharDoc with res %+v, error %v", requestID, err)
 		return nil, err
 	}
 	res, err := idfyImpl.FetchMaskDoc(*requestID)
 	if err != nil {
+		apiloggerBuilder.WithError(err.Error())
 		logger.Error(ctx, "Error in MaskAadharDoc with res %+v, error %v", res, err)
+	}
+	if res != nil {
+		apiloggerBuilder.WithResponse(res.Status, fmt.Sprintf("%+v", res))
+	} else {
+		apiloggerBuilder.WithResponse(res.Status, "nil response")
 	}
 	return res, err
 }

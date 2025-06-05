@@ -3,6 +3,7 @@ package aadharmasking
 import (
 	"crypto/sha256"
 	"encoding/hex"
+	"regexp"
 	"strings"
 	"unicode"
 )
@@ -37,4 +38,10 @@ func verifyAadharNumberToMask(aadharNumber string) bool {
 	}
 
 	return !strings.EqualFold(aadharNumber[0:8], "XXXXXXXX")
+}
+
+func MaskAddharInResponseJson(info string) string {
+	// create a regex to fing find 12 digit number and replace it to "XXXXXXXX1234"
+	re := regexp.MustCompile(`(\d{8})(\d{4})`)
+	return re.ReplaceAllString(info, "XXXXXXXX$2")
 }

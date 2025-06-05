@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"fmt"
 
+	"bitbucket.org/junglee_games/getsetgo/apilogger"
 	"bitbucket.org/junglee_games/getsetgo/httpclient"
 	"bitbucket.org/junglee_games/getsetgo/instrumenting/newrelic"
 	"bitbucket.org/junglee_games/getsetgo/sdks/idfy"
@@ -41,7 +42,7 @@ func (this IdfyConfig) GetIdfyRetryAttemps() int {
 }
 
 func main() {
-	d := idfy.New(IdfyConfig{}, newrelic.Agent{}, httpclient.NewHttpClient(30))
+	d := idfy.New(IdfyConfig{}, newrelic.Agent{}, httpclient.NewHttpClient(30), apilogger.Config{})
 	res, err := d.MaskAadharDoc(context.Background(), "id", idfy.MaskAadharDocRequest{
 		TaskID:  uuid.New().String(),
 		GroupID: uuid.New().String(),

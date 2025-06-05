@@ -8,12 +8,13 @@ import (
 	"io"
 	"mime/multipart"
 	"net/http"
-	"regexp"
 
 	"bitbucket.org/junglee_games/getsetgo/apilogger"
 	"bitbucket.org/junglee_games/getsetgo/httpclient"
 	"bitbucket.org/junglee_games/getsetgo/instrumenting/newrelic"
 	"bitbucket.org/junglee_games/getsetgo/logger"
+	"bitbucket.org/junglee_games/getsetgo/sdks/constants"
+	"bitbucket.org/junglee_games/getsetgo/utils/aadharmasking"
 	"github.com/pkg/errors"
 )
 
@@ -64,7 +65,7 @@ func (hypervergeImpl *HypervergeImpl) readDocument(documentType string, hyperver
 
 func (hypervergeImpl *HypervergeImpl) ReadPan(ctx context.Context, hypervergeRequest HypervergeRequest) (*PanResponse, error) {
 	apiloggerBuilder := apilogger.NewApiDataBuilder(hypervergeImpl.apilogger.GetConfig())
-	apiloggerBuilder.WithBasic(ctx, HYPERVERGE, OCRReadPan)
+	apiloggerBuilder.WithBasic(ctx, HYPERVERGE, constants.OCRReadPan)
 	defer func() {
 		hypervergeImpl.apilogger.Log(context.Background(), apiloggerBuilder.Build())
 	}()
@@ -114,7 +115,7 @@ func (hypervergeImpl *HypervergeImpl) ReadPan(ctx context.Context, hypervergeReq
 
 func (hypervergeImpl *HypervergeImpl) ReadAadhar(ctx context.Context, hypervergeRequest HypervergeRequest) (*AadharResponse, error) {
 	apiloggerBuilder := apilogger.NewApiDataBuilder(hypervergeImpl.apilogger.GetConfig())
-	apiloggerBuilder.WithBasic(ctx, HYPERVERGE, OCRReadAadhar)
+	apiloggerBuilder.WithBasic(ctx, HYPERVERGE, constants.OCRReadAadhar)
 	defer func() {
 		hypervergeImpl.apilogger.Log(context.Background(), apiloggerBuilder.Build())
 	}()
@@ -130,7 +131,7 @@ func (hypervergeImpl *HypervergeImpl) ReadAadhar(ctx context.Context, hyperverge
 			WithResponse("", body.String())
 		return nil, err
 	}
-	apiloggerBuilder.WithResponse(hypervergeAadharResponse.StatusCode, maskAddharInResponseJson(body.String()))
+	apiloggerBuilder.WithResponse(hypervergeAadharResponse.StatusCode, aadharmasking.MaskAddharInResponseJson(body.String()))
 	if hypervergeAadharResponse.StatusCode != "200" {
 		logger.Error(ctx, "ReadAadhar:: txnId : %s,response from Hyeperverge %s", hypervergeRequest.TxnId, body.String())
 		var mappedErr error
@@ -180,15 +181,9 @@ func (hypervergeImpl *HypervergeImpl) ReadAadhar(ctx context.Context, hyperverge
 
 }
 
-func maskAddharInResponseJson(info string) string {
-	// create a regex to fing find 12 digit number and replace it to "XXXXXXXX1234"
-	re := regexp.MustCompile(`(\d{8})(\d{4})`)
-	return re.ReplaceAllString(info, "XXXXXXXX$2")
-}
-
 func (hypervergeImpl *HypervergeImpl) ReadPassport(ctx context.Context, hypervergeRequest HypervergeRequest) (*PassportResponse, error) {
 	apiloggerBuilder := apilogger.NewApiDataBuilder(hypervergeImpl.apilogger.GetConfig())
-	apiloggerBuilder.WithBasic(ctx, HYPERVERGE, OCRReadPassport)
+	apiloggerBuilder.WithBasic(ctx, HYPERVERGE, constants.OCRReadPassport)
 	defer func() {
 		hypervergeImpl.apilogger.Log(context.Background(), apiloggerBuilder.Build())
 	}()
@@ -262,7 +257,7 @@ func (hypervergeImpl *HypervergeImpl) ReadPassport(ctx context.Context, hyperver
 
 func (hypervergeImpl *HypervergeImpl) ReadVotedID(ctx context.Context, hypervergeRequest HypervergeRequest) (*VoterIdResponse, error) {
 	apiloggerBuilder := apilogger.NewApiDataBuilder(hypervergeImpl.apilogger.GetConfig())
-	apiloggerBuilder.WithBasic(ctx, HYPERVERGE, OCRReadVoterId)
+	apiloggerBuilder.WithBasic(ctx, HYPERVERGE, constants.OCRReadVoterId)
 	defer func() {
 		hypervergeImpl.apilogger.Log(context.Background(), apiloggerBuilder.Build())
 	}()
@@ -397,7 +392,7 @@ func (hypervergeImpl *HypervergeImpl) addHeaders(req *http.Request, txnID string
 func (hypervergeImpl *HypervergeImpl) FraudCheckPan(ctx context.Context, fraudCheckPanRequest FraudCheckPanRequest, txnID string) (*FraudCheckPanResponse, error) {
 	url := hypervergeImpl.config.GetHypervergeFraudCheckEndpoint() + "/verifyPAN"
 	apiloggerBuilder := apilogger.NewApiDataBuilder(hypervergeImpl.apilogger.GetConfig()).
-		WithBasic(ctx, HYPERVERGE, FraudCheckPan).
+		WithBasic(ctx, HYPERVERGE, constants.FraudCheckPan).
 		WithRequest(
 			url,
 			http.MethodPost,
@@ -462,7 +457,7 @@ func (hypervergeImpl *HypervergeImpl) FraudCheckPanV2(ctx context.Context, NSDLP
 	url := hypervergeImpl.config.GetHypervergeNSDLUrl() + "/NSDLPanVerification"
 
 	apiloggerBuilder := apilogger.NewApiDataBuilder(hypervergeImpl.apilogger.GetConfig()).
-		WithBasic(ctx, HYPERVERGE, FraudCheckPanV2). // Assuming UserID is part of NSDLPanRequest
+		WithBasic(ctx, HYPERVERGE, constants.FraudCheckPanV2). // Assuming UserID is part of NSDLPanRequest
 		WithRequest(
 			url,
 			http.MethodPost,
@@ -562,7 +557,7 @@ func (hypervergeImpl *HypervergeImpl) FraudCheckDl(ctx context.Context, fraudChe
 
 	// Create apilogger entry
 	apiloggerBuilder := apilogger.NewApiDataBuilder(hypervergeImpl.apilogger.GetConfig()).
-		WithBasic(ctx, HYPERVERGE, FraudCheckDl).
+		WithBasic(ctx, HYPERVERGE, constants.FraudCheckDl).
 		WithRequest(
 			url,
 			http.MethodPost,
@@ -632,7 +627,7 @@ func (hypervergeImpl *HypervergeImpl) FraudCheckVoter(ctx context.Context, fraud
 	url := hypervergeImpl.config.GetHypervergeFraudCheckEndpoint() + "/checkVoterId"
 
 	apiloggerBuilder := apilogger.NewApiDataBuilder(hypervergeImpl.apilogger.GetConfig()).
-		WithBasic(ctx, HYPERVERGE, FraudCheckVoter).
+		WithBasic(ctx, HYPERVERGE, constants.FraudCheckVoter).
 		WithRequest(
 			url,
 			http.MethodPost,
@@ -694,7 +689,7 @@ func (hypervergeImpl *HypervergeImpl) FraudCheckPassport(ctx context.Context, fr
 	url := hypervergeImpl.config.GetHypervergeFraudCheckEndpoint() + "/verifyPassport"
 
 	apiloggerBuilder := apilogger.NewApiDataBuilder(hypervergeImpl.apilogger.GetConfig()).
-		WithBasic(ctx, HYPERVERGE, FraudCheckPassport).
+		WithBasic(ctx, HYPERVERGE, constants.FraudCheckPassport).
 		WithRequest(
 			url,
 			http.MethodPost,
@@ -760,7 +755,7 @@ func (hypervergeImpl *HypervergeImpl) FraudCheckAadhar(ctx context.Context, frau
 		WithRequest(
 			url,
 			http.MethodPost,
-			fmt.Sprintf("%+v", fraudCheckAadharRequest),
+			aadharmasking.MaskAddharInResponseJson(fmt.Sprintf("%+v", fraudCheckAadharRequest)),
 			map[string]string{"transactionId": txnID},
 		)
 
@@ -796,7 +791,7 @@ func (hypervergeImpl *HypervergeImpl) FraudCheckAadhar(ctx context.Context, frau
 		return nil, fmt.Sprintf("%s,%+v", HYPERVERGE, UNABLE_TO_PARSE_VENDOR_RESPONSE), err
 	}
 
-	apiloggerBuilder.WithResponse(fmt.Sprintf("%d", res.StatusCode), maskAddharInResponseJson(body.String()))
+	apiloggerBuilder.WithResponse(fmt.Sprintf("%d", res.StatusCode), aadharmasking.MaskAddharInResponseJson(body.String()))
 
 	err = hypervergeImpl.handlFruadCheckErrorStatusCode(res)
 	if err != nil {
