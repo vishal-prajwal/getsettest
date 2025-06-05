@@ -35,7 +35,7 @@ const (
 
 // New creates a new Idfy client
 func New(config IdfyConfig, nr newrelic.Agent, client httpclient.HTTPClient, cfg apilogger.Config) *IdfyImpl {
-	apiLogger, err := apilogger.NewApiUsageLogger(context.Background(), cfg)
+	apiLogger, err := apilogger.NewApiUsageLogger(cfg)
 	if err != nil {
 		logger.Error(context.Background(), "Failed to create API logger: %v", err)
 		panic("Failed to create API logger")

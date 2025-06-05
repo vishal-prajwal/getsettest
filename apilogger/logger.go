@@ -31,7 +31,7 @@ func (c *Config) defaults() {
 	}
 }
 
-func NewApiUsageLogger(ctx context.Context, cfg Config) (ApiUsageLogger, error) {
+func NewApiUsageLogger(cfg Config) (ApiUsageLogger, error) {
 	cfg.defaults()
 	eventqueuePublisher, err := kafka.NewPublisher(cfg.Kafka)
 	if err != nil {
