@@ -3,6 +3,8 @@ package apilogger
 import (
 	"context"
 	"time"
+
+	"bitbucket.org/junglee_games/getsetgo/web"
 )
 
 type ApiData struct {
@@ -46,8 +48,13 @@ func NewApiDataBuilder(cfg Config) *ApiDataBuilder {
 }
 
 func (b *ApiDataBuilder) WithRequestContext(ctx context.Context) *ApiDataBuilder {
-	b.apiData.UserID = ctx.Value(CONTEXT_USER_ID).(string)
-	b.apiData.RequestID = ctx.Value(CONTEXT_REQUEST_ID).(string)
+	// Extracting user ID and request ID from the conte
+	if userID, ok := ctx.Value(web.WebKeyValues).(*web.WebValues); ok {
+		b.apiData.UserID = userID.UserID
+	}
+	if requestID, ok := ctx.Value(web.WebKeyValues).(*web.WebValues); ok {
+		b.apiData.RequestID = requestID.RequestID
+	}
 	return b
 }
 
