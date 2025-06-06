@@ -31,7 +31,7 @@ const (
 )
 
 const (
-	webKeyValues = "web.service.ctx"
+	WebKeyValues = "web.service.ctx"
 )
 
 // KeyValues is how request values are stored/retrieved.
