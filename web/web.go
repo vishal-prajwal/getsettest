@@ -15,7 +15,7 @@ import (
 
 // Create a seperate struct for storing keyValue pair of headers and values and then use that ctx.Values().Set(KeyValues, &v)
 
-type webValues struct {
+type WebValues struct {
 	PlatformName PlatformName `header:"X-Platform-Name"`
 	UserID       string       `header:"X-User-Id"`
 	RequestID    string       `header:"X-Request-Id"`
@@ -98,11 +98,6 @@ func (a *App) Handle(method string, path string, handler Handler, mw ...iris.Han
 
 		// Call the wrapped handler functions.
 		if err := handler(ctx); err != nil {
-			ctx.Values().Set(webKeyValues, &webValues{
-				PlatformName: PlatformName(ctx.GetHeader("X-Platform-Name")),
-				UserID:       ctx.GetHeader("X-User-Id"),
-				RequestID:    ctx.GetHeader("X-Request-Id"),
-			})
 			v := ctx.Values().Get(KeyValues).(*Values)
 			v.Err = err
 			// If we receive the shutdown err we need to return it
