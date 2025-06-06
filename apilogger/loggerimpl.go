@@ -2,7 +2,6 @@ package apilogger
 
 import (
 	"context"
-	"encoding/json"
 
 	"bitbucket.org/junglee_games/getsetgo/eventqueue"
 	"bitbucket.org/junglee_games/getsetgo/logger"
@@ -28,14 +27,14 @@ func (a *apiUsageLoggerImpl) Log(ctx context.Context, data *ApiData) error {
 		return nil
 	}
 
-	// Convert the ApiData to JSON
-	message, err := json.Marshal(data)
-	if err != nil {
-		logger.Error(ctx, "Failed to marshal API usage data: %v", err)
-		return err
-	}
+	// // Convert the ApiData to JSON
+	// message, err := json.Marshal(data)
+	// if err != nil {
+	// 	logger.Error(ctx, "Failed to marshal API usage data: %v", err)
+	// 	return err
+	// }
 
-	a.eventPublisher.PublishAsync(ctx, data.UserID, message)
+	a.eventPublisher.PublishAsync(ctx, data.UserID, data)
 	return nil
 }
 
