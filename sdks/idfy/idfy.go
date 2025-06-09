@@ -236,7 +236,7 @@ func (this *IdfyImpl) PostFruadValidationReq(ctx context.Context, documentType s
 	apiloggerBuilder := apilogger.NewApiDataBuilder(this.apilogger.GetConfig())
 	apiloggerBuilder.WithBasic(ctx, IDFY, constants.FraudCheckAadharGetRequestID)
 	defer func() {
-		this.apilogger.Log(context.Background(), apiloggerBuilder.Build())
+		this.apilogger.Log(ctx, apiloggerBuilder.Build())
 	}()
 	postUrl := this.config.GetIdfyEndpoint() + documentType
 	reqObj, _ := json.Marshal(fraudCheckRequest)
@@ -280,9 +280,9 @@ func (this *IdfyImpl) PostFruadValidationReq(ctx context.Context, documentType s
 	return &fraudCheckResponse.RequestID, fmt.Sprintf("%s:%+v", IDFY, fraudCheckResponse), nil
 }
 
-func (this *IdfyImpl) FetchPostedReq(requestID string) (*FraudCheckAadharResponse, string, error) {
+func (this *IdfyImpl) FetchPostedReq(ctx context.Context, requestID string) (*FraudCheckAadharResponse, string, error) {
 	apiloggerBuilder := apilogger.NewApiDataBuilder(this.apilogger.GetConfig())
-	apiloggerBuilder.WithBasic(context.Background(), IDFY, constants.FraudCheckAadhar)
+	apiloggerBuilder.WithBasic(ctx, IDFY, constants.FraudCheckAadhar)
 	defer func() {
 		this.apilogger.Log(context.Background(), apiloggerBuilder.Build())
 	}()
@@ -431,7 +431,7 @@ func (idfyImpl *IdfyImpl) FraudCheckAadhar(ctx context.Context, fraudCheckReques
 	if err != nil {
 		return nil, vendorResp, err
 	}
-	frRes, res, err := idfyImpl.FetchPostedReq(*requestID)
+	frRes, res, err := idfyImpl.FetchPostedReq(ctx, *requestID)
 	if err != nil {
 		logger.Error(ctx, "Error in FetchPostedReq with res %s, error %v", res, err)
 	}
