@@ -1,7 +1,8 @@
 package constants
 
 const (
-	FraudCheckAadhar   = "FraudCheckAadhar"
+	FraudCheckAadhar   = "AadharLite/FraudCheckAadhar"
+	FraudCheckAadharGetRequestID = "FraudCheckAadharGetRequestID"
 	FraudCheckPan      = "FraudCheckPan"
 	FraudCheckPanV2    = "FraudCheckPanV2"
 	FraudCheckDl       = "FraudCheckDl"

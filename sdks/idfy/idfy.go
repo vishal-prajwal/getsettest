@@ -233,68 +233,99 @@ func (idfyImpl *IdfyImpl) addHeaders(req *http.Request) {
 }
 
 func (this *IdfyImpl) PostFruadValidationReq(ctx context.Context, documentType string, fraudCheckRequest FraudCheckRequest) (*string, string, error) {
+	apiloggerBuilder := apilogger.NewApiDataBuilder(this.apilogger.GetConfig())
+	apiloggerBuilder.WithBasic(ctx, IDFY, constants.FraudCheckAadharGetRequestID)
+	defer func() {
+		this.apilogger.Log(context.Background(), apiloggerBuilder.Build())
+	}()
 	postUrl := this.config.GetIdfyEndpoint() + documentType
 	reqObj, _ := json.Marshal(fraudCheckRequest)
 	payload := strings.NewReader(string(reqObj))
+	apiloggerBuilder.WithRequest(postUrl, http.MethodPost, aadharmasking.MaskAddharInResponseJson(fmt.Sprintf("%+v", fraudCheckRequest)), map[string]string{
+		"task_id":  fraudCheckRequest.TaskID,
+		"group_id": fraudCheckRequest.GroupID,
+	})
 	req, err := http.NewRequest(http.MethodPost, postUrl, payload)
 	if err != nil {
+		apiloggerBuilder.WithError(err.Error())
 		return nil, fmt.Sprintf("%s:%s", IDFY, UNABLE_TO_SEND_REQUEST), err
 	}
 	this.addHeaders(req)
 
 	res, err := this.httpClient.Do(req)
 	if err != nil {
+		apiloggerBuilder.WithError(err.Error())
 		return nil, fmt.Sprintf("%s:%s", IDFY, UNABLE_TO_SEND_REQUEST), err
 	}
 
 	body := &bytes.Buffer{}
 	_, err = body.ReadFrom(res.Body)
 	if err != nil {
+		apiloggerBuilder.WithError(err.Error())
 		return nil, fmt.Sprintf("%s:%s", IDFY, UNABLE_TO_PARSE_VENDOR_RESPONSE), err
 	}
 	defer res.Body.Close()
+	apiloggerBuilder.WithResponse(fmt.Sprintf("%d", res.StatusCode), body.String())
 	fmt.Printf("@@@@ debug %s", body.Bytes())
 	var fraudCheckResponse FraudCheckResponse
 	err = json.Unmarshal(body.Bytes(), &fraudCheckResponse)
 	if err != nil {
+		apiloggerBuilder.WithError("failed to unmarshal response: " + err.Error())
 		return nil, fmt.Sprintf("%s:%s", IDFY, UNABLE_TO_PARSE_VENDOR_RESPONSE), err
 	}
 	if fraudCheckResponse.RequestID == "" {
+		apiloggerBuilder.WithError("empty_requestid")
 		return nil, fmt.Sprintf("%s:%s", IDFY, "empty_requestid"), fmt.Errorf("empty_requestid")
 	}
 	return &fraudCheckResponse.RequestID, fmt.Sprintf("%s:%+v", IDFY, fraudCheckResponse), nil
 }
 
 func (this *IdfyImpl) FetchPostedReq(requestID string) (*FraudCheckAadharResponse, string, error) {
+	apiloggerBuilder := apilogger.NewApiDataBuilder(this.apilogger.GetConfig())
+	apiloggerBuilder.WithBasic(context.Background(), IDFY, constants.FraudCheckAadhar)
+	defer func() {
+		this.apilogger.Log(context.Background(), apiloggerBuilder.Build())
+	}()
 	var fraudCheckAadharResponse []FraudCheckAadharResponse
 	getUrl := this.config.GetIdfyEndpoint() + GetTaskStatus
 	params := url.Values{}
 	params.Add("request_id", requestID)
 	fullURL := fmt.Sprintf("%v?%v", getUrl, params.Encode())
+	apiloggerBuilder.WithRequest(fullURL, http.MethodGet, "", map[string]string{
+		"task_id":  requestID,
+		"group_id": requestID,
+	})
 	request, err := http.NewRequest("GET", fullURL, nil)
 	if err != nil {
+		apiloggerBuilder.WithError(err.Error())
 		return nil, "", err
 	}
 	this.addHeaders(request)
 	res, err := this.httpClient.Do(request)
 	if err != nil {
+		apiloggerBuilder.WithError(err.Error())
 		return nil, UNABLE_TO_PARSE_VENDOR_RESPONSE, err
 	}
 	byteResp := &bytes.Buffer{}
 	_, err = byteResp.ReadFrom(res.Body)
 	if err != nil {
+		apiloggerBuilder.WithError(err.Error())
 		return nil, UNABLE_TO_PARSE_VENDOR_RESPONSE, err
 	}
 	defer res.Body.Close()
+	apiloggerBuilder.WithResponse(fmt.Sprintf("%d", res.StatusCode), byteResp.String())
 	err = json.Unmarshal(byteResp.Bytes(), &fraudCheckAadharResponse)
 	if err != nil {
+		apiloggerBuilder.WithError("failed to unmarshal response: " + err.Error())
 		return nil, UNABLE_TO_PARSE_VENDOR_RESPONSE, fmt.Errorf("res %s error %v", byteResp.Bytes(), err)
 	}
 	if len(fraudCheckAadharResponse) == 0 {
+		apiloggerBuilder.WithError("unable to validate aadhar")
 		return nil, NO_Vendor_Response, fmt.Errorf("unable to validate aadhar")
 	}
 	frRes := fraudCheckAadharResponse[0]
 	if res.StatusCode == 422 || res.StatusCode == 403 || res.StatusCode == 401 {
+		apiloggerBuilder.WithError(fmt.Sprintf("%s:%+v", IDFY, frRes))
 		return nil, fmt.Sprintf("%s:%+v", IDFY, frRes), ErrAddharLiteFetchError
 	}
 	if res.StatusCode != 200 {
