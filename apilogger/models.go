@@ -65,12 +65,10 @@ func (b *ApiDataBuilder) WithBasic(ctx context.Context, vendor, reason string) *
 }
 
 func (b *ApiDataBuilder) WithRequest(url, method, payload string, headers map[string]string) *ApiDataBuilder {
-	b.apiData.Request = RequestData{
-		URL:     url,
-		Method:  method,
-		Headers: headers,
-		Payload: payload,
-	}
+	b.apiData.Request.URL = url
+	b.apiData.Request.Method = method
+	b.apiData.Request.Headers = headers
+	b.apiData.Request.Payload = payload
 	return b
 }
 
