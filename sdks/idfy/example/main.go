@@ -41,14 +41,9 @@ func (this IdfyConfig) GetIdfyRetryAttemps() int {
 	return 3
 }
 
-func (this IdfyConfig) GetApiLoggerConfig() apilogger.Config {
-	return apilogger.Config{
-		Kafka: nil,
-	}
-}
-
 func main() {
-	d := idfy.New(IdfyConfig{}, newrelic.Agent{}, httpclient.NewHttpClient(30))
+	var apilogger apilogger.ApiUsageLogger
+	d := idfy.New(IdfyConfig{}, apilogger, newrelic.Agent{}, httpclient.NewHttpClient(30))
 	res, err := d.MaskAadharDoc(context.Background(), "id", idfy.MaskAadharDocRequest{
 		TaskID:  uuid.New().String(),
 		GroupID: uuid.New().String(),

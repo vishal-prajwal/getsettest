@@ -2,8 +2,6 @@ package idfy
 
 import (
 	"context"
-
-	"bitbucket.org/junglee_games/getsetgo/apilogger"
 )
 
 type Idfy interface {
@@ -30,5 +28,4 @@ type IdfyConfig interface {
 	GetIdfyEndpoint() string
 	GetIdfyHealthCheckEndpoint() string
 	GetIdfyRetryAttemps() int
-	GetApiLoggerConfig() apilogger.Config
 }

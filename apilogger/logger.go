@@ -3,6 +3,7 @@ package apilogger
 import (
 	"context"
 
+	"bitbucket.org/junglee_games/getsetgo/configs"
 	"bitbucket.org/junglee_games/getsetgo/eventqueue/impls/kafka"
 	"github.com/pkg/errors"
 )
@@ -13,7 +14,7 @@ type ApiUsageLogger interface {
 }
 
 type Config struct {
-	Kafka     kafka.PublisherConfig
+	Kafka     configs.DefaultKafkaConfig
 	EventType string
 	ProductID int64
 	Source    string
@@ -33,7 +34,7 @@ func (c *Config) defaults() {
 
 func NewApiUsageLogger(cfg Config) (ApiUsageLogger, error) {
 	cfg.defaults()
-	eventqueuePublisher, err := kafka.NewPublisher(cfg.Kafka)
+	eventqueuePublisher, err := kafka.NewPublisher(&cfg.Kafka)
 	if err != nil {
 		return nil, errors.Wrap(err, "failed to create Kafka publisher for API usage logger")
 	}

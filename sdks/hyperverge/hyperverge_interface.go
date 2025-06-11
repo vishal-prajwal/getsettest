@@ -27,5 +27,4 @@ type HypervergeConfig interface {
 	GetHypervergeEndpoint() string
 	GetHypervergeFraudCheckEndpoint() string
 	GetHypervergeNSDLUrl() string
-	GetApiLoggerConfig() apilogger.Config
 }

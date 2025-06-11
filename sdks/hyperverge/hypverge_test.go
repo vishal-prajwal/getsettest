@@ -34,15 +34,10 @@ func (this HypvergeTest) GetHypervergeFraudCheckAadharEndpoint() string {
 func (this HypvergeTest) GetHypervergeNSDLUrl() string {
 	return ""
 }
-
-func (this HypvergeTest) GetApiLoggerConfig() apilogger.Config {
-	return apilogger.Config{
-		Kafka: nil,
-	}
-}
 func TestHypverge(t *testing.T) {
 	var hvConfig HypvergeTest
-	hvClient := New(hvConfig, newrelic.Agent{}, httpclient.NewHttpClient(10))
+	var apilogger apilogger.ApiUsageLogger
+	hvClient := New(hvConfig, apilogger, newrelic.Agent{}, httpclient.NewHttpClient(10))
 
 	bytes, err := ioutil.ReadFile("tt_front.jpeg")
 	if err != nil {
