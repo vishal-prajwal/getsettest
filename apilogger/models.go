@@ -37,7 +37,11 @@ type ApiDataBuilder struct {
 	apiData ApiData
 }
 
-func NewApiDataBuilder(cfg Config) *ApiDataBuilder {
+func NewApiDataBuilder(cfg *Config) *ApiDataBuilder {
+	if cfg == nil {
+		cfg = &Config{}
+	}
+	cfg.defaults()
 	return &ApiDataBuilder{
 		apiData: ApiData{
 			ProductID: cfg.ProductID,

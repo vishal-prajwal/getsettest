@@ -36,10 +36,10 @@ func New(config HypervergeConfig, apiLogger apilogger.ApiUsageLogger, nr newreli
 	return &hypervergeImpl
 }
 
-func (hypervergeImpl *HypervergeImpl) readDocument(documentType string, hypervergeRequest HypervergeRequest, apiloggerBuilder *apilogger.ApiDataBuilder) (*bytes.Buffer, error) {
+func (hypervergeImpl *HypervergeImpl) readDocument(documentType string, hypervergeRequest HypervergeRequest, apiDataBuilder *apilogger.ApiDataBuilder) (*bytes.Buffer, error) {
 	url := getURLFor(documentType, hypervergeImpl.config.GetHypervergeEndpoint())
 	req, err := newfileUploadRequest(url, hypervergeRequest.ImageFile,
-		hypervergeImpl.config.GetHypervergeAppKey(), hypervergeImpl.config.GetHypervergeAppID(), hypervergeRequest.ImageName, hypervergeRequest.TxnId, apiloggerBuilder)
+		hypervergeImpl.config.GetHypervergeAppKey(), hypervergeImpl.config.GetHypervergeAppID(), hypervergeRequest.ImageName, hypervergeRequest.TxnId, apiDataBuilder)
 	if err != nil {
 		return nil, errors.Wrap(ErrUploadError, err.Error())
 	}
@@ -59,24 +59,24 @@ func (hypervergeImpl *HypervergeImpl) readDocument(documentType string, hyperver
 }
 
 func (hypervergeImpl *HypervergeImpl) ReadPan(ctx context.Context, hypervergeRequest HypervergeRequest) (*PanResponse, error) {
-	apiloggerBuilder := apilogger.NewApiDataBuilder(hypervergeImpl.apilogger.GetConfig())
-	apiloggerBuilder.WithBasic(ctx, HYPERVERGE, constants.OCRReadPan)
+	apiDataBuilder := apilogger.NewApiDataBuilder(hypervergeImpl.apilogger.GetConfig())
+	apiDataBuilder.WithBasic(ctx, HYPERVERGE, constants.OCRReadPan)
 	defer func() {
-		hypervergeImpl.apilogger.Log(context.Background(), apiloggerBuilder.Build())
+		hypervergeImpl.apilogger.Log(context.Background(), apiDataBuilder.Build())
 	}()
-	body, err := hypervergeImpl.readDocument("pan", hypervergeRequest, apiloggerBuilder)
+	body, err := hypervergeImpl.readDocument("pan", hypervergeRequest, apiDataBuilder)
 	if err != nil {
-		apiloggerBuilder.WithError(err.Error())
+		apiDataBuilder.WithError(err.Error())
 		return nil, errors.Wrap(ErrHttpError, err.Error())
 	}
 	var hypervergePanResponse HypervergePanResponse
 	err = json.Unmarshal(body.Bytes(), &hypervergePanResponse)
 	if err != nil {
-		apiloggerBuilder.WithError("failed to unmarshal response: "+err.Error()).
+		apiDataBuilder.WithError("failed to unmarshal response: "+err.Error()).
 			WithResponse("", body.String())
 		return nil, err
 	}
-	apiloggerBuilder.WithResponse(hypervergePanResponse.StatusCode, body.String())
+	apiDataBuilder.WithResponse(hypervergePanResponse.StatusCode, body.String())
 	if hypervergePanResponse.StatusCode != "200" {
 		logger.Error(ctx, "ReadPan:: txnId : %s,response from Hyeperverge %s", hypervergeRequest.TxnId, body.String())
 		var mappedErr error
@@ -90,7 +90,7 @@ func (hypervergeImpl *HypervergeImpl) ReadPan(ctx context.Context, hypervergeReq
 		default:
 			mappedErr = fmt.Errorf("status %v errorMessage %v", hypervergePanResponse.Status, hypervergePanResponse.Error)
 		}
-		apiloggerBuilder.WithError(mappedErr.Error())
+		apiDataBuilder.WithError(mappedErr.Error())
 		return nil, mappedErr
 	}
 
@@ -109,24 +109,24 @@ func (hypervergeImpl *HypervergeImpl) ReadPan(ctx context.Context, hypervergeReq
 }
 
 func (hypervergeImpl *HypervergeImpl) ReadAadhar(ctx context.Context, hypervergeRequest HypervergeRequest) (*AadharResponse, error) {
-	apiloggerBuilder := apilogger.NewApiDataBuilder(hypervergeImpl.apilogger.GetConfig())
-	apiloggerBuilder.WithBasic(ctx, HYPERVERGE, constants.OCRReadAadhar)
+	apiDataBuilder := apilogger.NewApiDataBuilder(hypervergeImpl.apilogger.GetConfig())
+	apiDataBuilder.WithBasic(ctx, HYPERVERGE, constants.OCRReadAadhar)
 	defer func() {
-		hypervergeImpl.apilogger.Log(context.Background(), apiloggerBuilder.Build())
+		hypervergeImpl.apilogger.Log(context.Background(), apiDataBuilder.Build())
 	}()
-	body, err := hypervergeImpl.readDocument("aadhar", hypervergeRequest, apiloggerBuilder)
+	body, err := hypervergeImpl.readDocument("aadhar", hypervergeRequest, apiDataBuilder)
 	if err != nil {
-		apiloggerBuilder.WithError(err.Error())
+		apiDataBuilder.WithError(err.Error())
 		return nil, err
 	}
 	var hypervergeAadharResponse HypervergeAadharResponse
 	err = json.Unmarshal(body.Bytes(), &hypervergeAadharResponse)
 	if err != nil {
-		apiloggerBuilder.WithError("failed to unmarshal response: "+err.Error()).
-			WithResponse("", body.String())
+		apiDataBuilder.WithError("failed to unmarshal response: "+err.Error()).
+			WithResponse("", aadharmasking.MaskAddharInResponseJson(body.String()))
 		return nil, err
 	}
-	apiloggerBuilder.WithResponse(hypervergeAadharResponse.StatusCode, aadharmasking.MaskAddharInResponseJson(body.String()))
+	apiDataBuilder.WithResponse(hypervergeAadharResponse.StatusCode, aadharmasking.MaskAddharInResponseJson(body.String()))
 	if hypervergeAadharResponse.StatusCode != "200" {
 		logger.Error(ctx, "ReadAadhar:: txnId : %s,response from Hyeperverge %s", hypervergeRequest.TxnId, body.String())
 		var mappedErr error
@@ -140,7 +140,7 @@ func (hypervergeImpl *HypervergeImpl) ReadAadhar(ctx context.Context, hyperverge
 		default:
 			mappedErr = fmt.Errorf("status %v errorMessage %v", hypervergeAadharResponse.Status, hypervergeAadharResponse.Error)
 		}
-		apiloggerBuilder.WithError(mappedErr.Error())
+		apiDataBuilder.WithError(mappedErr.Error())
 		return nil, mappedErr
 	}
 	if len(hypervergeAadharResponse.Result) > 1 {
@@ -177,24 +177,24 @@ func (hypervergeImpl *HypervergeImpl) ReadAadhar(ctx context.Context, hyperverge
 }
 
 func (hypervergeImpl *HypervergeImpl) ReadPassport(ctx context.Context, hypervergeRequest HypervergeRequest) (*PassportResponse, error) {
-	apiloggerBuilder := apilogger.NewApiDataBuilder(hypervergeImpl.apilogger.GetConfig())
-	apiloggerBuilder.WithBasic(ctx, HYPERVERGE, constants.OCRReadPassport)
+	apiDataBuilder := apilogger.NewApiDataBuilder(hypervergeImpl.apilogger.GetConfig())
+	apiDataBuilder.WithBasic(ctx, HYPERVERGE, constants.OCRReadPassport)
 	defer func() {
-		hypervergeImpl.apilogger.Log(context.Background(), apiloggerBuilder.Build())
+		hypervergeImpl.apilogger.Log(context.Background(), apiDataBuilder.Build())
 	}()
-	body, err := hypervergeImpl.readDocument("passport", hypervergeRequest, apiloggerBuilder)
+	body, err := hypervergeImpl.readDocument("passport", hypervergeRequest, apiDataBuilder)
 	if err != nil {
-		apiloggerBuilder.WithError(err.Error())
+		apiDataBuilder.WithError(err.Error())
 		return nil, err
 	}
 	var hypervergePassportResponse HypervergePassportResponse
 	err = json.Unmarshal(body.Bytes(), &hypervergePassportResponse)
 	if err != nil {
-		apiloggerBuilder.WithError("failed to unmarshal response: "+err.Error()).
+		apiDataBuilder.WithError("failed to unmarshal response: "+err.Error()).
 			WithResponse("", body.String())
 		return nil, err
 	}
-	apiloggerBuilder.WithResponse(hypervergePassportResponse.StatusCode, body.String())
+	apiDataBuilder.WithResponse(hypervergePassportResponse.StatusCode, body.String())
 	if hypervergePassportResponse.StatusCode != "200" {
 		logger.Error(ctx, "ReadPassport:: txnId : %s,response from Hyeperverge %s", hypervergeRequest.TxnId, body.String())
 		var mappedErr error
@@ -208,7 +208,7 @@ func (hypervergeImpl *HypervergeImpl) ReadPassport(ctx context.Context, hyperver
 		default:
 			mappedErr = fmt.Errorf("status %v errorMessage %v", hypervergePassportResponse.Status, hypervergePassportResponse.Error)
 		}
-		apiloggerBuilder.WithError(mappedErr.Error())
+		apiDataBuilder.WithError(mappedErr.Error())
 		return nil, mappedErr
 	}
 	details := hypervergePassportResponse.Result[0].Details
@@ -251,24 +251,24 @@ func (hypervergeImpl *HypervergeImpl) ReadPassport(ctx context.Context, hyperver
 }
 
 func (hypervergeImpl *HypervergeImpl) ReadVotedID(ctx context.Context, hypervergeRequest HypervergeRequest) (*VoterIdResponse, error) {
-	apiloggerBuilder := apilogger.NewApiDataBuilder(hypervergeImpl.apilogger.GetConfig())
-	apiloggerBuilder.WithBasic(ctx, HYPERVERGE, constants.OCRReadVoterId)
+	apiDataBuilder := apilogger.NewApiDataBuilder(hypervergeImpl.apilogger.GetConfig())
+	apiDataBuilder.WithBasic(ctx, HYPERVERGE, constants.OCRReadVoterId)
 	defer func() {
-		hypervergeImpl.apilogger.Log(context.Background(), apiloggerBuilder.Build())
+		hypervergeImpl.apilogger.Log(context.Background(), apiDataBuilder.Build())
 	}()
-	body, err := hypervergeImpl.readDocument("voter", hypervergeRequest, apiloggerBuilder)
+	body, err := hypervergeImpl.readDocument("voter", hypervergeRequest, apiDataBuilder)
 	if err != nil {
-		apiloggerBuilder.WithError(err.Error())
+		apiDataBuilder.WithError(err.Error())
 		return nil, err
 	}
 	var hypervergeVoterIdResponse HypervergeVoterIdResponse
 	err = json.Unmarshal(body.Bytes(), &hypervergeVoterIdResponse)
 	if err != nil {
-		apiloggerBuilder.WithError("failed to unmarshal response: "+err.Error()).
+		apiDataBuilder.WithError("failed to unmarshal response: "+err.Error()).
 			WithResponse("", body.String())
 		return nil, err
 	}
-	apiloggerBuilder.WithResponse(hypervergeVoterIdResponse.StatusCode, body.String())
+	apiDataBuilder.WithResponse(hypervergeVoterIdResponse.StatusCode, body.String())
 	if hypervergeVoterIdResponse.StatusCode != "200" {
 		logger.Error(ctx, "ReadVotedID:: txnId : %s,response from Hyeperverge %s", hypervergeRequest.TxnId, body.String())
 		var mappedErr error
@@ -282,7 +282,7 @@ func (hypervergeImpl *HypervergeImpl) ReadVotedID(ctx context.Context, hyperverg
 		default:
 			mappedErr = fmt.Errorf("status %v errorMessage %v", hypervergeVoterIdResponse.Status, hypervergeVoterIdResponse.Error)
 		}
-		apiloggerBuilder.WithError(mappedErr.Error())
+		apiDataBuilder.WithError(mappedErr.Error())
 		return nil, mappedErr
 	}
 	details := hypervergeVoterIdResponse.Result[0].Details
@@ -312,7 +312,7 @@ func (hypervergeImpl *HypervergeImpl) ReadVotedID(ctx context.Context, hyperverg
 	return &voterIdResponse, err
 }
 
-func newfileUploadRequest(uri, file, appKey, appID, fileName, txnID string, apiloggerBuilder *apilogger.ApiDataBuilder) (*http.Request, error) {
+func newfileUploadRequest(uri, file, appKey, appID, fileName, txnID string, apiDataBuilder *apilogger.ApiDataBuilder) (*http.Request, error) {
 
 	body := &bytes.Buffer{}
 	writer := multipart.NewWriter(body)
@@ -334,8 +334,8 @@ func newfileUploadRequest(uri, file, appKey, appID, fileName, txnID string, apil
 	req.Header.Set("appId", appID)
 	req.Header.Set("appkey", appKey)
 	req.Header.Set("transactionId", txnID)
-	if apiloggerBuilder != nil {
-		apiloggerBuilder.WithRequest(uri, http.MethodPost, "", map[string]string{
+	if apiDataBuilder != nil {
+		apiDataBuilder.WithRequest(uri, http.MethodPost, "", map[string]string{
 			"transactionId": txnID,
 		})
 	}
@@ -385,38 +385,39 @@ func (hypervergeImpl *HypervergeImpl) addHeaders(req *http.Request, txnID string
 }
 
 func (hypervergeImpl *HypervergeImpl) FraudCheckPan(ctx context.Context, fraudCheckPanRequest FraudCheckPanRequest, txnID string) (*FraudCheckPanResponse, error) {
+	jsonData, _ := json.Marshal(fraudCheckPanRequest)
 	url := hypervergeImpl.config.GetHypervergeFraudCheckEndpoint() + "/verifyPAN"
-	apiloggerBuilder := apilogger.NewApiDataBuilder(hypervergeImpl.apilogger.GetConfig()).
+	apiDataBuilder := apilogger.NewApiDataBuilder(hypervergeImpl.apilogger.GetConfig()).
 		WithBasic(ctx, HYPERVERGE, constants.FraudCheckPan).
 		WithRequest(
 			url,
 			http.MethodPost,
-			fmt.Sprintf("%+v", fraudCheckPanRequest),
+			string(jsonData),
 			map[string]string{"transactionId": txnID},
 		)
 
 	// Ensure logging happens at the end using original context
 	defer func() {
-		hypervergeImpl.apilogger.Log(ctx, apiloggerBuilder.Build())
+		hypervergeImpl.apilogger.Log(ctx, apiDataBuilder.Build())
 	}()
 
 	reqObj, err := json.Marshal(fraudCheckPanRequest)
 	if err != nil {
-		apiloggerBuilder.WithError("failed to marshal request: " + err.Error())
+		apiDataBuilder.WithError("failed to marshal request: " + err.Error())
 		return nil, err
 	}
 
 	requestBody := bytes.NewBuffer(reqObj)
 	req, err := http.NewRequest(http.MethodPost, url, requestBody)
 	if err != nil {
-		apiloggerBuilder.WithError("failed to create request: " + err.Error())
+		apiDataBuilder.WithError("failed to create request: " + err.Error())
 		return nil, err
 	}
 	hypervergeImpl.addHeaders(req, txnID)
 
 	res, err := hypervergeImpl.httpClient.Do(req)
 	if err != nil {
-		apiloggerBuilder.WithError("HTTP call failed: " + err.Error())
+		apiDataBuilder.WithError("HTTP call failed: " + err.Error())
 		return nil, err
 	}
 
@@ -424,24 +425,24 @@ func (hypervergeImpl *HypervergeImpl) FraudCheckPan(ctx context.Context, fraudCh
 	_, err = body.ReadFrom(res.Body)
 	defer res.Body.Close()
 	if err != nil {
-		apiloggerBuilder.WithError("failed to read response body: " + err.Error())
+		apiDataBuilder.WithError("failed to read response body: " + err.Error())
 		return nil, err
 	}
 
 	// Log raw response for traceability
-	apiloggerBuilder.WithResponse(fmt.Sprintf("%d", res.StatusCode), body.String())
+	apiDataBuilder.WithResponse(fmt.Sprintf("%d", res.StatusCode), body.String())
 
 	err = hypervergeImpl.handlFruadCheckErrorStatusCode(res)
 	if err != nil {
 		logger.Error(ctx, "FraudCheckPan:: txnId : %s, response from Hyperverge: %s", txnID, body.String())
-		apiloggerBuilder.WithError("non-200 response: " + err.Error())
+		apiDataBuilder.WithError("non-200 response: " + err.Error())
 		return nil, err
 	}
 
 	var fraudCheckPanResponse FraudCheckPanResponse
 	err = json.Unmarshal(body.Bytes(), &fraudCheckPanResponse)
 	if err != nil {
-		apiloggerBuilder.WithError("failed to unmarshal response: " + err.Error())
+		apiDataBuilder.WithError("failed to unmarshal response: " + err.Error())
 		return nil, err
 	}
 
@@ -450,37 +451,37 @@ func (hypervergeImpl *HypervergeImpl) FraudCheckPan(ctx context.Context, fraudCh
 
 func (hypervergeImpl *HypervergeImpl) FraudCheckPanV2(ctx context.Context, NSDLPanRequest NSDLPanRequest, txnID string) (*NSDLPanResponse, error) {
 	url := hypervergeImpl.config.GetHypervergeNSDLUrl() + "/NSDLPanVerification"
-
-	apiloggerBuilder := apilogger.NewApiDataBuilder(hypervergeImpl.apilogger.GetConfig()).
+	jsonData, _ := json.Marshal(NSDLPanRequest)
+	apiDataBuilder := apilogger.NewApiDataBuilder(hypervergeImpl.apilogger.GetConfig()).
 		WithBasic(ctx, HYPERVERGE, constants.FraudCheckPanV2). // Assuming UserID is part of NSDLPanRequest
 		WithRequest(
 			url,
 			http.MethodPost,
-			fmt.Sprintf("%+v", NSDLPanRequest),
+			string(jsonData),
 			map[string]string{"transactionId": txnID},
 		)
 
 	defer func() {
-		hypervergeImpl.apilogger.Log(ctx, apiloggerBuilder.Build())
+		hypervergeImpl.apilogger.Log(ctx, apiDataBuilder.Build())
 	}()
 
 	reqObj, err := json.Marshal(NSDLPanRequest)
 	if err != nil {
-		apiloggerBuilder.WithError("failed to marshal request: " + err.Error())
+		apiDataBuilder.WithError("failed to marshal request: " + err.Error())
 		return nil, err
 	}
 
 	requestBody := bytes.NewBuffer(reqObj)
 	req, err := http.NewRequest(http.MethodPost, url, requestBody)
 	if err != nil {
-		apiloggerBuilder.WithError("failed to create request: " + err.Error())
+		apiDataBuilder.WithError("failed to create request: " + err.Error())
 		return nil, err
 	}
 	hypervergeImpl.addHeaders(req, txnID)
 
 	res, err := hypervergeImpl.httpClient.Do(req)
 	if err != nil {
-		apiloggerBuilder.WithError("HTTP call failed: " + err.Error())
+		apiDataBuilder.WithError("HTTP call failed: " + err.Error())
 		return nil, err
 	}
 
@@ -488,23 +489,23 @@ func (hypervergeImpl *HypervergeImpl) FraudCheckPanV2(ctx context.Context, NSDLP
 	_, err = body.ReadFrom(res.Body)
 	defer res.Body.Close()
 	if err != nil {
-		apiloggerBuilder.WithError("failed to read response body: " + err.Error())
+		apiDataBuilder.WithError("failed to read response body: " + err.Error())
 		return nil, err
 	}
 
-	apiloggerBuilder.WithResponse(fmt.Sprintf("%d", res.StatusCode), body.String())
+	apiDataBuilder.WithResponse(fmt.Sprintf("%d", res.StatusCode), body.String())
 
 	err = hypervergeImpl.handlNSDLErrorStatusCode(res)
 	if err != nil {
 		logger.Error(ctx, "FraudCheckPanV2:: txnId : %s, response from Hyperverge: %s", txnID, body.String())
-		apiloggerBuilder.WithError("non-200 response: " + err.Error())
+		apiDataBuilder.WithError("non-200 response: " + err.Error())
 		return nil, err
 	}
 
 	var nsdlPanResp NSDLPanResponse
 	err = json.Unmarshal(body.Bytes(), &nsdlPanResp)
 	if err != nil {
-		apiloggerBuilder.WithError("failed to unmarshal response: " + err.Error())
+		apiDataBuilder.WithError("failed to unmarshal response: " + err.Error())
 		return nil, err
 	}
 
@@ -550,32 +551,33 @@ func (hypervergeImpl HypervergeImpl) handlNSDLErrorStatusCode(res *http.Response
 func (hypervergeImpl *HypervergeImpl) FraudCheckDl(ctx context.Context, fraudCheckDlRequest FraudCheckDlRequest, txnID string) (*FraudCheckDlResponse, error) {
 	url := hypervergeImpl.config.GetHypervergeFraudCheckEndpoint() + "/checkDL"
 
+	jsonData, _ := json.Marshal(fraudCheckDlRequest)
 	// Create apilogger entry
-	apiloggerBuilder := apilogger.NewApiDataBuilder(hypervergeImpl.apilogger.GetConfig()).
+	apiDataBuilder := apilogger.NewApiDataBuilder(hypervergeImpl.apilogger.GetConfig()).
 		WithBasic(ctx, HYPERVERGE, constants.FraudCheckDl).
 		WithRequest(
 			url,
 			http.MethodPost,
-			fmt.Sprintf("%+v", fraudCheckDlRequest),
+			string(jsonData),
 			map[string]string{"transactionId": txnID},
 		)
 
 	// Ensure logger logs at the end
 	defer func() {
-		hypervergeImpl.apilogger.Log(ctx, apiloggerBuilder.Build())
+		hypervergeImpl.apilogger.Log(ctx, apiDataBuilder.Build())
 	}()
 
 	// Marshal request
 	reqObj, err := json.Marshal(fraudCheckDlRequest)
 	if err != nil {
-		apiloggerBuilder.WithError("failed to marshal request: " + err.Error())
+		apiDataBuilder.WithError("failed to marshal request: " + err.Error())
 		return nil, err
 	}
 
 	// Create HTTP request
 	req, err := http.NewRequest(http.MethodPost, url, bytes.NewBuffer(reqObj))
 	if err != nil {
-		apiloggerBuilder.WithError("failed to create HTTP request: " + err.Error())
+		apiDataBuilder.WithError("failed to create HTTP request: " + err.Error())
 		return nil, err
 	}
 	hypervergeImpl.addHeaders(req, txnID)
@@ -583,7 +585,7 @@ func (hypervergeImpl *HypervergeImpl) FraudCheckDl(ctx context.Context, fraudChe
 	// Execute HTTP request
 	res, err := hypervergeImpl.httpClient.Do(req)
 	if err != nil {
-		apiloggerBuilder.WithError("HTTP request failed: " + err.Error())
+		apiDataBuilder.WithError("HTTP request failed: " + err.Error())
 		return nil, err
 	}
 
@@ -592,18 +594,18 @@ func (hypervergeImpl *HypervergeImpl) FraudCheckDl(ctx context.Context, fraudChe
 	_, err = body.ReadFrom(res.Body)
 	defer res.Body.Close()
 	if err != nil {
-		apiloggerBuilder.WithError("failed to read response body: " + err.Error())
+		apiDataBuilder.WithError("failed to read response body: " + err.Error())
 		return nil, err
 	}
 
 	// Log raw response
-	apiloggerBuilder.WithResponse(fmt.Sprintf("%d", res.StatusCode), body.String())
+	apiDataBuilder.WithResponse(fmt.Sprintf("%d", res.StatusCode), body.String())
 
 	// Handle non-200 status codes
 	err = hypervergeImpl.handlFruadCheckErrorStatusCode(res)
 	if err != nil {
 		logger.Error(ctx, "FraudCheckDl:: txnId : %s, response from Hyperverge: %s", txnID, body.String())
-		apiloggerBuilder.WithError("non-200 response: " + err.Error())
+		apiDataBuilder.WithError("non-200 response: " + err.Error())
 		return nil, err
 	}
 
@@ -611,7 +613,7 @@ func (hypervergeImpl *HypervergeImpl) FraudCheckDl(ctx context.Context, fraudChe
 	var fraudCheckDlResponse FraudCheckDlResponse
 	err = json.Unmarshal(body.Bytes(), &fraudCheckDlResponse)
 	if err != nil {
-		apiloggerBuilder.WithError("failed to unmarshal response: " + err.Error())
+		apiDataBuilder.WithError("failed to unmarshal response: " + err.Error())
 		return nil, err
 	}
 
@@ -620,36 +622,36 @@ func (hypervergeImpl *HypervergeImpl) FraudCheckDl(ctx context.Context, fraudChe
 
 func (hypervergeImpl *HypervergeImpl) FraudCheckVoter(ctx context.Context, fraudCheckVoterRequest FraudCheckVoterRequest, txnID string) (*FraudCheckVoterResponse, error) {
 	url := hypervergeImpl.config.GetHypervergeFraudCheckEndpoint() + "/checkVoterId"
-
-	apiloggerBuilder := apilogger.NewApiDataBuilder(hypervergeImpl.apilogger.GetConfig()).
+	jsonData, _ := json.Marshal(fraudCheckVoterRequest)
+	apiDataBuilder := apilogger.NewApiDataBuilder(hypervergeImpl.apilogger.GetConfig()).
 		WithBasic(ctx, HYPERVERGE, constants.FraudCheckVoter).
 		WithRequest(
 			url,
 			http.MethodPost,
-			fmt.Sprintf("%+v", fraudCheckVoterRequest),
+			string(jsonData),
 			map[string]string{"transactionId": txnID},
 		)
 
 	defer func() {
-		hypervergeImpl.apilogger.Log(ctx, apiloggerBuilder.Build())
+		hypervergeImpl.apilogger.Log(ctx, apiDataBuilder.Build())
 	}()
 
 	reqObj, err := json.Marshal(fraudCheckVoterRequest)
 	if err != nil {
-		apiloggerBuilder.WithError("failed to marshal request: " + err.Error())
+		apiDataBuilder.WithError("failed to marshal request: " + err.Error())
 		return nil, err
 	}
 
 	req, err := http.NewRequest(http.MethodPost, url, bytes.NewBuffer(reqObj))
 	if err != nil {
-		apiloggerBuilder.WithError("failed to create HTTP request: " + err.Error())
+		apiDataBuilder.WithError("failed to create HTTP request: " + err.Error())
 		return nil, err
 	}
 	hypervergeImpl.addHeaders(req, txnID)
 
 	res, err := hypervergeImpl.httpClient.Do(req)
 	if err != nil {
-		apiloggerBuilder.WithError("HTTP request failed: " + err.Error())
+		apiDataBuilder.WithError("HTTP request failed: " + err.Error())
 		return nil, err
 	}
 
@@ -657,23 +659,23 @@ func (hypervergeImpl *HypervergeImpl) FraudCheckVoter(ctx context.Context, fraud
 	_, err = body.ReadFrom(res.Body)
 	defer res.Body.Close()
 	if err != nil {
-		apiloggerBuilder.WithError("failed to read response body: " + err.Error())
+		apiDataBuilder.WithError("failed to read response body: " + err.Error())
 		return nil, err
 	}
 
-	apiloggerBuilder.WithResponse(fmt.Sprintf("%d", res.StatusCode), body.String())
+	apiDataBuilder.WithResponse(fmt.Sprintf("%d", res.StatusCode), body.String())
 
 	err = hypervergeImpl.handlFruadCheckErrorStatusCode(res)
 	if err != nil {
 		logger.Error(ctx, "FraudCheckVoter:: txnId : %s, response from Hyperverge: %s", txnID, body.String())
-		apiloggerBuilder.WithError("non-200 response: " + err.Error())
+		apiDataBuilder.WithError("non-200 response: " + err.Error())
 		return nil, err
 	}
 
 	var fraudCheckVoterResponse FraudCheckVoterResponse
 	err = json.Unmarshal(body.Bytes(), &fraudCheckVoterResponse)
 	if err != nil {
-		apiloggerBuilder.WithError("failed to unmarshal response: " + err.Error())
+		apiDataBuilder.WithError("failed to unmarshal response: " + err.Error())
 		return nil, err
 	}
 
@@ -682,36 +684,36 @@ func (hypervergeImpl *HypervergeImpl) FraudCheckVoter(ctx context.Context, fraud
 
 func (hypervergeImpl *HypervergeImpl) FraudCheckPassport(ctx context.Context, fraudCheckPassportRequest FraudCheckPassportRequest, txnID string) (*FraudCheckPassportResponse, error) {
 	url := hypervergeImpl.config.GetHypervergeFraudCheckEndpoint() + "/verifyPassport"
-
-	apiloggerBuilder := apilogger.NewApiDataBuilder(hypervergeImpl.apilogger.GetConfig()).
+	jsonData, _ := json.Marshal(fraudCheckPassportRequest)
+	apiDataBuilder := apilogger.NewApiDataBuilder(hypervergeImpl.apilogger.GetConfig()).
 		WithBasic(ctx, HYPERVERGE, constants.FraudCheckPassport).
 		WithRequest(
 			url,
 			http.MethodPost,
-			fmt.Sprintf("%+v", fraudCheckPassportRequest),
+			string(jsonData),
 			map[string]string{"transactionId": txnID},
 		)
 
 	defer func() {
-		hypervergeImpl.apilogger.Log(ctx, apiloggerBuilder.Build())
+		hypervergeImpl.apilogger.Log(ctx, apiDataBuilder.Build())
 	}()
 
 	reqObj, err := json.Marshal(fraudCheckPassportRequest)
 	if err != nil {
-		apiloggerBuilder.WithError("failed to marshal request: " + err.Error())
+		apiDataBuilder.WithError("failed to marshal request: " + err.Error())
 		return nil, err
 	}
 
 	req, err := http.NewRequest(http.MethodPost, url, bytes.NewBuffer(reqObj))
 	if err != nil {
-		apiloggerBuilder.WithError("failed to create HTTP request: " + err.Error())
+		apiDataBuilder.WithError("failed to create HTTP request: " + err.Error())
 		return nil, err
 	}
 	hypervergeImpl.addHeaders(req, txnID)
 
 	res, err := hypervergeImpl.httpClient.Do(req)
 	if err != nil {
-		apiloggerBuilder.WithError("HTTP request failed: " + err.Error())
+		apiDataBuilder.WithError("HTTP request failed: " + err.Error())
 		return nil, err
 	}
 
@@ -719,23 +721,23 @@ func (hypervergeImpl *HypervergeImpl) FraudCheckPassport(ctx context.Context, fr
 	_, err = body.ReadFrom(res.Body)
 	defer res.Body.Close()
 	if err != nil {
-		apiloggerBuilder.WithError("failed to read response body: " + err.Error())
+		apiDataBuilder.WithError("failed to read response body: " + err.Error())
 		return nil, err
 	}
 
-	apiloggerBuilder.WithResponse(fmt.Sprintf("%d", res.StatusCode), body.String())
+	apiDataBuilder.WithResponse(fmt.Sprintf("%d", res.StatusCode), body.String())
 
 	err = hypervergeImpl.handlFruadCheckErrorStatusCode(res)
 	if err != nil {
 		logger.Error(ctx, "FraudCheckPassport:: txnId : %s, response from Hyperverge: %s", txnID, body.String())
-		apiloggerBuilder.WithError("non-200 response: " + err.Error())
+		apiDataBuilder.WithError("non-200 response: " + err.Error())
 		return nil, err
 	}
 
 	var fraudCheckPassportResponse FraudCheckPassportResponse
 	err = json.Unmarshal(body.Bytes(), &fraudCheckPassportResponse)
 	if err != nil {
-		apiloggerBuilder.WithError("failed to unmarshal response: " + err.Error())
+		apiDataBuilder.WithError("failed to unmarshal response: " + err.Error())
 		return nil, err
 	}
 
@@ -744,29 +746,29 @@ func (hypervergeImpl *HypervergeImpl) FraudCheckPassport(ctx context.Context, fr
 
 func (hypervergeImpl *HypervergeImpl) FraudCheckAadhar(ctx context.Context, fraudCheckAadharRequest FraudCheckAadharRequest, txnID string) (*FraudCheckAadharResponse, string, error) {
 	url := hypervergeImpl.config.GetHypervergeFraudCheckEndpoint() + "/verifyAadhaar"
-
-	apiloggerBuilder := apilogger.NewApiDataBuilder(hypervergeImpl.apilogger.GetConfig()).
+	jsonData, _ := json.Marshal(fraudCheckAadharRequest)
+	apiDataBuilder := apilogger.NewApiDataBuilder(hypervergeImpl.apilogger.GetConfig()).
 		WithBasic(ctx, HYPERVERGE, "FraudCheckAadhar").
 		WithRequest(
 			url,
 			http.MethodPost,
-			aadharmasking.MaskAddharInResponseJson(fmt.Sprintf("%+v", fraudCheckAadharRequest)),
+			aadharmasking.MaskAddharInResponseJson(string(jsonData)),
 			map[string]string{"transactionId": txnID},
 		)
 
 	defer func() {
-		hypervergeImpl.apilogger.Log(ctx, apiloggerBuilder.Build())
+		hypervergeImpl.apilogger.Log(ctx, apiDataBuilder.Build())
 	}()
 
 	reqObj, err := json.Marshal(fraudCheckAadharRequest)
 	if err != nil {
-		apiloggerBuilder.WithError("failed to marshal request: " + err.Error())
+		apiDataBuilder.WithError("failed to marshal request: " + err.Error())
 		return nil, fmt.Sprintf("%s,%+v", HYPERVERGE, UNABLE_TO_SEND_REQUEST), err
 	}
 
 	req, err := http.NewRequest(http.MethodPost, url, bytes.NewBuffer(reqObj))
 	if err != nil {
-		apiloggerBuilder.WithError("failed to create HTTP request: " + err.Error())
+		apiDataBuilder.WithError("failed to create HTTP request: " + err.Error())
 		return nil, fmt.Sprintf("%s,%+v", HYPERVERGE, UNABLE_TO_SEND_REQUEST), err
 	}
 
@@ -774,7 +776,7 @@ func (hypervergeImpl *HypervergeImpl) FraudCheckAadhar(ctx context.Context, frau
 
 	res, err := hypervergeImpl.httpClient.Do(req)
 	if err != nil {
-		apiloggerBuilder.WithError("HTTP request failed: " + err.Error())
+		apiDataBuilder.WithError("HTTP request failed: " + err.Error())
 		return nil, fmt.Sprintf("%s,%+v", HYPERVERGE, UNABLE_TO_SEND_REQUEST), err
 	}
 
@@ -782,23 +784,23 @@ func (hypervergeImpl *HypervergeImpl) FraudCheckAadhar(ctx context.Context, frau
 	_, err = body.ReadFrom(res.Body)
 	defer res.Body.Close()
 	if err != nil {
-		apiloggerBuilder.WithError("failed to read response body: " + err.Error())
+		apiDataBuilder.WithError("failed to read response body: " + err.Error())
 		return nil, fmt.Sprintf("%s,%+v", HYPERVERGE, UNABLE_TO_PARSE_VENDOR_RESPONSE), err
 	}
 
-	apiloggerBuilder.WithResponse(fmt.Sprintf("%d", res.StatusCode), aadharmasking.MaskAddharInResponseJson(body.String()))
+	apiDataBuilder.WithResponse(fmt.Sprintf("%d", res.StatusCode), aadharmasking.MaskAddharInResponseJson(body.String()))
 
 	err = hypervergeImpl.handlFruadCheckErrorStatusCode(res)
 	if err != nil {
 		logger.Error(ctx, "FraudCheckAadhar:: txnId : %s, response from Hyperverge: %s", txnID, body.String())
-		apiloggerBuilder.WithError("non-200 response: " + err.Error())
+		apiDataBuilder.WithError("non-200 response: " + err.Error())
 		return nil, fmt.Sprintf("%s,%+v", HYPERVERGE, UNABLE_TO_PARSE_VENDOR_RESPONSE), err
 	}
 
 	var fraudCheckAadharResponse FraudCheckAadharResponse
 	err = json.Unmarshal(body.Bytes(), &fraudCheckAadharResponse)
 	if err != nil {
-		apiloggerBuilder.WithError("failed to unmarshal response: " + err.Error())
+		apiDataBuilder.WithError("failed to unmarshal response: " + err.Error())
 		return nil, fmt.Sprintf("%s,%+v", HYPERVERGE, UNABLE_TO_PARSE_VENDOR_RESPONSE), err
 	}
 

@@ -10,14 +10,20 @@ import (
 const (
 	RUMMY_GAME_AUDIT_SOURCE  = "rummy_game_audit"
 	KYC_API_USAGE_EVENT_TYPE = "kyc_api_usage"
-	RUMMY_PRODUCT_ID         = 3 // Assuming a fixed product ID for Rummy
 	CONTEXT_USER_ID          = "X-User-Id"
 	CONTEXT_REQUEST_ID       = "X-Request-Id"
 )
 
+const (
+	UNKNOWN_USER_ID  = iota
+	HZ_PRODUCT_ID
+	OTHER_PRODUCT_ID
+	RUMMY_PRODUCT_ID
+)
+
 type apiUsageLoggerImpl struct {
 	eventPublisher eventqueue.Publisher
-	Config         Config
+	Config         *Config
 }
 
 func (a *apiUsageLoggerImpl) Log(ctx context.Context, data *ApiData) error {
@@ -27,17 +33,10 @@ func (a *apiUsageLoggerImpl) Log(ctx context.Context, data *ApiData) error {
 		return nil
 	}
 
-	// // Convert the ApiData to JSON
-	// message, err := json.Marshal(data)
-	// if err != nil {
-	// 	logger.Error(ctx, "Failed to marshal API usage data: %v", err)
-	// 	return err
-	// }
-
 	a.eventPublisher.PublishAsync(ctx, data.UserID, data)
 	return nil
 }
 
-func (a *apiUsageLoggerImpl) GetConfig() Config {
+func (a *apiUsageLoggerImpl) GetConfig() *Config {
 	return a.Config
 }
