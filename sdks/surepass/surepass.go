@@ -42,16 +42,16 @@ func (sdk *SurepassSDK) HealthCheck(ctx context.Context) (*okyc.HealthCheckRespo
 func (sdk *SurepassSDK) GenerateOTP(ctx context.Context, req *okyc.GenerateOTPRequest) (*okyc.GenerateOTPResponse, error) {
 	// Implement the logic to generate OTP here
 	return &okyc.GenerateOTPResponse{
-		ReferenceId:  "ref123",
-		RequestId:    "req123",
-		MobileNumber: "1234567890", // Example mobile number
+		ReferenceId:   "ref123",
+		TransactionId: "req123",
+		MobileNumber:  "1234567890", // Example mobile number
 	}, nil
 }
 func (sdk *SurepassSDK) ValidateOTP(ctx context.Context, req *okyc.ValidateOTPRequest) (*okyc.ValidateOTPResponse, error) {
 	// Implement the logic to validate OTP here
 	return &okyc.ValidateOTPResponse{
-		Image:    "base64ImageString",
-		DOB:      "01-01-1990",
-		FullName: "John Doe",
+		PDFBytesStr: "base64ImageString",
+		DOB:         "01-01-1990",
+		FullName:    "John Doe",
 	}, nil
 }
