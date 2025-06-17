@@ -28,6 +28,26 @@ func ProtectPDFBytes(input []byte, password string) ([]byte, error) {
 	return outputWriter.Bytes(), nil
 }
 
+func UnprotectPdfBytes(pdfBytes []byte, password string) ([]byte, error) {
+
+	// Step 2: Create a reader for the PDF
+	pdfReader := bytes.NewReader(pdfBytes)
+
+	// Step 3: Set up pdfcpu configuration with the password
+	conf := model.NewDefaultConfiguration()
+	conf.UserPW = password // Set your PDF password here
+
+	// Step 4: Create a buffer to hold the decrypted PDF
+	var decryptedBuf bytes.Buffer
+
+	// Step 5: Decrypt using pdfcpu
+	err := api.Decrypt(pdfReader, &decryptedBuf, conf)
+	if err != nil {
+		return nil, fmt.Errorf("failed to decrypt: %w", err)
+	}
+	return decryptedBuf.Bytes(), nil
+}
+
 func ProtectPDFFile(path, filename, password string) error {
 	file, err := os.Open(path + "/" + filename)
 	if err != nil {
@@ -57,6 +77,5 @@ func ProtectPdf(inputFile io.ReadSeeker, outputWriter io.Writer, userPassword, o
 	if err != nil {
 		return fmt.Errorf("error encrypting PDF: %v", err)
 	}
-
 	return nil
 }
