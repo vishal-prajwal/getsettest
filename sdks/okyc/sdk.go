@@ -5,41 +5,24 @@ import (
 	"fmt"
 )
 
-type Vendor int
+type Vendor string
 
 const (
-	VendorDecentro Vendor = iota
-	VendorCashfree
-	VendorSurepass
-
-	DecentroString = "Decentro"
-	CashfreeString = "Cashfree"
-	SurepassString = "Surepass"
+	DecentroString Vendor = "Decentro"
+	CashfreeString Vendor = "Cashfree"
+	SurepassString Vendor = "Surepass"
 )
 
 func (v Vendor) String() string {
-	switch v {
-	case VendorDecentro:
-		return DecentroString
-	case VendorCashfree:
-		return CashfreeString
-	case VendorSurepass:
-		return SurepassString
-	default:
-		return "Unknown"
-	}
+	return string(v)
 }
 
-func VendorFromString(s string) (Vendor, error) {
-	switch s {
-	case DecentroString:
-		return VendorDecentro, nil
-	case CashfreeString:
-		return VendorCashfree, nil
-	case SurepassString:
-		return VendorSurepass, nil
+func (v Vendor) IsValid() bool {
+	switch v {
+	case DecentroString, CashfreeString, SurepassString:
+		return true
 	default:
-		return -1, fmt.Errorf("unknown OKYC Vendor: %s", s)
+		return false
 	}
 }
 

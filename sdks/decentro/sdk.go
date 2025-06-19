@@ -70,7 +70,7 @@ func NewSDK(config *Config, options ...Options) (*SDK, error) {
 	return sdk, nil
 }
 
-func (sdk *SDK) Name() string {
+func (sdk *SDK) Name() okyc.Vendor {
 	return okyc.DecentroString
 }
 
