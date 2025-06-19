@@ -71,7 +71,7 @@ func NewSDK(config *Config, options ...Options) (*SDK, error) {
 }
 
 func (sdk *SDK) Name() okyc.Vendor {
-	return okyc.DecentroString
+	return okyc.VendorDecentro
 }
 
 func (sdk *SDK) addHeaders(req *http.Request) {

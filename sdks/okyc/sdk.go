@@ -8,9 +8,9 @@ import (
 type Vendor string
 
 const (
-	DecentroString Vendor = "Decentro"
-	CashfreeString Vendor = "Cashfree"
-	SurepassString Vendor = "Surepass"
+	VendorDecentro Vendor = "Decentro"
+	VendorCashfree Vendor = "Cashfree"
+	VendorSurepass Vendor = "Surepass"
 )
 
 func (v Vendor) String() string {
@@ -19,7 +19,7 @@ func (v Vendor) String() string {
 
 func (v Vendor) IsValid() bool {
 	switch v {
-	case DecentroString, CashfreeString, SurepassString:
+	case VendorDecentro, VendorCashfree, VendorSurepass:
 		return true
 	default:
 		return false
@@ -70,7 +70,7 @@ type ValidateOTPResponse struct {
 
 type OKYCSDK interface {
 	// Name returns the name of the SDK
-	Name() string
+	Name() Vendor
 	HealthCheck(context.Context) (*HealthCheckResponse, error)
 	GenerateOTP(context.Context, *GenerateOTPRequest) (*GenerateOTPResponse, error)
 	ValidateOTP(context.Context, *ValidateOTPRequest) (*ValidateOTPResponse, error)

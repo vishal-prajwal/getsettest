@@ -30,8 +30,8 @@ func NewSDK(config *Config) (*SDK, error) {
 	return &SDK{config: config}, nil
 }
 
-func (sdk *SDK) Name() string {
-	return "Cashfree SDK"
+func (sdk *SDK) Name() okyc.Vendor {
+	return okyc.VendorCashfree
 }
 func (sdk *SDK) HealthCheck(ctx context.Context) (*okyc.HealthCheckResponse, error) {
 	// Implement the health check logic here
