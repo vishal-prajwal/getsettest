@@ -7,13 +7,13 @@ import (
 	fuzzy "github.com/paul-mannino/go-fuzzywuzzy"
 )
 
-func FuzzyMatch(name1, name2 string) (int, int) {
+func FuzzyMatch(name1, name2 string) (int, ExactMatch) {
 
 	// Use fuzzywuzzy to get token set and partial ratios
 	fuzzyScore := FuzzyMatching(name1, name2)
 	exactScore := ExactMatching(name1, name2)
 
-	return fuzzyScore, exactScore.Score
+	return fuzzyScore, exactScore
 }
 
 func FuzzyMatching(original, target string) int {
