@@ -2,6 +2,7 @@ package dms
 
 import (
 	"bytes"
+	"encoding/json"
 	"io"
 	"io/ioutil"
 	"mime/multipart"
@@ -12,6 +13,7 @@ import (
 
 	"bitbucket.org/junglee_games/getsetgo/instrumenting/newrelic"
 
+	dmsService "bitbucket.org/junglee_games/japi-dms-service/models/dto"
 	"github.com/pkg/errors"
 )
 
@@ -89,5 +91,48 @@ func (dms *DMSImpl) Initiate(req IntiateRequest) (*IntiateResponse, error) {
 	// if err != nil {
 	// 	return nil, errors.Wrap(ErrUnmarshlingResponse, err.Error())
 	// }
+	return &result, nil
+}
+
+func (dms *DMSImpl) SaveKycInfo(req dmsService.KycInfo) (*dmsService.KycInfoResponse, error) {
+	dms.nr.StartTransaction(DMS_SAVE_KYC_INFO_CALL)
+	url := dms.endpoint + "/v1/internal/KycInfo"
+	method := "POST"
+
+	payload, err := json.Marshal(req)
+	if err != nil {
+		return nil, errors.Wrap(ErrCreatingRequest, err.Error())
+	}
+
+	request, err := http.NewRequest(method, url, bytes.NewBuffer(payload))
+	if err != nil {
+		return nil, errors.Wrap(ErrCreatingRequest, err.Error())
+	}
+	request.Header.Set("Content-Type", "application/json")
+	request.Header.Set("X-PRODUCT-ID", req.ProductID)
+
+	res, err := dms.httpClient.Do(request)
+	if err != nil {
+		return nil, errors.Wrap(ErrCallingDMS, err.Error())
+	}
+	if res.Body == nil {
+		return nil, errors.New("response body is nil")
+	}
+	defer res.Body.Close()
+
+	body, err := io.ReadAll(res.Body)
+	if err != nil {
+		return nil, errors.Wrap(ErrReadingResponseBody, err.Error())
+	}
+
+	if res.StatusCode != http.StatusOK {
+		return nil, errors.Errorf("DMS call failed with status code: %d, response: %s", res.StatusCode, body)
+	}
+
+	var result dmsService.KycInfoResponse
+	err = json.Unmarshal(body, &result)
+	if err != nil {
+		return nil, errors.Wrap(ErrReadingResponseBody, err.Error())
+	}
 	return &result, nil
 }
