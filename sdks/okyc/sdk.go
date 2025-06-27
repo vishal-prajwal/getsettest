@@ -57,15 +57,15 @@ const (
 // will be sending back our customized response and not the actual response comming from vendors
 // we will be logging the actual response in APIUsageLogger (currently in dev)
 type ValidateOTPResponse struct {
-	PDFBytesStr   string
-	ImageBytesStr string
-	DOB           string // dd-mm-yyyy
-	Gender        Gender
-	FullName      string
-	Country       string
-	Pincode       string
-	State         string
-	Address       string
+	DocumentBytes     string // base64 encoded string of the document bytes
+	DocumentExtension string // e.g. pdf, png, jpg
+	DOB               string // dd-mm-yyyy
+	Gender            Gender
+	FullName          string
+	Country           string
+	Pincode           string
+	State             string
+	Address           string
 }
 
 type OKYCSDK interface {

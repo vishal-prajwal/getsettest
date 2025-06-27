@@ -227,13 +227,14 @@ func (sdk *SDK) ValidateOTP(ctx context.Context, req *okyc.ValidateOTPRequest) (
 	}
 
 	return &okyc.ValidateOTPResponse{
-		PDFBytesStr: pdfByteStr,
-		DOB:         response.Data.ProofOfIdentity.DOB,
-		Gender:      response.Data.ProofOfIdentity.Gender.ToOKYCGender(),
-		FullName:    response.Data.ProofOfIdentity.Name,
-		Country:     response.Data.ProofOfAddress.Country,
-		Pincode:     response.Data.ProofOfAddress.Pincode,
-		State:       response.Data.ProofOfAddress.State,
-		Address:     response.Data.GetAddress(),
+		DocumentBytes:     pdfByteStr,
+		DocumentExtension: "pdf",
+		DOB:               response.Data.ProofOfIdentity.DOB,
+		Gender:            response.Data.ProofOfIdentity.Gender.ToOKYCGender(),
+		FullName:          response.Data.ProofOfIdentity.Name,
+		Country:           response.Data.ProofOfAddress.Country,
+		Pincode:           response.Data.ProofOfAddress.Pincode,
+		State:             response.Data.ProofOfAddress.State,
+		Address:           response.Data.GetAddress(),
 	}, nil
 }

@@ -54,13 +54,14 @@ func (sdk *SDK) ValidateOTP(ctx context.Context, req *okyc.ValidateOTPRequest) (
 	// Implement the OTP validation logic here
 	// This is a placeholder implementation
 	return &okyc.ValidateOTPResponse{
-		PDFBytesStr: "base64EncodedImageString",
-		DOB:         "01-01-1990",
-		Gender:      "Male",
-		FullName:    "John Doe",
-		Country:     "India",
-		Pincode:     "123456",
-		State:       "Maharashtra",
-		Address:     "123, Street Name, City",
+		DocumentBytes:     "base64EncodedImageString",
+		DocumentExtension: "jpg",
+		DOB:               "01-01-1990",
+		Gender:            "Male",
+		FullName:          "John Doe",
+		Country:           "India",
+		Pincode:           "123456",
+		State:             "Maharashtra",
+		Address:           "123, Street Name, City",
 	}, nil
 }

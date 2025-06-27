@@ -50,8 +50,9 @@ func (sdk *SurepassSDK) GenerateOTP(ctx context.Context, req *okyc.GenerateOTPRe
 func (sdk *SurepassSDK) ValidateOTP(ctx context.Context, req *okyc.ValidateOTPRequest) (*okyc.ValidateOTPResponse, error) {
 	// Implement the logic to validate OTP here
 	return &okyc.ValidateOTPResponse{
-		PDFBytesStr: "base64ImageString",
-		DOB:         "01-01-1990",
-		FullName:    "John Doe",
+		DocumentBytes:     "base64ImageString",
+		DocumentExtension: "jpg",
+		DOB:               "01-01-1990",
+		FullName:          "John Doe",
 	}, nil
 }

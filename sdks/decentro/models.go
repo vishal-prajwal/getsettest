@@ -176,7 +176,8 @@ func (r ValidateOTPResponseData) GetDocumentPDF(ctx context.Context) (string, er
 	if err != nil {
 		return "", fmt.Errorf("failed to unprotect PDF bytes: %w", err)
 	}
-	return string(bytes), nil
+	// encode the bytes to base64 string
+	return base64.StdEncoding.EncodeToString(bytes), nil
 }
 
 type Gender string
