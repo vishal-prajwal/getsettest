@@ -31,7 +31,7 @@ func (suite *digilockerSuite) SetupTest() {
 	suite.httpClient = *httpclientmocks.NewHTTPClient(suite.T())
 	//	suite.nr = *newrelicmocks.NewAgent(suite.T())
 	//	suite.nr.On("StartTransaction", mock.Anything).Return(nil)
-	suite.srv = New("test", "testing", "url.com", &suite.httpClient, "")
+	suite.srv = New("test", "testing", "url.com", &suite.httpClient, "", nil)
 }
 
 func (suite *digilockerSuite) TestNew() {
@@ -57,7 +57,7 @@ func (suite *digilockerSuite) TestNew() {
 	}
 	for _, tt := range tests {
 		suite.Run(tt.name, func() {
-			if got := New(tt.args.appId, tt.args.appKey, "", nil, ""); !reflect.DeepEqual(got, tt.want) {
+			if got := New(tt.args.appId, tt.args.appKey, "", nil, "", nil); !reflect.DeepEqual(got, tt.want) {
 				suite.Equal(tt.want, got)
 			}
 		})

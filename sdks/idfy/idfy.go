@@ -520,7 +520,7 @@ func (idfyImpl *IdfyImpl) FraudCheckPassport(ctx context.Context, fraudCheckRequ
 func (idfyImpl *IdfyImpl) CheckTemperedImage(ctx context.Context, req CheckTemperedReq) (bool, error) {
 
 	apiDataBuilder := apilogger.NewApiDataBuilder(idfyImpl.apilogger.GetConfig())
-	apiDataBuilder.WithBasic(ctx, IDFY, constants.OCRReadPassport)
+	apiDataBuilder.WithBasic(ctx, IDFY, constants.CheckTemperedImage)
 	defer func() {
 		idfyImpl.apilogger.Log(context.Background(), apiDataBuilder.Build())
 	}()
