@@ -6,18 +6,28 @@ import (
 	"strings"
 	"time"
 
+	"bitbucket.org/junglee_games/getsetgo/clients/aws"
 	"github.com/newrelic/go-agent/v3/integrations/nrmongo"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
 )
 
 type Config struct {
-	Host     string
-	Username string
-	Password string
-	AppName  string
-	Build    string
-	SetDirect bool
+	Host             string
+	Username         string
+	Password         string
+	AppName          string
+	Build            string
+	SetDirect        bool
+	SecretManagerKey string
+}
+
+func (c *Config) GetSecretKey() string {
+	return c.SecretManagerKey
+}
+func (c *Config) SetSecret(s aws.Secrets) {
+	c.Username = s.Username
+	c.Password = s.Password
 }
 
 func GetMongoClient(cfg *Config) (*mongo.Client, error) {
