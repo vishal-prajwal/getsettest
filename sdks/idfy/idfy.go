@@ -652,11 +652,6 @@ func (idfyImpl *IdfyImpl) MaskAadharDoc(ctx context.Context, id string, maskAadh
 		apiDataBuilder.WithError(err.Error())
 		logger.Error(ctx, "Error in MaskAadharDoc with res %+v, error %v", res, err)
 	}
-	if res != nil {
-		apiDataBuilder.WithResponse(res.Status, fmt.Sprintf("%+v", res))
-	} else {
-		apiDataBuilder.WithResponse(res.Status, "nil response")
-	}
 	return res, err
 }
 
