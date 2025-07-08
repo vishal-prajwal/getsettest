@@ -198,7 +198,7 @@ func (dl *DigilockerImpl) GetAddharDetails(ctx context.Context, transactionId, r
 		apiDataBuilder.WithError(err.Error())
 		return nil, errors.Wrap(ErrUnmarshalJson, err.Error())
 	}
-	apiDataBuilder.WithResponse(result.StatusCode, string(body))
+	apiDataBuilder.WithResponse(result.StatusCode, "")
 
 	if result.Error.Code == "ER_CONSENT_MISSING" {
 		return nil, errors.Wrap(ErrConsentNotProvided, result.Error.Message)
@@ -320,7 +320,7 @@ func (dl *DigilockerImpl) GetPanDigilockerDoc(ctx context.Context, refId string)
 		apiDataBuilder.WithError(err.Error())
 		return nil, errors.Wrap(ErrUnmarshalJson, err.Error())
 	}
-	apiDataBuilder.WithResponse(result.StatusCode, string(body))
+	apiDataBuilder.WithResponse(result.StatusCode, "")
 	if result.StatusCode != "200" {
 		apiDataBuilder.WithError(result.Error.Message)
 		return nil, errors.Wrap(ErrHVServer, result.Error.Message)
@@ -416,7 +416,7 @@ func (dl *DigilockerImpl) GetPanDetails(ctx context.Context, refId string, panNu
 	if err != nil {
 		return nil, errors.Wrap(ErrUnmarshalJson, err.Error())
 	}
-	apiDataBuilder.WithResponse(result.StatusCode, string(body))
+	apiDataBuilder.WithResponse(result.StatusCode, "")
 	if result.StatusCode != "200" || len(result.Result) == 0 {
 		apiDataBuilder.WithError(result.Error.Message)
 		return nil, errors.Wrap(ErrHVServer, result.Error.Message)
