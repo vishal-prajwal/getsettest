@@ -104,8 +104,8 @@ func (evtPub *Publisher) Publish(ctx context.Context, key any, msg any) error {
 
 }
 
-func (evtPub *Publisher) GetAsyncPublishResponseChan() *chan error {
-	return &evtPub.responseCh
+func (evtPub *Publisher) GetAsyncPublishResponseChan() chan error {
+	return evtPub.responseCh
 }
 
 func (evtPub *Publisher) PublishAsync(ctx context.Context, key any, msg any) {

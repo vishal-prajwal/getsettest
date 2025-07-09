@@ -5,6 +5,7 @@ import (
 
 	"bitbucket.org/junglee_games/getsetgo/configs"
 	"bitbucket.org/junglee_games/getsetgo/eventqueue/impls/kafka"
+	"bitbucket.org/junglee_games/getsetgo/logger"
 	"github.com/pkg/errors"
 )
 
@@ -44,8 +45,17 @@ func NewApiUsageLogger(cfg *Config) (ApiUsageLogger, error) {
 	if err != nil {
 		return nil, errors.Wrap(err, FAILED_TO_CREATE_KAFKA_PUBLISHER)
 	}
+	go logErrors(eventqueuePublisher.GetAsyncPublishResponseChan())
 	return &apiUsageLoggerImpl{
 		eventPublisher: eventqueuePublisher,
 		Config:         cfg,
 	}, nil
+}
+
+func logErrors(errChan chan error) {
+	for err := range errChan {
+		if err != nil {
+			logger.Error(context.Background(), "Error in API usage logger, while sending event: %v", err)
+		}
+	}
 }
