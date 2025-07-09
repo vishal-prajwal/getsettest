@@ -13,6 +13,27 @@ import (
 	"github.com/kataras/iris/v12"
 )
 
+// Create a seperate struct for storing keyValue pair of headers and values and then use that ctx.Values().Set(KeyValues, &v)
+
+type WebValues struct {
+	PlatformName PlatformName `header:"X-Platform-Name"`
+	UserID       string       `header:"X-User-Id"`
+	RequestID    string       `header:"X-Request-Id"`
+}
+
+type PlatformName string
+
+const (
+	PS_CASHAPP PlatformName = "psrmg"
+	CASHAPP    PlatformName = "apk"
+	PSAPP      PlatformName = "psapp"
+	IPA        PlatformName = "ipa"
+)
+
+const (
+	WebKeyValues = "web.service.ctx"
+)
+
 // KeyValues is how request values are stored/retrieved.
 const KeyValues string = "dms.service.ctx"
 

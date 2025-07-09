@@ -3,10 +3,12 @@ package hyperverge
 import (
 	"bytes"
 	"context"
+
+	"bitbucket.org/junglee_games/getsetgo/apilogger"
 )
 
 type Hyperverge interface {
-	readDocument(documentType string, hypervergeRequest HypervergeRequest) (*bytes.Buffer, error)
+	readDocument(documentType string, hypervergeRequest HypervergeRequest, apiloggerBuilder *apilogger.ApiDataBuilder) (*bytes.Buffer, error)
 	ReadPan(ctx context.Context, hypervergeRequest HypervergeRequest) (*PanResponse, error)
 	ReadAadhar(ctx context.Context, hypervergeRequest HypervergeRequest) (*AadharResponse, error)
 	ReadPassport(ctx context.Context, hypervergeRequest HypervergeRequest) (*PassportResponse, error)

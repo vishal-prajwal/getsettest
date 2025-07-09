@@ -7,6 +7,7 @@ import (
 	"log"
 	"testing"
 
+	"bitbucket.org/junglee_games/getsetgo/apilogger"
 	"bitbucket.org/junglee_games/getsetgo/httpclient"
 	"bitbucket.org/junglee_games/getsetgo/instrumenting/newrelic"
 )
@@ -35,7 +36,8 @@ func (this HypvergeTest) GetHypervergeNSDLUrl() string {
 }
 func TestHypverge(t *testing.T) {
 	var hvConfig HypvergeTest
-	hvClient := New(hvConfig, newrelic.Agent{}, httpclient.NewHttpClient(10))
+	var apilogger apilogger.ApiUsageLogger
+	hvClient := New(hvConfig, apilogger, newrelic.Agent{}, httpclient.NewHttpClient(10))
 
 	bytes, err := ioutil.ReadFile("tt_front.jpeg")
 	if err != nil {
