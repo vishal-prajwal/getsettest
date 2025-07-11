@@ -56,10 +56,9 @@ type SDK struct {
 type Options struct {
 	// MonitoringAgent is an optional parameter to pass a monitoring agent for tracking time usage
 	MonitoringAgent monitoring.Agent
-	ApiLogger       apilogger.ApiUsageLogger
 }
 
-func NewSDK(config *Config, options ...Options) (*SDK, error) {
+func NewSDK(config *Config, ApiLogger apilogger.ApiUsageLogger, options ...Options) (*SDK, error) {
 	err := config.validate()
 	if err != nil {
 		return nil, err
@@ -67,10 +66,10 @@ func NewSDK(config *Config, options ...Options) (*SDK, error) {
 	httpClient := httpclient.New(config.Timeout)
 	sdk := &SDK{config: config,
 		httpClient: &httpClient,
+		apilogger:  ApiLogger,
 	}
 	if len(options) > 0 {
 		sdk.monitoringAgent = options[0].MonitoringAgent
-		sdk.apilogger = options[0].ApiLogger
 	}
 	return sdk, nil
 }
