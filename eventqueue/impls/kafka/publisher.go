@@ -91,10 +91,11 @@ func (evtPub *Publisher) Publish(ctx context.Context, key any, msg any) error {
 		return fmt.Errorf("error serializing message: %w", err)
 	}
 	retries := evtPub.maxRetries
-	for retries > 0 {
+	for retries >= 0 {
 		err = evtPub.writer.WriteMessages(ctx, kafka.Message{Key: keyVal, Value: message})
 		if err != nil {
 			time.Sleep(time.Second)
+			retries--
 			continue
 		}
 		break
@@ -103,8 +104,8 @@ func (evtPub *Publisher) Publish(ctx context.Context, key any, msg any) error {
 
 }
 
-func (evtPub *Publisher) GetAsyncPublishResponseChan() *chan error {
-	return &evtPub.responseCh
+func (evtPub *Publisher) GetAsyncPublishResponseChan() chan error {
+	return evtPub.responseCh
 }
 
 func (evtPub *Publisher) PublishAsync(ctx context.Context, key any, msg any) {
@@ -129,10 +130,11 @@ func (evtPub *Publisher) PublishMany(ctx context.Context, messages []eventqueue.
 	retries := evtPub.maxRetries
 	var err error
 	kmessages := getKafkaMessages(messages)
-	for retries > 0 {
+	for retries >= 0 {
 		err = evtPub.writer.WriteMessages(ctx, kmessages...)
 		if err != nil {
 			time.Sleep(time.Second)
+			retries--
 			continue
 		}
 		break

@@ -8,7 +8,7 @@ type Publisher interface {
 	Publish(ctx context.Context, key any, msg any) error
 	PublishMany(ctx context.Context, messages []Message) error
 	PublishAsync(ctx context.Context, key any, msg any)
-	GetAsyncPublishResponseChan() *chan error
+	GetAsyncPublishResponseChan() chan error
 	Close()
 }
 

@@ -10,8 +10,10 @@ import (
 	"net/http"
 	"strings"
 
+	"bitbucket.org/junglee_games/getsetgo/apilogger"
 	httpclient "bitbucket.org/junglee_games/getsetgo/httpclient"
 	"bitbucket.org/junglee_games/getsetgo/logger"
+	"bitbucket.org/junglee_games/getsetgo/sdks/constants"
 	nrf "github.com/newrelic/go-agent/v3/newrelic"
 	"github.com/pkg/errors"
 )
@@ -22,16 +24,18 @@ type DigilockerImpl struct {
 	hvEndpoint  string
 	httpClient  httpclient.HTTPClient
 	redirectURL string
+	apilogger   apilogger.ApiUsageLogger
 }
 
 // New creates a new digilocker client
-func New(appId, appKey string, hvEndpoint string, client httpclient.HTTPClient, redirectURL string) *DigilockerImpl {
+func New(appId, appKey string, hvEndpoint string, client httpclient.HTTPClient, redirectURL string, apiLogger apilogger.ApiUsageLogger) *DigilockerImpl {
 	dl := DigilockerImpl{
 		appId:       appId,
 		appKey:      appKey,
 		hvEndpoint:  hvEndpoint,
 		httpClient:  client,
 		redirectURL: redirectURL,
+		apilogger:   apiLogger,
 	}
 	return &dl
 }
@@ -47,14 +51,24 @@ func (dl *DigilockerImpl) addHeaders(req *http.Request) {
 
 }
 func (dl *DigilockerImpl) StartKYC(ctx context.Context, transactionId, referenceId, redirectURL string) (*KYCStartDetails, error) {
+	apiDataBuilder := apilogger.NewApiDataBuilder(dl.apilogger.GetConfig())
+	apiDataBuilder.WithBasic(ctx, HYPERVERGE, constants.DigilockerStartKYC)
 	defer nrf.FromContext(ctx).StartSegment("StartKYC").End()
+	defer func() {
+		dl.apilogger.Log(context.Background(), apiDataBuilder.Build())
+	}()
 	url := dl.hvEndpoint + "/api/digilocker/start"
 	method := "POST"
+	apiDataBuilder.WithRequest(url, method, "", map[string]string{
+		"transactionId": transactionId,
+		"referenceId":   referenceId,
+	})
 
 	reqObj, _ := json.Marshal(&KYCStartRequest{ReferenceId: referenceId, RedirectURL: redirectURL})
 	payload := strings.NewReader(string(reqObj))
 	req, err := http.NewRequest(method, url, payload)
 	if err != nil {
+		apiDataBuilder.WithError(err.Error())
 		return nil, errors.Wrap(ErrCreatingRequest, err.Error())
 	}
 	dl.addHeaders(req)
@@ -62,6 +76,7 @@ func (dl *DigilockerImpl) StartKYC(ctx context.Context, transactionId, reference
 
 	res, err := dl.httpClient.Do(req)
 	if err != nil {
+		apiDataBuilder.WithError(err.Error())
 		return nil, errors.Wrap(ErrCallingHyperverge, err.Error())
 	}
 
@@ -69,20 +84,25 @@ func (dl *DigilockerImpl) StartKYC(ctx context.Context, transactionId, reference
 
 	body, err := ioutil.ReadAll(res.Body)
 	if err != nil {
+		apiDataBuilder.WithError(err.Error())
 		return nil, errors.Wrap(ErrReadResponseBody, err.Error())
 	}
 	logger.Info(ctx, fmt.Sprintf("/api/digilocker/start response =>  %s", string(body)))
 	var result KYCStartResponse
 	err = json.Unmarshal(body, &result)
 	if err != nil {
+		apiDataBuilder.WithError(err.Error())
 		return nil, errors.Wrap(ErrUnmarshalJson, err.Error())
 	}
+	apiDataBuilder.WithResponse(result.StatusCode, string(body))
 	switch result.StatusCode {
 	case "200":
 		return &result.Result, nil
 	case "400":
+		apiDataBuilder.WithError(result.Error.Message)
 		return nil, errors.Wrap(ErrReqValidate, result.Error.Message)
 	case "500":
+		apiDataBuilder.WithError(result.Error.Message)
 		return nil, errors.Wrap(ErrHVServer, result.Error.Message)
 	}
 	return &result.Result, nil
@@ -133,9 +153,18 @@ func (dl *DigilockerImpl) CheckAccountstatus(ctx context.Context, mobile, aadhaa
 }
 
 func (dl *DigilockerImpl) GetAddharDetails(ctx context.Context, transactionId, referenceId string) (*AadhaarDetails, error) {
+	apiDataBuilder := apilogger.NewApiDataBuilder(dl.apilogger.GetConfig())
+	apiDataBuilder.WithBasic(ctx, HYPERVERGE, constants.DigilockerGetAadhaarDetails)
+	defer func() {
+		dl.apilogger.Log(context.Background(), apiDataBuilder.Build())
+	}()
 	defer nrf.FromContext(ctx).StartSegment("GetAddharDetails").End()
 	url := dl.hvEndpoint + "/api/digilocker/eAadhaarDetails"
 	method := "POST"
+	apiDataBuilder.WithRequest(url, method, "", map[string]string{
+		"transactionId": transactionId,
+		"referenceId":   referenceId,
+	})
 
 	reqObj, _ := json.Marshal(&EAadhaarDetailsRequest{ReferenceId: referenceId, AadhaarFile: "yes"})
 	payload := strings.NewReader(string(reqObj))
@@ -143,6 +172,7 @@ func (dl *DigilockerImpl) GetAddharDetails(ctx context.Context, transactionId, r
 	req, err := http.NewRequest(method, url, payload)
 
 	if err != nil {
+		apiDataBuilder.WithError(err.Error())
 		return nil, errors.Wrap(ErrCreatingRequest, err.Error())
 	}
 	dl.addHeaders(req)
@@ -150,12 +180,14 @@ func (dl *DigilockerImpl) GetAddharDetails(ctx context.Context, transactionId, r
 
 	res, err := dl.httpClient.Do(req)
 	if err != nil {
+		apiDataBuilder.WithError(err.Error())
 		return nil, errors.Wrap(ErrCallingHyperverge, err.Error())
 	}
 	defer res.Body.Close()
 
 	body, err := ioutil.ReadAll(res.Body)
 	if err != nil {
+		apiDataBuilder.WithError(err.Error())
 		return nil, errors.Wrap(ErrReadResponseBody, err.Error())
 	}
 	logger.Info(ctx, fmt.Sprintf("/api/digilocker/eAadhaarDetails response =>  %s", string(body)))
@@ -163,8 +195,10 @@ func (dl *DigilockerImpl) GetAddharDetails(ctx context.Context, transactionId, r
 	var result AadhaarDetailsResponse
 	err = json.Unmarshal(body, &result)
 	if err != nil {
+		apiDataBuilder.WithError(err.Error())
 		return nil, errors.Wrap(ErrUnmarshalJson, err.Error())
 	}
+	apiDataBuilder.WithResponse(result.StatusCode, "")
 
 	if result.Error.Code == "ER_CONSENT_MISSING" {
 		return nil, errors.Wrap(ErrConsentNotProvided, result.Error.Message)
@@ -174,14 +208,18 @@ func (dl *DigilockerImpl) GetAddharDetails(ctx context.Context, transactionId, r
 	case "200":
 		err = result.Result.SethPinCodeFromXmlFile()
 		if err != nil {
+			apiDataBuilder.WithError(fmt.Sprintf("error setting pincode from xml file: %v", err))
 			return nil, errors.Wrap(ErrExtractingXML, err.Error())
 		}
 		return &result.Result, nil
 	case "504":
+		apiDataBuilder.WithError(result.Error.Message)
 		return nil, errors.Wrap(ErrHVServer, result.Error.Message)
 	case "500":
+		apiDataBuilder.WithError(result.Error.Message)
 		return nil, errors.Wrap(ErrHVServer, result.Error.Message)
 	default:
+		apiDataBuilder.WithError(result.Error.Message)
 		return nil, errors.Wrap(ErrHVServer, result.Error.Message)
 	}
 
@@ -222,6 +260,11 @@ func (dl *DigilockerImpl) Healthcheck(ctx context.Context) (*HealthcheckResult, 
 }
 
 func (dl *DigilockerImpl) GetPanDigilockerDoc(ctx context.Context, refId string) (*PanDetails, error) {
+	apiDataBuilder := apilogger.NewApiDataBuilder(dl.apilogger.GetConfig())
+	apiDataBuilder.WithBasic(ctx, HYPERVERGE, constants.GetPanDigilockerDoc)
+	defer func() {
+		dl.apilogger.Log(context.Background(), apiDataBuilder.Build())
+	}()
 	defer nrf.FromContext(ctx).StartSegment(HV_HEALTHCHECK_CALL).End()
 	url := dl.hvEndpoint + "/api/digilocker/docDetails"
 
@@ -237,12 +280,16 @@ func (dl *DigilockerImpl) GetPanDigilockerDoc(ctx context.Context, refId string)
 	// Convert payload to JSON
 	jsonPayload, err := json.Marshal(payload)
 	if err != nil {
+		apiDataBuilder.WithError(fmt.Sprintf("error marshaling request payload: %v", err))
 		return nil, fmt.Errorf("error marshaling request payload: %v", err)
 	}
+
+	apiDataBuilder.WithRequest(url, "POST", string(jsonPayload), nil)
 
 	// Create a new HTTP request
 	req, err := http.NewRequest("POST", url, bytes.NewBuffer(jsonPayload))
 	if err != nil {
+		apiDataBuilder.WithError(fmt.Sprintf("error creating request: %v", err))
 		return nil, fmt.Errorf("error creating request: %v", err)
 	}
 
@@ -254,6 +301,7 @@ func (dl *DigilockerImpl) GetPanDigilockerDoc(ctx context.Context, refId string)
 	// Perform the HTTP request
 	resp, err := dl.httpClient.Do(req)
 	if err != nil {
+		apiDataBuilder.WithError(err.Error())
 		return nil, errors.Wrap(ErrNotAvailable, err.Error())
 	}
 	defer resp.Body.Close()
@@ -261,6 +309,7 @@ func (dl *DigilockerImpl) GetPanDigilockerDoc(ctx context.Context, refId string)
 	// Read the response body
 	body, err := io.ReadAll(resp.Body)
 	if err != nil {
+		apiDataBuilder.WithError(err.Error())
 		return nil, errors.Wrap(ErrReadResponseBody, err.Error())
 	}
 
@@ -268,15 +317,20 @@ func (dl *DigilockerImpl) GetPanDigilockerDoc(ctx context.Context, refId string)
 	var result DigilockerPanResponse
 	err = json.Unmarshal(body, &result)
 	if err != nil {
+		apiDataBuilder.WithError(err.Error())
 		return nil, errors.Wrap(ErrUnmarshalJson, err.Error())
 	}
+	apiDataBuilder.WithResponse(result.StatusCode, "")
 	if result.StatusCode != "200" {
+		apiDataBuilder.WithError(result.Error.Message)
 		return nil, errors.Wrap(ErrHVServer, result.Error.Message)
 	}
 	if len(result.Result.DocsFound) == 0 {
+		apiDataBuilder.WithError("no documents found")
 		return nil, ErrDocumentNotFound
 	}
 	if len(result.Result.Details[0].PAN) == 0 || len(result.Result.Details[0].Name) == 0 || len(result.Result.Details[0].DOB) == 0 || len(result.Result.Details[0].FileUrl) == 0 {
+		apiDataBuilder.WithError(fmt.Sprintf("missing data in response: %+v", result.Result.Details[0]))
 		return nil, errors.Wrap(ErrHVServerMissingData, fmt.Sprintf("Data recived %+v", result.Result.Details[0]))
 	}
 	logger.Info(ctx, "%v", result)
@@ -293,6 +347,11 @@ func (dl *DigilockerImpl) GetPanDigilockerDoc(ctx context.Context, refId string)
 }
 
 func (dl *DigilockerImpl) GetPanDetails(ctx context.Context, refId string, panNumber string, fullName string) (*PanDetails, error) {
+	apiDataBuilder := apilogger.NewApiDataBuilder(dl.apilogger.GetConfig())
+	apiDataBuilder.WithBasic(ctx, HYPERVERGE, constants.GetPanDetails)
+	defer func() {
+		dl.apilogger.Log(context.Background(), apiDataBuilder.Build())
+	}()
 	defer nrf.FromContext(ctx).StartSegment(HV_HEALTHCHECK_CALL).End()
 	url := dl.hvEndpoint + "/api/digilocker/fetchDocuments"
 
@@ -317,12 +376,17 @@ func (dl *DigilockerImpl) GetPanDetails(ctx context.Context, refId string, panNu
 	// Convert payload to JSON
 	jsonPayload, err := json.Marshal(payload)
 	if err != nil {
+		apiDataBuilder.WithError(fmt.Sprintf("error marshaling request payload: %v", err))
 		return nil, fmt.Errorf("error marshaling request payload: %v", err)
 	}
+	apiDataBuilder.WithRequest(url, "POST", string(jsonPayload), map[string]string{
+		"referenceId": refId,
+	})
 
 	// Create a new HTTP request
 	req, err := http.NewRequest("POST", url, bytes.NewBuffer(jsonPayload))
 	if err != nil {
+		apiDataBuilder.WithError(fmt.Sprintf("error creating request: %v", err))
 		return nil, fmt.Errorf("error creating request: %v", err)
 	}
 
@@ -334,6 +398,7 @@ func (dl *DigilockerImpl) GetPanDetails(ctx context.Context, refId string, panNu
 	// Perform the HTTP request
 	resp, err := dl.httpClient.Do(req)
 	if err != nil {
+		apiDataBuilder.WithError(err.Error())
 		return nil, errors.Wrap(ErrNotAvailable, err.Error())
 	}
 	defer resp.Body.Close()
@@ -341,6 +406,7 @@ func (dl *DigilockerImpl) GetPanDetails(ctx context.Context, refId string, panNu
 	// Read the response body
 	body, err := ioutil.ReadAll(resp.Body)
 	if err != nil {
+		apiDataBuilder.WithError(err.Error())
 		return nil, errors.Wrap(ErrReadResponseBody, err.Error())
 	}
 
@@ -350,7 +416,9 @@ func (dl *DigilockerImpl) GetPanDetails(ctx context.Context, refId string, panNu
 	if err != nil {
 		return nil, errors.Wrap(ErrUnmarshalJson, err.Error())
 	}
+	apiDataBuilder.WithResponse(result.StatusCode, "")
 	if result.StatusCode != "200" || len(result.Result) == 0 {
+		apiDataBuilder.WithError(result.Error.Message)
 		return nil, errors.Wrap(ErrHVServer, result.Error.Message)
 	}
 	logger.Info(ctx, "%v", result)

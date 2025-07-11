@@ -20,7 +20,7 @@ func main() {
 		kafka.PublishAsync(context.Background(), fmt.Sprintf("%d", i), fmt.Sprintf(" message %d", i))
 	}
 	for i := 0; i < n; i++ {
-		err = <-*ch
+		err = <-ch
 		if err != nil {
 			log.Panic(err)
 		}

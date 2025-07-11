@@ -1,6 +1,8 @@
 package idfy
 
-import "context"
+import (
+	"context"
+)
 
 type Idfy interface {
 	ExtractPan(ctx context.Context, idfyrequest IdfyRequest) (*IdfyPanResponse, error)
@@ -15,7 +17,7 @@ type Idfy interface {
 	FraudCheckPassport(ctx context.Context, fraudCheckRequest FraudCheckRequest) (*FraudCheckPassportResponse, error)
 	CheckTemperedImage(ctx context.Context, req CheckTemperedReq) (bool, error)
 	PostFruadValidationReq(ctx context.Context, documentType string, fraudCheckRequest FraudCheckRequest) (*string, string, error)
-	FetchPostedReq(requestID string) (*FraudCheckAadharResponse, string, error)
+	FetchPostedReq(ctx context.Context, requestID string) (*FraudCheckAadharResponse, string, error)
 	Healthcheck() (*HealthCheckRes, error)
 	MaskAadharDoc(ctx context.Context, id string, maskAadharDocRequest MaskAadharDocRequest) (*MaskAadharDocResponse, error)
 }
