@@ -10,9 +10,11 @@ import (
 	"net/http"
 	"strings"
 
+	"bitbucket.org/junglee_games/getsetgo/apilogger"
 	"bitbucket.org/junglee_games/getsetgo/httpclient"
 	"bitbucket.org/junglee_games/getsetgo/logger"
 	"bitbucket.org/junglee_games/getsetgo/monitoring"
+	"bitbucket.org/junglee_games/getsetgo/sdks/constants"
 	"bitbucket.org/junglee_games/getsetgo/sdks/okyc"
 )
 
@@ -48,11 +50,13 @@ type SDK struct {
 	config          *Config
 	httpClient      *http.Client     // HTTP client for making API requests
 	monitoringAgent monitoring.Agent // Optional monitoring agent
+	apilogger       apilogger.ApiUsageLogger
 }
 
 type Options struct {
 	// MonitoringAgent is an optional parameter to pass a monitoring agent for tracking time usage
 	MonitoringAgent monitoring.Agent
+	ApiLogger       apilogger.ApiUsageLogger
 }
 
 func NewSDK(config *Config, options ...Options) (*SDK, error) {
@@ -66,6 +70,7 @@ func NewSDK(config *Config, options ...Options) (*SDK, error) {
 	}
 	if len(options) > 0 {
 		sdk.monitoringAgent = options[0].MonitoringAgent
+		sdk.apilogger = options[0].ApiLogger
 	}
 	return sdk, nil
 }
@@ -132,13 +137,26 @@ func (sdk *SDK) GenerateOTP(ctx context.Context, req *okyc.GenerateOTPRequest) (
 	if sdk.monitoringAgent != nil {
 		defer sdk.monitoringAgent.StartTransaction("DecentroSDK.GenerateOTP").End()
 	}
+	apiDataBuilder := apilogger.NewApiDataBuilder(sdk.apilogger.GetConfig())
+	apiDataBuilder.WithBasic(ctx, DECENTRO, constants.GenerateAadhaarOTP)
+
+	defer func() {
+		sdk.apilogger.Log(context.Background(), apiDataBuilder.Build())
+	}()
 
 	url := fmt.Sprintf("%s/v2/kyc/aadhaar/otp", sdk.config.Endpoint)
 	sendOTPReq := NewSendOTPRequest(req)
 	body, err := json.Marshal(sendOTPReq)
 	if err != nil {
+		apiDataBuilder.WithError("failed to marshal request body: " + err.Error())
 		return nil, fmt.Errorf("DecentroSDK.GenerateOTP:: failed to marshal request body: %w", err)
 	}
+
+	apiDataBuilder.WithRequest(url, http.MethodPost, "", map[string]string{
+		"reference_id": sendOTPReq.ReferenceId,
+		"purpose":      sendOTPReq.Purpose,
+		"consent":      "true",
+	})
 
 	httpReq, err := http.NewRequest(http.MethodPost, url, bytes.NewReader(body))
 	if err != nil {
@@ -149,6 +167,7 @@ func (sdk *SDK) GenerateOTP(ctx context.Context, req *okyc.GenerateOTPRequest) (
 
 	res, err := sdk.httpClient.Do(httpReq)
 	if err != nil {
+		apiDataBuilder.WithError("failed to send request: " + err.Error())
 		return nil, fmt.Errorf("DecentroSDK.GenerateOTP:: failed to send request: %w", err)
 	}
 
@@ -156,6 +175,7 @@ func (sdk *SDK) GenerateOTP(ctx context.Context, req *okyc.GenerateOTPRequest) (
 
 	body, err = io.ReadAll(res.Body)
 	if err != nil {
+		apiDataBuilder.WithError("failed to read response body: " + err.Error())
 		return nil, fmt.Errorf("DecentroSDK.GenerateOTP:: failed to read response body: %w", err)
 	}
 
@@ -163,9 +183,11 @@ func (sdk *SDK) GenerateOTP(ctx context.Context, req *okyc.GenerateOTPRequest) (
 
 	err = json.Unmarshal(body, &response)
 	if err != nil {
+		apiDataBuilder.WithError("failed to unmarshal response body: " + err.Error())
 		logger.Error(ctx, "Critical::DecentroSDK.GenerateOTP:: failed to unmarshal response body: %v, body: %s", err, body)
 		return nil, okyc.ErrInvalidResponseFromVendor
 	}
+	apiDataBuilder.WithResponse(fmt.Sprintf("%d", res.StatusCode), string(body))
 
 	if res.StatusCode != http.StatusOK {
 		logger.Error(ctx, "DecentroSDK.GenerateOTP:: failed to send OTP, status code: %d, body: %s", res.StatusCode, body)
@@ -182,13 +204,26 @@ func (sdk *SDK) ValidateOTP(ctx context.Context, req *okyc.ValidateOTPRequest) (
 	if sdk.monitoringAgent != nil {
 		defer sdk.monitoringAgent.StartTransaction("DecentroSDK.ValidateOTP").End()
 	}
+	apiDataBuilder := apilogger.NewApiDataBuilder(sdk.apilogger.GetConfig())
+	apiDataBuilder.WithBasic(ctx, DECENTRO, constants.ValidateAadhaarOTP)
 
 	url := fmt.Sprintf("%s/v2/kyc/aadhaar/otp/validate", sdk.config.Endpoint)
 
 	body, err := json.Marshal(NewValidateOTPRequest(req))
 	if err != nil {
+		apiDataBuilder.WithError("failed to marshal request body: " + err.Error())
 		return nil, fmt.Errorf("DecentroSDK.ValidateOTP:: failed to marshal request body: %w", err)
 	}
+
+	apiDataBuilder.WithRequest(url, http.MethodPost, string(body), map[string]string{
+		"reference_id":   req.ReferenceId,
+		"transaction_id": req.TransactionId,
+		"otp":            req.OTP,
+		"consent":        "true",
+		"generate_pdf":   "true",
+		"generate_xml":   "false",
+		"purpose":        "For Aadhaar Verification",
+	})
 
 	httpReq, err := http.NewRequest(http.MethodPost, url, strings.NewReader(string(body)))
 	if err != nil {
@@ -197,21 +232,25 @@ func (sdk *SDK) ValidateOTP(ctx context.Context, req *okyc.ValidateOTPRequest) (
 	sdk.addHeaders(httpReq)
 	res, err := sdk.httpClient.Do(httpReq)
 	if err != nil {
+		apiDataBuilder.WithError("failed to send request: " + err.Error())
 		return nil, fmt.Errorf("DecentroSDK.ValidateOTP:: failed to send request: %w", err)
 	}
 	defer res.Body.Close()
 
 	body, err = io.ReadAll(res.Body)
 	if err != nil {
+		apiDataBuilder.WithError("failed to read response body: " + err.Error())
 		logger.Error(ctx, "Critical::DecentroSDK.ValidateOTP:: failed to read response body: %v, body: %s", err, body)
 		return nil, fmt.Errorf("DecentroSDK.ValidateOTP:: failed to read response body: %w", err)
 	}
 	var response DecentroResponse[*ValidateOTPResponseData]
 	err = json.Unmarshal(body, &response)
 	if err != nil {
+		apiDataBuilder.WithError("failed to unmarshal response body: " + err.Error())
 		logger.Error(ctx, "Critical::DecentroSDK.ValidateOTP:: failed to unmarshal response body: %v, body: %s", err, body)
 		return nil, okyc.ErrInvalidResponseFromVendor
 	}
+	apiDataBuilder.WithResponse(fmt.Sprintf("%d", res.StatusCode), "")
 	if res.StatusCode != http.StatusOK {
 		logger.Error(ctx, "DecentroSDK.ValidateOTP:: failed to validate OTP, status code: %d, body: %s", res.StatusCode, body)
 		return nil, responseKeyToError(response.ResponseKey)

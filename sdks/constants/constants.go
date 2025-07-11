@@ -19,4 +19,6 @@ const (
 	OCRReadDl                    = "OCRReadDl"
 	MaskAadhar                   = "MaskAadhar"
 	CheckTemperedImage           = "CheckTemperedImage"
+	ValidateAadhaarOTP           = "ValidateAadhaarOTP"
+	GenerateAadhaarOTP           = "GenerateAadhaarOTP"
 )
