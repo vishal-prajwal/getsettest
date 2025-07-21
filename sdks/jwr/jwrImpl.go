@@ -21,12 +21,12 @@ type JWRImpl struct {
 	cb                *gobreaker.CircuitBreaker[[]byte]
 }
 
-func (this *JWRImpl) GetUserProfile(ctx context.Context, userID int, rdcSyncUser bool, apiTimeOut int) (*UserProfile, error) {
+func (this *JWRImpl) GetUserProfile(ctx context.Context, userID int, readFromDB bool, apiTimeOut int) (*UserProfile, error) {
 
 	defer nrf.FromContext(ctx).StartSegment("GetUserProfile").End()
 	var result UserProfile
 	url := this.BaseURL + GetUserProfilePath + "?id=" + strconv.Itoa(userID)
-	if rdcSyncUser {
+	if readFromDB {
 		url += "&rdcsyncuser=1"
 	}
 	request, err := http.NewRequest(http.MethodGet, url, nil)
