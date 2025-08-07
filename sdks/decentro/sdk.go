@@ -189,6 +189,7 @@ func (sdk *SDK) GenerateOTP(ctx context.Context, req *okyc.GenerateOTPRequest) (
 	apiDataBuilder.WithResponse(fmt.Sprintf("%d", res.StatusCode), string(body))
 
 	if res.StatusCode != http.StatusOK {
+		apiDataBuilder.WithError(fmt.Sprintf("failed to send OTP, status code: %d, body: %s", res.StatusCode, body))
 		logger.Error(ctx, "DecentroSDK.GenerateOTP:: failed to send OTP, status code: %d, body: %s", res.StatusCode, body)
 		return nil, responseKeyToError(response.ResponseKey)
 	}
