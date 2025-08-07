@@ -206,6 +206,10 @@ func (sdk *SDK) ValidateOTP(ctx context.Context, req *okyc.ValidateOTPRequest) (
 	apiDataBuilder := apilogger.NewApiDataBuilder(sdk.apilogger.GetConfig())
 	apiDataBuilder.WithBasic(ctx, DECENTRO, constants.ValidateAadhaarOTP)
 
+	defer func() {
+		sdk.apilogger.Log(context.Background(), apiDataBuilder.Build())
+	}()
+
 	url := fmt.Sprintf("%s/v2/kyc/aadhaar/otp/validate", sdk.config.Endpoint)
 
 	body, err := json.Marshal(NewValidateOTPRequest(req))
