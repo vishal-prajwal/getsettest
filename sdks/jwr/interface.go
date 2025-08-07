@@ -14,7 +14,7 @@ const (
 )
 
 type JWR interface {
-	GetUserProfile(ctx context.Context, userID int, apiTimeOut int) (*UserProfile, error)
+	GetUserProfile(ctx context.Context, userID int, readFromDB bool, apiTimeOut int) (*UserProfile, error)
 	FullUpdateProfile(ctx context.Context, userID int, userProfile UserProfile, apiTimeOut int) error
 	FullUpdateProfileV2(ctx context.Context, userID int, userProfile UpdateUserProfileRequest, apiTimeOut int, retries int) error
 }
