@@ -197,3 +197,22 @@ func (g Gender) ToOKYCGender() okyc.Gender {
 		return okyc.GenderOther
 	}
 }
+
+type VerifyAadhaarRequest struct {
+	ReferenceID   string `json:"reference_id"`
+	Consent       bool   `json:"consent"`
+	Purpose       string `json:"purpose"`
+	AadhaarNumber string `json:"aadhaar_number"`
+}
+
+type AadhaarData struct {
+	Status             string `json:"status"`
+	Address            string `json:"address"` // This is the state
+	AgeBand            string `json:"ageBand"`
+	Gender             string `json:"gender"`
+	MaskedMobileNumber string `json:"maskedMobileNumber"`
+	AadhaarNumber      string `json:"aadhaarNumber"`
+	AadhaarExists      bool   `json:"aadhaarExists"`
+	AadhaarStatus      string `json:"aadhaarStatus"`
+	Message            string `json:"message"`
+}
