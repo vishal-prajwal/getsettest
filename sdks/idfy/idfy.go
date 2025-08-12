@@ -17,11 +17,93 @@ import (
 	"bitbucket.org/junglee_games/getsetgo/httpclient"
 	"bitbucket.org/junglee_games/getsetgo/instrumenting/newrelic"
 	"bitbucket.org/junglee_games/getsetgo/logger"
+	"bitbucket.org/junglee_games/getsetgo/sdks/aadhaarlite"
 	"bitbucket.org/junglee_games/getsetgo/sdks/constants"
 	"bitbucket.org/junglee_games/getsetgo/utils/aadharmasking"
 	"github.com/google/uuid"
 )
 
+// ProcessAadharLite implements the aadhaarlite.SDK interface for the IDfy vendor.
+func (idfyImpl *IdfyImpl) ProcessAadharLite(ctx context.Context, aadharNumber string) (*aadhaarlite.FraudCheckAadharResponse, string, error) {
+	// 1. Create the vendor-specific 'FraudCheckRequest' that idfy needs.
+	fraudCheckRequest := FraudCheckRequest{
+		TaskID:  uuid.New().String(),
+		GroupID: uuid.New().String(),
+		Data: FraudCheckData{
+			AadhaarNumber: aadharNumber,
+		},
+	}
+
+	// 2. Call the existing FraudCheckAadhar method.
+	idfyResponse, vendorDetails, err := idfyImpl.FraudCheckAadhar(ctx, fraudCheckRequest)
+	if err != nil {
+		return nil, vendorDetails, err
+	}
+	if idfyResponse == nil {
+		return nil, vendorDetails, fmt.Errorf("IDfy returned a nil response for AadharLite check")
+	}
+
+	// 3. Translate the idfy-specific response to the standard aadhaarlite response.
+	// The structs are identical in structure, so we manually map the fields.
+	ageBand := aadhaarlite.AgeBand{
+		LowerLimit: idfyResponse.Result.SourceOutput.AgeBand.LowerLimit,
+		UpperLimit: idfyResponse.Result.SourceOutput.AgeBand.UpperLimit,
+	}
+
+	data := aadhaarlite.FraudCheckAadharData{
+		AgeBand:      ageBand,
+		Gender:       idfyResponse.Result.SourceOutput.Gender,
+		MobileNumber: idfyResponse.Result.SourceOutput.MobileNumber,
+		State:        idfyResponse.Result.SourceOutput.State,
+		Status:       idfyResponse.Result.SourceOutput.Status,
+	}
+
+	result := aadhaarlite.FraudCheckResult{
+		Data: data,
+	}
+
+	finalResponse := &aadhaarlite.FraudCheckAadharResponse{
+		Action:      idfyResponse.Action,
+		CompletedAt: idfyResponse.CompletedAt,
+		CreatedAt:   idfyResponse.CreatedAt,
+		GroupID:     idfyResponse.GroupID,
+		RequestID:   idfyResponse.RequestID,
+		Result:      result,
+		Status:      idfyResponse.Status,
+		TaskID:      idfyResponse.TaskID,
+		Type:        idfyResponse.Type,
+		Error:       idfyResponse.Error,
+		Message:     idfyResponse.Message,
+	}
+
+	return finalResponse, vendorDetails, nil
+}
+
+// ------------->HealthCheckAadhaarVerify implements the aadhaarlite.SDK interface for the IDfy vendor.
+func (idfyImpl *IdfyImpl) HealthCheckAadhaarVerify(ctx context.Context) (*aadhaarlite.HealthCheckResponse, error) {
+	idfyHealthRes, err := idfyImpl.Healthcheck()
+	if err != nil {
+		return nil, err
+	}
+	if idfyHealthRes == nil {
+		return nil, fmt.Errorf("IDfy returned a nil health check response")
+	}
+
+	// Translate the idfy-specific health check response to the standard one.
+	available := false
+	percentage := 0
+	if idfyHealthRes.Result.Status == "OPERATIONAL" {
+		available = true
+		percentage = 100
+	}
+
+	return &aadhaarlite.HealthCheckResponse{
+		Percentage: percentage,
+		Available:  available,
+	}, nil
+}
+
+// --------------------------->
 type IdfyImpl struct {
 	config     IdfyConfig
 	nr         newrelic.Agent
