@@ -48,47 +48,23 @@ func (s *sdk) HealthCheck(ctx context.Context) (*HealthCheckResponse, error) {
 }
 
 func toFraudCheckAadharResponse(resp *decentro.DecentroResponse[decentro.AadhaarData], aadharNumber string) *FraudCheckAadharResponse {
-	ageBand := strings.Split(resp.Data.AgeBand, "-")
-	lowerLimit := ""
-	upperLimit := ""
-	if len(ageBand) == 2 {
-		lowerLimit = ageBand[0]
-		upperLimit = ageBand[1]
+	ageBandParts := strings.Split(resp.Data.AgeBand, "-")
+	var ageBand AgeBand
+	if len(ageBandParts) == 2 {
+		ageBand.LowerLimit = ageBandParts[0]
+		ageBand.UpperLimit = ageBandParts[1]
 	}
+
 	return &FraudCheckAadharResponse{
 		Action:      "AADHAAR_LITE_VERIFICATION",
 		CompletedAt: time.Now(),
 		CreatedAt:   time.Now(),
 		RequestID:   resp.DecentroTxnId,
 		Result: struct {
-			Data struct {
-				AgeBand struct {
-					LowerLimit string `json:"lower_limit"`
-					UpperLimit string `json:"upper_limit"`
-				} `json:"age_band"`
-				Gender       string `json:"gender"`
-				MobileNumber string `json:"mobile_number"`
-				State        string `json:"state"`
-				Status       string `json:"status"`
-			} `json:"source_output"`
+			Data FraudCheckAadharData `json:"source_output"`
 		}{
-			Data: struct {
-				AgeBand struct {
-					LowerLimit string `json:"lower_limit"`
-					UpperLimit string `json:"upper_limit"`
-				} `json:"age_band"`
-				Gender       string `json:"gender"`
-				MobileNumber string `json:"mobile_number"`
-				State        string `json:"state"`
-				Status       string `json:"status"`
-			}{
-				AgeBand: struct {
-					LowerLimit string `json:"lower_limit"`
-					UpperLimit string `json:"upper_limit"`
-				}{
-					LowerLimit: lowerLimit,
-					UpperLimit: upperLimit,
-				},
+			Data: FraudCheckAadharData{
+				AgeBand:      ageBand,
 				Gender:       resp.Data.Gender,
 				MobileNumber: resp.Data.MaskedMobileNumber,
 				State:        resp.Data.Address,

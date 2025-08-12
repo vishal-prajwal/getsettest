@@ -15,6 +15,19 @@ type HealthCheckResponse struct {
 	Available  bool
 }
 
+type AgeBand struct {
+	LowerLimit string `json:"lower_limit"`
+	UpperLimit string `json:"upper_limit"`
+}
+
+type FraudCheckAadharData struct {
+	AgeBand      AgeBand `json:"age_band"`
+	Gender       string  `json:"gender"`
+	MobileNumber string  `json:"mobile_number"`
+	State        string  `json:"state"`
+	Status       string  `json:"status"`
+}
+
 type FraudCheckAadharResponse struct {
 	Action      string    `json:"action"`
 	CompletedAt time.Time `json:"completed_at"`
@@ -22,16 +35,7 @@ type FraudCheckAadharResponse struct {
 	GroupID     string    `json:"group_id"`
 	RequestID   string    `json:"request_id"`
 	Result      struct {
-		Data struct {
-			AgeBand struct {
-				LowerLimit string `json:"lower_limit"`
-				UpperLimit string `json:"upper_limit"`
-			} `json:"age_band"`
-			Gender       string `json:"gender"`
-			MobileNumber string `json:"mobile_number"`
-			State        string `json:"state"`
-			Status       string `json:"status"`
-		} `json:"source_output"`
+		Data FraudCheckAadharData `json:"source_output"`
 	} `json:"result"`
 	Status  string `json:"status"`
 	TaskID  string `json:"task_id"`
