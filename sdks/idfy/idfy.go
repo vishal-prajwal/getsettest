@@ -17,7 +17,7 @@ import (
 	"bitbucket.org/junglee_games/getsetgo/httpclient"
 	"bitbucket.org/junglee_games/getsetgo/instrumenting/newrelic"
 	"bitbucket.org/junglee_games/getsetgo/logger"
-	"bitbucket.org/junglee_games/getsetgo/sdks/aadhaarlite"
+	aadhaarlite "bitbucket.org/junglee_games/getsetgo/sdks/aadharlite"
 	"bitbucket.org/junglee_games/getsetgo/sdks/constants"
 	"bitbucket.org/junglee_games/getsetgo/utils/aadharmasking"
 	"github.com/google/uuid"
