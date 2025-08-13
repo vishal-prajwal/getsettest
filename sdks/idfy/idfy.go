@@ -17,10 +17,91 @@ import (
 	"bitbucket.org/junglee_games/getsetgo/httpclient"
 	"bitbucket.org/junglee_games/getsetgo/instrumenting/newrelic"
 	"bitbucket.org/junglee_games/getsetgo/logger"
+	"bitbucket.org/junglee_games/getsetgo/sdks/aadharlite"
 	"bitbucket.org/junglee_games/getsetgo/sdks/constants"
 	"bitbucket.org/junglee_games/getsetgo/utils/aadharmasking"
 	"github.com/google/uuid"
 )
+
+// ProcessAadharLite implements the aadharlite.aadharLiteSDK interface for the IDfy vendor.
+func (idfyImpl *IdfyImpl) ProcessAadharLite(ctx context.Context, aadharNumber string) (*aadharlite.FraudCheckAadharResponse, error) {
+	// 1. Create the vendor-specific 'FraudCheckRequest' that idfy needs.
+	fraudCheckRequest := FraudCheckRequest{
+		TaskID:  uuid.New().String(),
+		GroupID: uuid.New().String(),
+		Data: FraudCheckData{
+			AadharNumber: aadharNumber,
+		},
+	}
+
+	// 2. Call the existing FraudCheckAadhar method.
+	idfyResponse, _, err := idfyImpl.FraudCheckAadhar(ctx, fraudCheckRequest)
+	if err != nil {
+		return nil, err
+	}
+	if idfyResponse == nil {
+		return nil, fmt.Errorf("IDfy returned a nil response for AadharLite check")
+	}
+
+	// 3. Translate the idfy-specific response to the standard aadharlite response.
+	// The structs are identical in structure, so we manually map the fields.
+	ageBand := aadharlite.AgeBand{
+		LowerLimit: idfyResponse.Result.SourceOutput.AgeBand.LowerLimit,
+		UpperLimit: idfyResponse.Result.SourceOutput.AgeBand.UpperLimit,
+	}
+
+	data := aadharlite.FraudCheckAadharData{
+		AgeBand:      ageBand,
+		Gender:       idfyResponse.Result.SourceOutput.Gender,
+		MobileNumber: idfyResponse.Result.SourceOutput.MobileNumber,
+		State:        idfyResponse.Result.SourceOutput.State,
+		Status:       idfyResponse.Result.SourceOutput.Status,
+	}
+
+	result := aadharlite.FraudCheckResult{
+		Data: data,
+	}
+
+	finalResponse := &aadharlite.FraudCheckAadharResponse{
+		Action:      idfyResponse.Action,
+		CompletedAt: idfyResponse.CompletedAt,
+		CreatedAt:   idfyResponse.CreatedAt,
+		GroupID:     idfyResponse.GroupID,
+		RequestID:   idfyResponse.RequestID,
+		Result:      result,
+		Status:      idfyResponse.Status,
+		TaskID:      idfyResponse.TaskID,
+		Type:        idfyResponse.Type,
+		Error:       idfyResponse.Error,
+		Message:     idfyResponse.Message,
+	}
+
+	return finalResponse, nil
+}
+
+// HealthCheckAadharLite implements the aadharlite.aadharLiteSDK interface for the IDfy vendor.
+func (idfyImpl *IdfyImpl) HealthCheckAadharLite(ctx context.Context) (*aadharlite.HealthCheckResponse, error) {
+	idfyHealthRes, err := idfyImpl.Healthcheck()
+	if err != nil {
+		return nil, err
+	}
+	if idfyHealthRes == nil {
+		return nil, fmt.Errorf("IDfy returned a nil health check response")
+	}
+
+	// Translate the idfy-specific health check response to the standard one.
+	available := false
+	percentage := 0
+	if idfyHealthRes.Result.Status == "OPERATIONAL" {
+		available = true
+		percentage = 100
+	}
+
+	return &aadharlite.HealthCheckResponse{
+		Percentage: percentage,
+		Available:  available,
+	}, nil
+}
 
 type IdfyImpl struct {
 	config     IdfyConfig
@@ -124,7 +205,7 @@ func (idfyImpl *IdfyImpl) ExtractAadhar(ctx context.Context, idfyrequest IdfyReq
 			WithResponse("", byteResp.String())
 		return nil, err
 	}
-	apiDataBuilder.WithResponse(fmt.Sprintf("%d", statusCode), aadharmasking.MaskAddharInResponseJson(byteResp.String()))
+	apiDataBuilder.WithResponse(fmt.Sprintf("%d", statusCode), aadharmasking.MaskAadharInResponseJson(byteResp.String()))
 	err = idfyImpl.handleError(statusCode, idfyAadharResp.Error)
 	if err != nil {
 		apiDataBuilder.WithError(err.Error())
@@ -236,7 +317,7 @@ func (this *IdfyImpl) PostFruadValidationReq(ctx context.Context, documentType s
 	postUrl := this.config.GetIdfyEndpoint() + documentType
 	reqObj, _ := json.Marshal(fraudCheckRequest)
 	payload := strings.NewReader(string(reqObj))
-	apiDataBuilder.WithRequest(postUrl, http.MethodPost, aadharmasking.MaskAddharInResponseJson(fmt.Sprintf("%+v", fraudCheckRequest)), map[string]string{
+	apiDataBuilder.WithRequest(postUrl, http.MethodPost, aadharmasking.MaskAadharInResponseJson(fmt.Sprintf("%+v", fraudCheckRequest)), map[string]string{
 		"task_id":  fraudCheckRequest.TaskID,
 		"group_id": fraudCheckRequest.GroupID,
 	})
@@ -321,7 +402,7 @@ func (this *IdfyImpl) FetchPostedReq(ctx context.Context, requestID string) (*Fr
 	frRes := fraudCheckAadharResponse[0]
 	if res.StatusCode == 422 || res.StatusCode == 403 || res.StatusCode == 401 {
 		apiDataBuilder.WithError(fmt.Sprintf("%s:%+v", IDFY, frRes))
-		return nil, fmt.Sprintf("%s:%+v", IDFY, frRes), ErrAddharLiteFetchError
+		return nil, fmt.Sprintf("%s:%+v", IDFY, frRes), ErrAadharLiteFetchError
 	}
 	if res.StatusCode != 200 {
 		return nil, fmt.Sprintf("%s:%+v", IDFY, frRes), fmt.Errorf("statusCode %d body %s", res.StatusCode, res.Body)
@@ -342,7 +423,7 @@ func (idfyImpl *IdfyImpl) fraudCheck(documentType string, fraudCheckRequest Frau
 	if apiDataBuilder != nil {
 		requestPyload := fmt.Sprintf("%+v", fraudCheckRequest.Data)
 		if documentType == AADHAR_DOC_TYPE {
-			requestPyload = aadharmasking.MaskAddharInResponseJson(requestPyload)
+			requestPyload = aadharmasking.MaskAadharInResponseJson(requestPyload)
 		}
 		apiDataBuilder.WithRequest(postUrl, http.MethodPost, requestPyload, map[string]string{
 			"task_id":  fraudCheckRequest.TaskID,

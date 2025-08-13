@@ -54,7 +54,7 @@ var (
 )
 
 type SendOTPRequest struct {
-	AadhaarNumber string `json:"aadhaar_number"`
+	AadharNumber string `json:"aadhaar_number"`
 	ReferenceId   string `json:"reference_id"`
 	Purpose       string `json:"purpose"` // e.g., "For Aadhaar Verification"
 	Consent       bool   `json:"consent"` // true if user has given consent
@@ -62,7 +62,7 @@ type SendOTPRequest struct {
 
 func NewSendOTPRequest(req *okyc.GenerateOTPRequest) *SendOTPRequest {
 	return &SendOTPRequest{
-		AadhaarNumber: req.AadharNumber,
+		AadharNumber: req.AadharNumber,
 		ReferenceId:   uuid.New().String(),        // random uuid, we need always a unique reference id
 		Purpose:       "For Aadhaar Verification", // this wil not change
 		Consent:       true,                       // concent will always be true else decentro will give error
@@ -101,7 +101,7 @@ func NewValidateOTPRequest(req *okyc.ValidateOTPRequest) *ValidateOTPRequest {
 }
 
 type ValidateOTPResponseData struct {
-	AadhaarReferenceNumber string `json:"aadhaarReferenceNumber"`
+	AadharReferenceNumber string `json:"aadhaarReferenceNumber"`
 	ProofOfIdentity        struct {
 		DOB          string `json:"dob"`          // Date of Birth in dd-mm-yyyy format
 		HashedEmail  string `json:"hashedEmail"`  // Hashed email address
@@ -198,21 +198,23 @@ func (g Gender) ToOKYCGender() okyc.Gender {
 	}
 }
 
-type VerifyAadhaarRequest struct {
+// VerifyAadharRequest is the request struct for Decentro's AadharLite API.
+type VerifyAadharRequest struct {
 	ReferenceID   string `json:"reference_id"`
 	Consent       bool   `json:"consent"`
 	Purpose       string `json:"purpose"`
-	AadhaarNumber string `json:"aadhaar_number"`
+	AadharNumber string `json:"aadhar_number"`
 }
 
-type AadhaarData struct {
+// AadharData is the nested data struct in the Decentro AadharLite response.
+type AadharData struct {
 	Status             string `json:"status"`
 	Address            string `json:"address"` // This is the state
 	AgeBand            string `json:"ageBand"`
 	Gender             string `json:"gender"`
 	MaskedMobileNumber string `json:"maskedMobileNumber"`
-	AadhaarNumber      string `json:"aadhaarNumber"`
-	AadhaarExists      bool   `json:"aadhaarExists"`
-	AadhaarStatus      string `json:"aadhaarStatus"`
+	AadharNumber      string `json:"aadharNumber"`
+	AadharExists      bool   `json:"aadharExists"`
+	AadharStatus      string `json:"aadharStatus"`
 	Message            string `json:"message"`
 }

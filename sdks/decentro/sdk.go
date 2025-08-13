@@ -9,13 +9,16 @@ import (
 	"io"
 	"net/http"
 	"strings"
+	"time"
 
 	"bitbucket.org/junglee_games/getsetgo/apilogger"
 	"bitbucket.org/junglee_games/getsetgo/httpclient"
 	"bitbucket.org/junglee_games/getsetgo/logger"
 	"bitbucket.org/junglee_games/getsetgo/monitoring"
+	"bitbucket.org/junglee_games/getsetgo/sdks/aadharlite"
 	"bitbucket.org/junglee_games/getsetgo/sdks/constants"
 	"bitbucket.org/junglee_games/getsetgo/sdks/okyc"
+	"github.com/google/uuid"
 )
 
 const (
@@ -137,13 +140,13 @@ func (sdk *SDK) GenerateOTP(ctx context.Context, req *okyc.GenerateOTPRequest) (
 		defer sdk.monitoringAgent.StartTransaction("DecentroSDK.GenerateOTP").End()
 	}
 	apiDataBuilder := apilogger.NewApiDataBuilder(sdk.apilogger.GetConfig())
-	apiDataBuilder.WithBasic(ctx, DECENTRO, constants.GenerateAadhaarOTP)
+	apiDataBuilder.WithBasic(ctx, DECENTRO, constants.GenerateAadharOTP)
 
 	defer func() {
 		sdk.apilogger.Log(context.Background(), apiDataBuilder.Build())
 	}()
 
-	url := fmt.Sprintf("%s/v2/kyc/aadhaar/otp", sdk.config.Endpoint)
+	url := fmt.Sprintf("%s/v2/kyc/aadhar/otp", sdk.config.Endpoint)
 	sendOTPReq := NewSendOTPRequest(req)
 	body, err := json.Marshal(sendOTPReq)
 	if err != nil {
@@ -205,13 +208,13 @@ func (sdk *SDK) ValidateOTP(ctx context.Context, req *okyc.ValidateOTPRequest) (
 		defer sdk.monitoringAgent.StartTransaction("DecentroSDK.ValidateOTP").End()
 	}
 	apiDataBuilder := apilogger.NewApiDataBuilder(sdk.apilogger.GetConfig())
-	apiDataBuilder.WithBasic(ctx, DECENTRO, constants.ValidateAadhaarOTP)
+	apiDataBuilder.WithBasic(ctx, DECENTRO, constants.ValidateAadharOTP)
 
 	defer func() {
 		sdk.apilogger.Log(context.Background(), apiDataBuilder.Build())
 	}()
 
-	url := fmt.Sprintf("%s/v2/kyc/aadhaar/otp/validate", sdk.config.Endpoint)
+	url := fmt.Sprintf("%s/v2/kyc/aadhar/otp/validate", sdk.config.Endpoint)
 
 	body, err := json.Marshal(NewValidateOTPRequest(req))
 	if err != nil {
@@ -282,16 +285,93 @@ func (sdk *SDK) ValidateOTP(ctx context.Context, req *okyc.ValidateOTPRequest) (
 	}, nil
 }
 
-func (sdk *SDK) HealthCheckAadhaarVerify(ctx context.Context) (*okyc.HealthCheckResponse, error) {
+// ProcessAadharLite performs an AadharLite check using Decentro and conforms to the aadharlite.aadharLiteSDK interface.
+func (sdk *SDK) ProcessAadharLite(ctx context.Context, aadharNumber string) (*aadharlite.FraudCheckAadharResponse, error) {
 	if sdk.monitoringAgent != nil {
-		defer sdk.monitoringAgent.StartTransaction("DecentroSDK.HealthCheckAadhaarVerify").End()
+		defer sdk.monitoringAgent.StartTransaction("DecentroSDK.ProcessAadharLite").End()
+	}
+	apiDataBuilder := apilogger.NewApiDataBuilder(sdk.apilogger.GetConfig())
+	apiDataBuilder.WithBasic(ctx, DECENTRO, aadharlite.AADHARLITE)
+	defer func() {
+		sdk.apilogger.Log(context.Background(), apiDataBuilder.Build())
+	}()
+
+	url := fmt.Sprintf("%s/v2/kyc/aadhar/verify", sdk.config.Endpoint)
+	reqPayload := VerifyAadharRequest{
+		ReferenceID:   uuid.New().String(),
+		Consent:       true,
+		Purpose:       "For Aadhar Verification",
+		AadharNumber: aadharNumber,
+	}
+	body, err := json.Marshal(reqPayload)
+	if err != nil {
+		apiDataBuilder.WithError("failed to marshal request body: " + err.Error())
+		return nil, fmt.Errorf("DecentroSDK.ProcessAadharLite:: failed to marshal request body: %w", err)
 	}
 
-	url := fmt.Sprintf("%s/decentro/read/health/status/aadhaar_verify", sdk.config.Endpoint)
+	apiDataBuilder.WithRequest(url, http.MethodPost, "", map[string]string{
+		"reference_id": reqPayload.ReferenceID,
+		"purpose":      reqPayload.Purpose,
+		"consent":      "true",
+	})
+
+	httpReq, err := http.NewRequest(http.MethodPost, url, bytes.NewReader(body))
+	if err != nil {
+		return nil, fmt.Errorf("DecentroSDK.ProcessAadharLite:: failed to create request: %w", err)
+	}
+
+	sdk.addHeaders(httpReq)
+
+	res, err := sdk.httpClient.Do(httpReq)
+	if err != nil {
+		apiDataBuilder.WithError("failed to send request: " + err.Error())
+		return nil, fmt.Errorf("DecentroSDK.ProcessAadharLite:: failed to send request: %w", err)
+	}
+
+	defer res.Body.Close()
+
+	resBody, err := io.ReadAll(res.Body)
+	if err != nil {
+		apiDataBuilder.WithError("failed to read response body: " + err.Error())
+		return nil, fmt.Errorf("DecentroSDK.ProcessAadharLite:: failed to read response body: %w", err)
+	}
+
+	var response DecentroResponse[AadharData]
+	err = json.Unmarshal(resBody, &response)
+	if err != nil {
+		apiDataBuilder.WithError("failed to unmarshal response body: " + err.Error())
+		logger.Error(ctx, "Critical::DecentroSDK.ProcessAadharLite:: failed to unmarshal response body: %v, body: %s", err, resBody)
+		return nil, okyc.ErrInvalidResponseFromVendor
+	}
+	apiDataBuilder.WithResponse(fmt.Sprintf("%d", res.StatusCode), string(resBody))
+
+	// Harden the response processing by ensuring the data payload is valid.
+	if response.Data.Status == "" {
+		apiDataBuilder.WithError("response data is missing or invalid")
+		logger.Error(ctx, "DecentroSDK.ProcessAadharLite:: response data is missing or invalid, body: %s", resBody)
+		return nil, okyc.ErrInvalidResponseFromVendor
+	}
+
+	if res.StatusCode != http.StatusOK {
+		apiDataBuilder.WithError(fmt.Sprintf("failed to process aadhar lite, status code: %d, body: %s", res.StatusCode, resBody))
+		logger.Error(ctx, "DecentroSDK.ProcessAadharLite:: failed to process aadhar lite, status code: %d, body: %s", res.StatusCode, resBody)
+		return nil, responseKeyToError(response.ResponseKey)
+	}
+
+	return toFraudCheckAadharResponse(&response), nil
+}
+
+// HealthCheckAadharLite checks the health of the Decentro Aadhar Verify service.
+func (sdk *SDK) HealthCheckAadharLite(ctx context.Context) (*aadharlite.HealthCheckResponse, error) {
+	if sdk.monitoringAgent != nil {
+		defer sdk.monitoringAgent.StartTransaction("DecentroSDK.HealthCheckAadharLite").End()
+	}
+
+	url := fmt.Sprintf("%s/decentro/read/health/status/aadhar_verify", sdk.config.Endpoint)
 
 	req, err := http.NewRequest(http.MethodPost, url, strings.NewReader("{}"))
 	if err != nil {
-		return nil, fmt.Errorf("DecentroSDK.HealthCheckAadhaarVerify:: failed to create health check request: %w", err)
+		return nil, fmt.Errorf("DecentroSDK.HealthCheckAadharLite:: failed to create health check request: %w", err)
 	}
 
 	sdk.addHeaders(req)
@@ -304,87 +384,58 @@ func (sdk *SDK) HealthCheckAadhaarVerify(ctx context.Context) (*okyc.HealthCheck
 	defer res.Body.Close()
 	body, err := io.ReadAll(res.Body)
 	if err != nil {
-		return nil, fmt.Errorf("DecentroSDK.HealthCheckAadhaarVerify:: failed to read decentro healthcheck response body: %w", err)
+		return nil, fmt.Errorf("DecentroSDK.HealthCheckAadharLite:: failed to read decentro healthcheck response body: %w", err)
 	}
 
 	if res.StatusCode != http.StatusOK && res.StatusCode != http.StatusCreated {
-		logger.Error(ctx, "DecentroSDK.HealthCheckAadhaarVerify:: health check failed with status code: %d, body: %s", res.StatusCode, body)
-		return nil, fmt.Errorf("DecentroSDK.HealthCheckAadhaarVerify:: health check failed with status code: %d", res.StatusCode)
+		logger.Error(ctx, "DecentroSDK.HealthCheckAadharLite:: health check failed with status code: %d, body: %s", res.StatusCode, body)
+		return nil, fmt.Errorf("DecentroSDK.HealthCheckAadharLite:: health check failed with status code: %d", res.StatusCode)
 	}
 
 	var healthCheckResponse DecentroHealthCheckResponse
 	if err = json.Unmarshal(body, &healthCheckResponse); err != nil {
-		logger.Error(ctx, "DecentroSDK.HealthCheckAadhaarVerify:: failed to unmarshal decentro healthcheck response: %v, body: %s", err, body)
+		logger.Error(ctx, "DecentroSDK.HealthCheckAadharLite:: failed to unmarshal decentro healthcheck response: %v, body: %s", err, body)
 		return nil, okyc.ErrInvalidResponseFromVendor
 	}
 	if len(healthCheckResponse) == 0 {
-		return nil, fmt.Errorf("DecentroSDK.HealthCheckAadhaarVerify:: empty health check response from Decentro: %s", body)
+		return nil, fmt.Errorf("DecentroSDK.HealthCheckAadharLite:: empty health check response from Decentro: %s", body)
 	}
-	// As discssed with decentro team, response will always have single entry
+
 	response, ok := healthStatusToAvailabilityMap[healthCheckResponse[0].Status]
 	if !ok {
-		return nil, fmt.Errorf("DecentroSDK.HealthCheckAadhaarVerify:: unknown health status: %s", healthCheckResponse[0].Status)
+		return nil, fmt.Errorf("DecentroSDK.HealthCheckAadharLite:: unknown health status: %s", healthCheckResponse[0].Status)
 	}
-	return &response, nil
+	return &aadharlite.HealthCheckResponse{
+		Percentage: response.Percentage,
+		Available:  response.Available,
+	}, nil
 }
 
-func (sdk *SDK) VerifyAadhaar(ctx context.Context, req *VerifyAadhaarRequest) (*DecentroResponse[AadhaarData], error) {
-	if sdk.monitoringAgent != nil {
-		defer sdk.monitoringAgent.StartTransaction("DecentroSDK.VerifyAadhaar").End()
-	}
-	apiDataBuilder := apilogger.NewApiDataBuilder(sdk.apilogger.GetConfig())
-	apiDataBuilder.WithBasic(ctx, DECENTRO, "AadhaarVerification")
-	defer func() {
-		sdk.apilogger.Log(context.Background(), apiDataBuilder.Build())
-	}()
-
-	url := fmt.Sprintf("%s/v2/kyc/aadhaar/verify", sdk.config.Endpoint)
-	body, err := json.Marshal(req)
-	if err != nil {
-		apiDataBuilder.WithError("failed to marshal request body: " + err.Error())
-		return nil, fmt.Errorf("DecentroSDK.VerifyAadhaar:: failed to marshal request body: %w", err)
+// toFraudCheckAadharResponse translates the Decentro-specific response to the standard FraudCheckAadharResponse.
+func toFraudCheckAadharResponse(resp *DecentroResponse[AadharData]) *aadharlite.FraudCheckAadharResponse {
+	ageBandParts := strings.Split(resp.Data.AgeBand, "-")
+	var ageBand aadharlite.AgeBand
+	if len(ageBandParts) == 2 {
+		ageBand.LowerLimit = ageBandParts[0]
+		ageBand.UpperLimit = ageBandParts[1]
 	}
 
-	apiDataBuilder.WithRequest(url, http.MethodPost, "", map[string]string{
-		"reference_id": req.ReferenceID,
-		"purpose":      req.Purpose,
-		"consent":      "true",
-	})
-
-	httpReq, err := http.NewRequest(http.MethodPost, url, bytes.NewReader(body))
-	if err != nil {
-		return nil, fmt.Errorf("DecentroSDK.VerifyAadhaar:: failed to create request: %w", err)
+	return &aadharlite.FraudCheckAadharResponse{
+		Action:      "AADHAR_LITE_VERIFICATION",
+		CompletedAt: time.Now(),
+		CreatedAt:   time.Now(),
+		RequestID:   resp.DecentroTxnId,
+		Result: aadharlite.FraudCheckResult{
+			Data: aadharlite.FraudCheckAadharData{
+				AgeBand:      ageBand,
+				Gender:       resp.Data.Gender,
+				MobileNumber: resp.Data.MaskedMobileNumber,
+				State:        resp.Data.Address,
+				Status:       resp.Data.AadharStatus,
+			},
+		},
+		Status:  resp.Status,
+		Type:    "AADHAR_LITE",
+		Message: resp.Message,
 	}
-
-	sdk.addHeaders(httpReq)
-
-	res, err := sdk.httpClient.Do(httpReq)
-	if err != nil {
-		apiDataBuilder.WithError("failed to send request: " + err.Error())
-		return nil, fmt.Errorf("DecentroSDK.VerifyAadhaar:: failed to send request: %w", err)
-	}
-
-	defer res.Body.Close()
-
-	resBody, err := io.ReadAll(res.Body)
-	if err != nil {
-		apiDataBuilder.WithError("failed to read response body: " + err.Error())
-		return nil, fmt.Errorf("DecentroSDK.VerifyAadhaar:: failed to read response body: %w", err)
-	}
-
-	var response DecentroResponse[AadhaarData]
-	err = json.Unmarshal(resBody, &response)
-	if err != nil {
-		apiDataBuilder.WithError("failed to unmarshal response body: " + err.Error())
-		logger.Error(ctx, "Critical::DecentroSDK.VerifyAadhaar:: failed to unmarshal response body: %v, body: %s", err, resBody)
-		return nil, okyc.ErrInvalidResponseFromVendor
-	}
-	apiDataBuilder.WithResponse(fmt.Sprintf("%d", res.StatusCode), string(resBody))
-
-	if res.StatusCode != http.StatusOK {
-		apiDataBuilder.WithError(fmt.Sprintf("failed to verify aadhar, status code: %d, body: %s", res.StatusCode, resBody))
-		logger.Error(ctx, "DecentroSDK.VerifyAadhaar:: failed to verify aadhar, status code: %d, body: %s", res.StatusCode, resBody)
-		return nil, responseKeyToError(response.ResponseKey)
-	}
-	return &response, nil
 }
