@@ -26,6 +26,13 @@ const (
 	ErrorKeyInsufficientAccountBalance ResponseKey = "error_insufficient_account_balance"
 )
 
+const (
+	errMarshalRequestBody    = "failed to marshal request body: "
+	errSendRequest           = "failed to send request: "
+	errReadResponseBody      = "failed to read response body: "
+	errUnmarshalResponseBody = "failed to unmarshal response body: "
+)
+
 var (
 	responseKeyToErrorMap = map[ResponseKey]error{
 		ErrorKeyDuplicateReferenceID:       okyc.ErrInvalidReferenceId,

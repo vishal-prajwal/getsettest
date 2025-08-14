@@ -198,23 +198,23 @@ func (g Gender) ToOKYCGender() okyc.Gender {
 	}
 }
 
-// VerifyAadhaarRequest is the request struct for Decentro's AadharLite API.
-type VerifyAadhaarRequest struct {
-	ReferenceID   string `json:"reference_id"`
-	Consent       bool   `json:"consent"`
-	Purpose       string `json:"purpose"`
-	AadhaarNumber string `json:"aadhaar_number"`
+// VerifyAadharRequest is the request struct for Decentro's AadharLite API.
+type VerifyAadharRequest struct {
+	ReferenceID  string `json:"reference_id"`
+	Consent      bool   `json:"consent"`
+	Purpose      string `json:"purpose"`
+	AadharNumber string `json:"aadhar_number"`
 }
 
-// AadhaarData is the nested data struct in the Decentro AadharLite response.
-type AadhaarData struct {
+// AadharData is the nested data struct in the Decentro AadharLite response.
+type AadharData struct {
 	Status             string `json:"status"`
 	Address            string `json:"address"` // This is the state
 	AgeBand            string `json:"ageBand"`
 	Gender             string `json:"gender"`
 	MaskedMobileNumber string `json:"maskedMobileNumber"`
-	AadhaarNumber      string `json:"aadhaarNumber"`
-	AadhaarExists      bool   `json:"aadhaarExists"`
-	AadhaarStatus      string `json:"aadhaarStatus"`
+	AadharNumber       string `json:"aadharNumber"`
+	AadharExists       bool   `json:"aadharExists"`
+	AadharStatus       string `json:"aadharStatus"`
 	Message            string `json:"message"`
 }

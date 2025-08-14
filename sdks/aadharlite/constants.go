@@ -1,6 +1,6 @@
-package aadhaarlite
+package aadharlite
 
 const (
-	AADHAARLITE = "AadhaarLite"
-	DECENTRO    = "Decentro"
+	AADHARLITE = "AadharLite"
+	DECENTRO   = "Decentro"
 )
