@@ -18,6 +18,7 @@ import (
 	"bitbucket.org/junglee_games/getsetgo/instrumenting/newrelic"
 	"bitbucket.org/junglee_games/getsetgo/logger"
 	"bitbucket.org/junglee_games/getsetgo/sdks/constants"
+	"bitbucket.org/junglee_games/getsetgo/sdks/hyperverge"
 	"bitbucket.org/junglee_games/getsetgo/utils/aadharmasking"
 	"github.com/google/uuid"
 )
@@ -590,6 +591,165 @@ func (this *IdfyImpl) handleError(statusCode int, errMsg string) error {
 		return ErrInternalServerError
 	}
 	return nil
+}
+
+func (idfyImpl *IdfyImpl) FraudCheckPanNSDL(ctx context.Context, NSDLPanRequest hyperverge.NSDLPanRequest, txnID string) (*hyperverge.NSDLPanResponse, error) {
+
+	requestID, err := idfyImpl.postPanNSDLRequest(ctx, NSDLPanRequest, txnID)
+	if err != nil {
+		logger.Error(ctx, "Error in postPanNSDLRequest with res %v, error %v", requestID, err)
+		return nil, err
+	}
+	idfyResponse, err := idfyImpl.fetchPanNSDLResponse(ctx, *requestID)
+	if err != nil {
+		logger.Error(ctx, "Error in fetchPanNSDLResponse with res %v, error %v", idfyResponse, err)
+		return nil, err
+	}
+
+	nsdlPanResponse := &hyperverge.NSDLPanResponse{
+		Status:     idfyResponse.Status,
+		StatusCode: 200,
+	}
+	nsdlPanResponse.Result.Pan = idfyResponse.Result.SourceOutput.InputDetails.InputPanNumber
+	nsdlPanResponse.Result.PanStatus = idfyResponse.Result.SourceOutput.PanStatus
+	nsdlPanResponse.Result.Name = idfyResponse.Result.SourceOutput.InputDetails.InputName
+	nsdlPanResponse.Result.Dob = idfyResponse.Result.SourceOutput.InputDetails.InputDOB
+	if idfyResponse.Result.SourceOutput.AadhaarSeedingStatus {
+		nsdlPanResponse.Result.AadharSeedingStatus = "true"
+	} else {
+		nsdlPanResponse.Result.AadharSeedingStatus = "false"
+	}
+
+	if !idfyResponse.Result.SourceOutput.DOBMatch {
+		return nsdlPanResponse, ErrDobMismatch
+	}
+
+	return nsdlPanResponse, nil
+}
+
+func (idfyImpl *IdfyImpl) postPanNSDLRequest(ctx context.Context, NSDLPanRequest hyperverge.NSDLPanRequest, txnID string) (*string, error) {
+	apiDataBuilder := apilogger.NewApiDataBuilder(idfyImpl.apilogger.GetConfig())
+	apiDataBuilder.WithBasic(ctx, IDFY, NSDL_PAN_DOC_TYPE)
+	defer func() {
+		idfyImpl.apilogger.Log(ctx, apiDataBuilder.Build())
+	}()
+
+	postUrl := idfyImpl.config.GetIdfyEndpoint() + NSDL_PAN_DOC_TYPE
+	idfyRequest := IDfyNSDLPanRequest{
+		TaskID:  uuid.New().String(),
+		GroupID: uuid.New().String(),
+		Data: IDfyNSDLPanData{
+			IDNumber: NSDLPanRequest.Pan,
+			FullName: NSDLPanRequest.Name,
+			DOB:      NSDLPanRequest.Dob,
+		},
+	}
+	reqObj, _ := json.Marshal(idfyRequest)
+	payload := strings.NewReader(string(reqObj))
+	apiDataBuilder.WithRequest(postUrl, http.MethodPost, string(reqObj), map[string]string{
+		"task_id":  idfyRequest.TaskID,
+		"group_id": idfyRequest.GroupID,
+	})
+	req, err := http.NewRequest(http.MethodPost, postUrl, payload)
+	if err != nil {
+		apiDataBuilder.WithError(err.Error())
+		return nil, err
+	}
+	idfyImpl.addHeaders(req)
+
+	res, err := idfyImpl.httpClient.Do(req)
+	if err != nil {
+		apiDataBuilder.WithError(err.Error())
+		return nil, err
+	}
+
+	body := &bytes.Buffer{}
+	_, err = body.ReadFrom(res.Body)
+	if err != nil {
+		apiDataBuilder.WithError(err.Error())
+		return nil, err
+	}
+	defer res.Body.Close()
+	apiDataBuilder.WithResponse(fmt.Sprintf("%d", res.StatusCode), body.String())
+
+	var idfyPostResponse IDfyNSDLPanPostResponse
+	err = json.Unmarshal(body.Bytes(), &idfyPostResponse)
+	if err != nil {
+		apiDataBuilder.WithError("failed to unmarshal response: " + err.Error())
+		return nil, err
+	}
+
+	if idfyPostResponse.RequestID == "" {
+		apiDataBuilder.WithError("empty_requestid")
+		return nil, fmt.Errorf("empty_requestid")
+	}
+
+	return &idfyPostResponse.RequestID, nil
+}
+
+func (idfyImpl *IdfyImpl) fetchPanNSDLResponse(ctx context.Context, requestID string) (*IDfyNSDLPanGetResponse, error) {
+	var err error
+	var res *IDfyNSDLPanGetResponse
+	initialTime := time.Now()
+
+	for attempt := 1; attempt <= idfyImpl.config.GetIdfyRetryAttemps(); attempt++ {
+		// Calculate the delay with exponential backoff and jitter
+		delay := BaseDelay * time.Duration(math.Pow(2, float64(attempt-1)))
+		jitter := time.Duration(rand.Int63n(int64(delay / 2)))
+		delay += jitter
+
+		res, err = idfyImpl.callGetPanNSDLAPI(requestID)
+		if err == nil && res != nil && res.Status == "completed" {
+			successTime := time.Now()
+			logger.Info(context.Background(), "PAN NSDL request with request_id %s completed in time %v second, took %d attempt", requestID, successTime.Sub(initialTime).Seconds(), attempt)
+			return res, nil
+		}
+
+		time.Sleep(delay)
+	}
+
+	logger.Error(context.Background(), "PAN NSDL request with request_id %s failed in time %v second, took %d attempt", requestID, time.Now().Sub(initialTime).Seconds(), idfyImpl.config.GetIdfyRetryAttemps())
+	return nil, err
+}
+
+func (idfyImpl *IdfyImpl) callGetPanNSDLAPI(requestID string) (*IDfyNSDLPanGetResponse, error) {
+	var panNSDLResponse []IDfyNSDLPanGetResponse
+	getUrl := idfyImpl.config.GetIdfyEndpoint() + GetTaskStatus
+	params := url.Values{}
+	params.Add("request_id", requestID)
+	fullURL := fmt.Sprintf("%v?%v", getUrl, params.Encode())
+
+	request, err := http.NewRequest("GET", fullURL, nil)
+	if err != nil {
+		return nil, err
+	}
+	idfyImpl.addHeaders(request)
+
+	res, err := idfyImpl.httpClient.Do(request)
+	if err != nil {
+		return nil, err
+	}
+	if res.StatusCode != 200 {
+		return nil, fmt.Errorf("statusCode %d body %s", res.StatusCode, res.Body)
+	}
+
+	byteResp := &bytes.Buffer{}
+	_, err = byteResp.ReadFrom(res.Body)
+	if err != nil {
+		return nil, err
+	}
+	defer res.Body.Close()
+
+	err = json.Unmarshal(byteResp.Bytes(), &panNSDLResponse)
+	if err != nil {
+		return nil, fmt.Errorf("res %s error %v", byteResp.Bytes(), err)
+	}
+	if len(panNSDLResponse) == 0 {
+		return nil, fmt.Errorf("unable to validate pan")
+	}
+
+	frRes := panNSDLResponse[0]
+	return &frRes, err
 }
 
 func (idfyImpl *IdfyImpl) Healthcheck() (*HealthCheckRes, error) {

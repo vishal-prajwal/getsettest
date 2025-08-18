@@ -266,6 +266,47 @@ type FraudCheckDlResponse struct {
 	Message string `json:"message"`
 }
 
+type IDfyNSDLPanRequest struct {
+	TaskID  string            `json:"task_id"`
+	GroupID string            `json:"group_id"`
+	Data    IDfyNSDLPanData `json:"data"`
+}
+
+type IDfyNSDLPanData struct {
+	IDNumber string `json:"id_number"`
+	FullName string `json:"full_name"`
+	DOB      string `json:"dob"`
+}
+
+type IDfyNSDLPanPostResponse struct {
+	RequestID string `json:"request_id"`
+}
+
+type IDfyNSDLPanGetResponse struct {
+	Action     string    `json:"action"`
+	CompletedAt string    `json:"completed_at"`
+	CreatedAt   string    `json:"created_at"`
+	GroupID     string    `json:"group_id"`
+	RequestID   string    `json:"request_id"`
+	Result      struct {
+		SourceOutput struct {
+			AadhaarSeedingStatus bool   `json:"aadhaar_seeding_status"`
+			PanStatus            string `json:"pan_status"`
+			NameMatch            bool   `json:"name_match"`
+			DOBMatch             bool   `json:"dob_match"`
+			InputDetails         struct {
+				InputPanNumber string `json:"input_pan_number"`
+				InputName      string `json:"input_name"`
+				InputDOB       string `json:"input_dob"`
+			} `json:"input_details"`
+			Status string `json:"status"`
+		} `json:"source_output"`
+	} `json:"result"`
+	Status string `json:"status"`
+	TaskID string `json:"task_id"`
+	Type   string `json:"type"`
+}
+
 type FraudCheckPanResponse struct {
 	Action      string    `json:"action"`
 	CompletedAt time.Time `json:"completed_at"`
