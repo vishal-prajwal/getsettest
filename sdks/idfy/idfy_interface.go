@@ -2,9 +2,12 @@ package idfy
 
 import (
 	"context"
+
+	"bitbucket.org/junglee_games/getsetgo/sdks/hyperverge"
 )
 
 type Idfy interface {
+	FraudCheckPanNSDL(ctx context.Context, NSDLPanRequest hyperverge.NSDLPanRequest, txnID string) (*hyperverge.NSDLPanResponse, error)
 	ExtractPan(ctx context.Context, idfyrequest IdfyRequest) (*IdfyPanResponse, error)
 	ExtractAadhar(ctx context.Context, idfyrequest IdfyRequest) (*IdfyAadharResponse, error)
 	ExtractDl(ctx context.Context, idfyrequest IdfyRequest) (*IdfyDlResponse, error)
